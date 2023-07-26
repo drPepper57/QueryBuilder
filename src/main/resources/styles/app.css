@@ -1,0 +1,12 @@
+.mainFxmlClass {
+
+}
+
+.nfo {
+    fx-text-fill: black;
+}
+
+.label.hover {
+    -fx-text-fill: blue;
+    -fx-font-weight: bold;
+}

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 
 
@@ -53,9 +54,10 @@ public class IncomeController
         Platform.runLater(() -> {createAStxtField(); });
         
         addSelectedColumnOnAction(checkBoxes);
-        P.getOrderByCB().getItems().addAll(inColNames); //comboboxok feltöltése
-        P.getWhereCB().getItems().addAll(inColNames);
-        P.getGourpByCB().getItems().addAll(inColNames);
+        //HIBA ahányszor kijelölik a táblát annyiszor adja hozzá
+        inflateCombobox(P.getOrderByCB(), inColNames);//comboboxok feltöltése
+        inflateCombobox(P.getWhereCB(), inColNames);
+        inflateCombobox(P.getGroupByCB(), inColNames);        
     }    
     public void clearCheckBoxes() // ez kell
     {
@@ -137,7 +139,7 @@ public class IncomeController
                     queryBuilder.append(inColJoinNames.get(i)).append(" AS ").append(alias); // ..ColName AS alias..
 
                 } else {queryBuilder.append(inColJoinNames.get(i));} 
-                if( i < selectedColumns.size()-1 ) // első elem után ", " ad hozzá
+                if( i < selectedColumns.size()-1 ) // az utolsó előtti elemig ", " ad hozzá
                 {
                     queryBuilder.append(", ");
                 }
@@ -250,8 +252,12 @@ public class IncomeController
         return asTxtList;
     }
     
-
-
+    private void inflateCombobox(ComboBox<String> comboBox, List<String> namesList) 
+    {
+        if(comboBox.getItems().size() == 1){
+            comboBox.getItems().addAll(namesList);
+        }        
+    }
     
     public List<String> createInColJoinNames()
     {
@@ -319,10 +325,4 @@ public class IncomeController
 */
 
     
-
-    
-   
-    
-    
-
 }

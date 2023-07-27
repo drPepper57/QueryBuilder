@@ -10,12 +10,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 
 
 public class PartnerController 
 {
-    private AppControllerChB parent;
+    private AppControllerChB P;
     private Model model;
     private List<String> prtColNames;    
     private final List<String>selectedColumns;
@@ -28,7 +29,7 @@ public class PartnerController
     {
         this.selectedColumns = new ArrayList<>();
         this.prtColNames = new ArrayList<>();
-        this.parent = parent;
+        this.P = parent;
         model = AppCoreChB.getContext().getBean(Model.class);
     }
     
@@ -45,15 +46,18 @@ public class PartnerController
         for( int i = 0; i < checkBoxes.size(); i++)
         {
             CheckBox chb = checkBoxes.get(i);
-            parent.getPrtChbContainer().getChildren().add(chb);
+            P.getPrtChbContainer().getChildren().add(chb);
         }
         createSelectColumnOnAction(checkBoxes);
         Platform.runLater(() -> {createAStxtField(); });
-        //lenyíló listákhoz adni az oszlop neveket ?
+        //comboboxok feltöltése
+        inflateCombobox(P.getWhereCB1(), prtColNames); //
+        inflateCombobox(P.getOrderByCB(), prtColNames); //ezeket nem tölti fel mert size()>1...
+        inflateCombobox(P.getGroupByCB(), prtColNames);
     }
     public void clearCheckBoxes() // ez kell
     {        
-        parent.getPrtChbContainer().getChildren().clear();
+        P.getPrtChbContainer().getChildren().clear();
     }
     
     private void createSelectColumnOnAction(List<CheckBox> chb) 
@@ -85,7 +89,7 @@ public class PartnerController
             {   //checkBoxes.get(i).getWidth() + 
                 double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();
                 System.out.println(checkBoxes.get(i).getWidth() + " " + checkBoxes.get(i).getLayoutBounds().getWidth());
-                TextField asTxt = new TextField(parent.getAsPrt(), chbWidth);
+                TextField asTxt = new TextField(P.getAsPrt(), chbWidth);
                 asTxtList.add(asTxt);
             }
         });
@@ -127,17 +131,17 @@ public class PartnerController
             queryBuilder.append(" FROM db_partner");
         }
         // WHERE IS NULL
-        if(parent.getWhereCB().getValue() != null && parent.isNull() && parent.getwhereOpCBValue() == null){
-            queryBuilder.append(" WHERE ").append(parent.getWhereCB().getValue()).append(" IS NULL");            
+        if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null){
+            queryBuilder.append(" WHERE ").append(P.getWhereCB().getValue()).append(" IS NULL");            
         }
         // WHERE kisebb nagyobb mint 
-        if(parent.getWhereCB().getValue() != null && parent.getThanTxt().getText() != null && parent.getwhereOpCB().getValue() != null)
+        if(P.getWhereCB().getValue() != null && P.getThanTxt().getText() != null && P.getwhereOpCB().getValue() != null)
         {
-            String whereColName = parent.getWhereCB().getValue();            
-            String operator = parent.getwhereOpCB().getSelectionModel().getSelectedItem();
+            String whereColName = P.getWhereCB().getValue();            
+            String operator = P.getwhereOpCB().getSelectionModel().getSelectedItem();
             try 
             {
-                int value = Integer.parseInt(parent.getThanTxt().getText(), 10);
+                int value = Integer.parseInt(P.getThanTxt().getText(), 10);
                 
                 switch (operator) 
                 {
@@ -166,21 +170,28 @@ public class PartnerController
             }
         }
         // ORDER BY
-        if(parent.getOrderBy() != null){
-            queryBuilder.append(" ORDER BY ").append(parent.getOrderBy());
+        if(P.getOrderBy() != null){
+            queryBuilder.append(" ORDER BY ").append(P.getOrderBy());
         } 
-        if(parent.descIsSelected() && parent.getOrderBy() != null) {
+        if(P.descIsSelected() && P.getOrderBy() != null) {
             queryBuilder.append(" DESC "); // itt van egy extra szóköz ha DESC is belekerül
         }
-        if(!parent.isLimitSelected()){
-            queryBuilder.append(" LIMIT ").append(parent.getTopValue());
+        if(!P.isLimitSelected()){
+            queryBuilder.append(" LIMIT ").append(P.getTopValue());
         }
         
         
         
         queryBuilder.append(";");
         query = queryBuilder.toString();
-        parent.getQueryTxtArea().setText(query);
+        P.getQueryTxtArea().setText(query);
+    }
+    
+    private void inflateCombobox(ComboBox<String> comboBox, List<String> namesList) 
+    {
+        if(comboBox.getItems().size() == 1){
+            comboBox.getItems().addAll(namesList);
+        }        
     }
 
     public List<String> getPrtColNames() {

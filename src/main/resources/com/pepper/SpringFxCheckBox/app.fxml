@@ -98,7 +98,7 @@
             <Font size="13.0" />
          </font>
       </TextArea>
-      <HBox prefHeight="135.0" prefWidth="900.0" style="-fx-background-color: lightgrey;">
+      <HBox fx:id="clause" prefHeight="135.0" prefWidth="900.0" style="-fx-background-color: lightgrey;">
          <children>
             <VBox fx:id="join" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="120.0" style="-fx-background-color: darkgrey;">
                <children>
@@ -184,6 +184,59 @@
                         <Insets left="2.0" top="4.0" />
                      </VBox.margin>
                   </TextField>
+                  <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                     <children>
+                        <Button mnemonicParsing="false" text="AND">
+                           <HBox.margin>
+                              <Insets left="18.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button mnemonicParsing="false" text="OR" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox fx:id="WHERE1" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="120.0" style="-fx-background-color: lightgrey;">
+               <children>
+                  <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="WHERE">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Label>
+                  <ComboBox fx:id="whereCB1" prefHeight="25.0" prefWidth="116.0">
+                     <VBox.margin>
+                        <Insets left="2.0" right="2.0" />
+                     </VBox.margin>
+                  </ComboBox>
+                  <HBox prefHeight="21.0" prefWidth="120.0">
+                     <children>
+                        <CheckBox fx:id="isNullChB1" mnemonicParsing="false" text="Null">
+                           <HBox.margin>
+                              <Insets left="2.0" top="6.0" />
+                           </HBox.margin>
+                        </CheckBox>
+                        <ComboBox fx:id="whereOpCB1" prefHeight="25.0" prefWidth="60.0" promptText="&lt;&gt;">
+                           <HBox.margin>
+                              <Insets left="12.0" top="4.0" />
+                           </HBox.margin>
+                        </ComboBox>
+                     </children>
+                  </HBox>
+                  <TextField fx:id="thanTxt1" prefWidth="116.0" text="lehet több WHERE..">
+                     <VBox.margin>
+                        <Insets left="2.0" top="4.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                     <children>
+                        <Button mnemonicParsing="false" text="AND">
+                           <HBox.margin>
+                              <Insets left="18.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button mnemonicParsing="false" text="OR" />
+                     </children>
+                  </HBox>
                </children>
             </VBox>
             <VBox fx:id="groupBy" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="120.0" style="-fx-background-color: darkgrey;">

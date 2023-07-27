@@ -21,46 +21,84 @@ public class JoinController
     private List<TextField> asTxtListIncome, asTxtListPrt;
     private List<CheckBox> checkBoxes; 
     private String query;
+    private String a, b;
     
     
     public JoinController(AppControllerChB parent, IncomeController incomeController, PartnerController partnerController)
     {
         this.incomeController = incomeController; // Assign the passed instances to class variables
         this.partnerController = partnerController; // Assign the passed instances to class variables
-        this.selectedColumns2 = new ArrayList<>();
+        
         this.joinColumnNames1 = new ArrayList<>();
         this.joinColumnNames2 = new ArrayList<>();
-        this.selectedColumns1 = new ArrayList<>();
         this.prtColNames = new ArrayList<>();
         this.inColNames = new ArrayList<>();
-        this.P = parent;
+        this.P = parent;        
         
         model = AppCoreChB.getContext().getBean(Model.class);
     }
-    //az a cél, hogy a selectedColumns tartalmazza több tábla oszlopNeveit
-    public void buildQuery() 
+    public void setUpQueryMaterial()
     {
         inColNames = model.getColumnNames("db__income");
         prtColNames = model.getColumnNames("db__partners");
-        
+                
+        this.selectedColumns1 = new ArrayList<>();
+        this.selectedColumns2 = new ArrayList<>();
+        selectedColumns1.clear();
+        joinColumnNames1.clear();
+        System.out.println("Begining of setUpQueryMaterial() : " + selectedColumns1.size() + " " + selectedColumns2.size());
         selectedColumns1.addAll(incomeController.getSelectedColumns());        
-        String a = P.getJoinAS0();
-        joinColumnNames1.addAll(createInColJoinNames(selectedColumns1, a)); // lekérjük a neveket a többi controllertől, hozzáadjuk a custom *.táblaNév
+        a = P.getJoinAS0();
+        joinColumnNames1.addAll(createJoinNames(selectedColumns1, a)); // lekérjük a neveket a többi controllertől, hozzáadjuk a custom *.táblaNév
+        for(String name: joinColumnNames1){
+            System.out.println("setUpQueryMaterial() joinColumnNames " + name);
+        }
         
+        selectedColumns2.clear();
+        joinColumnNames2.clear();
         selectedColumns2.addAll(partnerController.getSelectedColumns());
-        String b = P.getJoinAS1();
-        joinColumnNames2.addAll(createInColJoinNames(selectedColumns2, b));
+        b = P.getJoinAS1();
+        joinColumnNames2.addAll(createJoinNames(selectedColumns2, b));
+        System.out.println("After geting data: " + selectedColumns1.size() + " " + selectedColumns2.size());
         
-        asTxtListIncome = incomeController.getAsTxtList(); // List<TextField> aliasok
-        asTxtListPrt = partnerController.getAsTxtList(); // külön kell kezelni a táblák neveit-aliasokat, checkboxokat, nem szabad összefésülni őket
+        asTxtListIncome = new ArrayList<>();
+        asTxtListPrt = new ArrayList<>();
+        asTxtListIncome.clear();
+        asTxtListPrt.clear();
+        asTxtListIncome = incomeController.getAsTxtList(); 
+        asTxtListPrt = partnerController.getAsTxtList();
+        System.out.println("TextField Listek mérete setUpQueryMaterial() végén: " + asTxtListIncome.size() + " " + asTxtListPrt.size());
         
+    }
+    public List<String> createJoinNames(List<String> list, String alias)
+    {
+        System.out.println("createInColJoinNames triggered in JoinController");
+        
+        
+        if(list.isEmpty()){
+            System.out.println("Nem érkeztek nevek a createInColJoinNames metódusba");
+        } else {System.out.println("createInColJoinNames, kapott lista !null");}
+        
+        List<String> aliasDotColNames = new ArrayList<>();
+        for(int i = 0; i < list.size(); i++)
+        {
+            System.out.println("loop entered in createInColJoinNames");
+            
+            aliasDotColNames.add(alias + "." +list.get(i));
+            System.out.println(aliasDotColNames.get(i));
+        }
+        return aliasDotColNames;
+    }
+    
+    public void buildQuery()  // akkor is hibára fut ha aliast és akkor is ha újabb oszlopot jelölök ki és futtatom le újra  
+    {
         StringBuilder queryBuilder = new StringBuilder("SELECT ");
         
         for(int i = 0; i < joinColumnNames1.size(); i ++) // aliasok hozzáadása columnNevekhez textFieldekbe írt 
         {
-            System.out.println("Mi a fasz történik a joinController első loopjában?");
+            System.out.println("Entered joinController's Qbuilder first loop");
             System.out.println(joinColumnNames1.get(i));
-            //ITT VAN HIBA, ha utólag adok hozzá aliast a textFieldbe összehányja magát
+            //ITT VAN HIBA, ha utólag adok hozzá aliast a textFieldbe összehányja magát ........amount, project, amount, project
             String alias = asTxtListIncome.get(incomeController.getChbIndex(selectedColumns1.get(i))).getText().trim(); //AS txtField tartalma
             if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
             {
@@ -77,7 +115,7 @@ public class JoinController
         }
         for(int i = 0; i < joinColumnNames2.size(); i ++) // aliasok hozzáadása columnNevekhez textFieldekbe írt 
         {
-            System.out.println("Mi a fasz történik a joinController második loopjában?");
+            System.out.println("Entered joinController's Qbuilder second loop");
             System.out.println(joinColumnNames2.get(i));
             String alias = asTxtListPrt.get(partnerController.getChbIndex(selectedColumns2.get(i))).getText().trim(); //AS txtField tartalma
             if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
@@ -95,13 +133,6 @@ public class JoinController
         }
                            //ezt átírni dinamikusra
         queryBuilder.append(" FROM db_income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());
-        
-        /*if( joinColumnNames1.size() <= 0) // ha nincs oszlop kijelölve 
-        {
-            queryBuilder.append(" * FROM db_income");
-        } else {
-            queryBuilder.append(" FROM db_income");
-        }*/
         
         // WHERE *** IS NULL
         if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null)
@@ -159,39 +190,7 @@ public class JoinController
         queryBuilder.append(";");
         query = queryBuilder.toString();
         P.getQueryTxtArea().setText(query);
-    }
-    public int getChbIndex(String chbTxt)
-    {
-        checkBoxes = incomeController.getCheckBoxes();
-        System.out.println(checkBoxes.size() + "checkBoxes.size() a getChbIndexben, JoinControllerben");
-        int index = -1;
-        for(int i = 0; i < checkBoxes.size(); i++){
-            if(checkBoxes.get(i).getText().equals(chbTxt)){
-                index = i;
-                break;
-            }
-        }
-        System.out.println(index + " getChbIndex");
-        return index;
-    }
-    public List<String> createInColJoinNames(List<String> list, String alias)
-    {
-        System.out.println("createInColJoinNames triggered in JoinController");
-        
-        
-        if(list.isEmpty()){
-            System.out.println("Nem érkeztek nevek a createInColJoinNames metódusba");
-        } else {System.out.println("createInColJoinNames, kapott lista !null de szarok a tóba!");}
-        
-        List<String> aliasDotColNames = new ArrayList<>();
-        for(int i = 0; i < list.size(); i++)
-        {
-            System.out.println("loop entered in createInColJoinNames");
-            
-            aliasDotColNames.add(alias + "." +list.get(i));
-            System.out.println(aliasDotColNames.get(i));
-        }
-        return aliasDotColNames;
-    }
+    }    
+    
 
 }

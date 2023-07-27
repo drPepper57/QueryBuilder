@@ -42,11 +42,11 @@ public class AppControllerChB implements Initializable
     @FXML
     private Spinner<Integer> topSpin; 
     @FXML
-    private CheckBox disableTopSpin, descChb, isNullChB;
+    private CheckBox disableTopSpin, descChb, isNullChB, isNullChB1;
     @FXML
-    private ComboBox<String> orderByCB, whereCB, gourpByCB, whereOpCB, joinCB, onCB0, onCB1;
+    private ComboBox<String> orderByCB, whereCB, whereCB1, gourpByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1;
     @FXML
-    private TextField thanTxt, joinAS0, joinAS1;
+    private TextField thanTxt, thanTxt1, joinAS0, joinAS1;
 
    
     
@@ -94,15 +94,16 @@ public class AppControllerChB implements Initializable
     }
     public void setQueryToTxtArea()
     {
-        if(incTableChB.isSelected() && joinCB.getValue() == null)
+        if(incTableChB.isSelected() && prtTableChB.isSelected())
+        {
+            System.out.println("join query");
+            joinController.setUpQueryMaterial();
+            joinController.buildQuery();
+        }
+        else if(incTableChB.isSelected() )
         {
             System.out.println("income query");
             incomeController.buildQuery();
-        }
-        else if(incTableChB.isSelected() && prtTableChB.isSelected())
-        {
-            System.out.println("join query");
-            joinController.buildQuery();
         }
         else
         {
@@ -123,16 +124,28 @@ public class AppControllerChB implements Initializable
             if(disableTopSpin.isSelected()) {topSpin.setDisable(true); disableTopSpin.setText("Enable");}
             else {topSpin.setDisable(false); disableTopSpin.setText("Disable");}         
         });
-        
-        isNullChB.setOnAction(event -> // WHERE: null<->operátor egymást inaktiválja
+        //WHERE
+        isNullChB.setOnAction(event -> // null<->operátor egymást inaktiválja
         { 
             isNullChB.setSelected(true);
             thanTxt.clear();
             whereOpCB.getSelectionModel().select(0);
         });
+        isNullChB1.setOnAction(event -> // null<->operátor egymást inaktiválja
+        { 
+            isNullChB1.setSelected(true);
+            thanTxt1.clear();
+            whereOpCB1.getSelectionModel().select(0);
+        });
+        
         whereOpCB.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
         if (newValue != null) {
             isNullChB.setSelected(false);
+        }
+        });
+        whereOpCB1.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        if (newValue != null) {
+            isNullChB1.setSelected(false);
         }
         });
         
@@ -141,12 +154,13 @@ public class AppControllerChB implements Initializable
         onCB1.getItems().add(0, null);
         orderByCB.getItems().add(0, null);
         whereCB.getItems().add(0, null);
+        whereCB1.getItems().add(0, null);
         gourpByCB.getItems().add(0, null);
         whereOpCB.getItems().add(0, null);
+        
         //JOIN
         List<String> tableNames = model.getTableNames(model.getJdbcTemplate(), "financial_management");
-        joinCB.getItems().addAll(tableNames);
-        
+        joinCB.getItems().addAll(tableNames);        
         //ON
         onCB0.getItems().addAll(model.getColumnNames("db__income"));
         onCB1.getItems().addAll(model.getColumnNames("db__partners"));
@@ -201,9 +215,10 @@ public class AppControllerChB implements Initializable
     public ComboBox<String> getWhereCB() {
         return whereCB;
     }
-    public ComboBox<String> getGourpByCB() {
+    public ComboBox<String> getGroupByCB() {
         return gourpByCB;
     }
+    //WHERE
     public TextField getThanTxt() {
         return thanTxt;
     }
@@ -216,6 +231,18 @@ public class AppControllerChB implements Initializable
     public String getThanTxtValue(){
         return thanTxt.getText();
     }
+    public ComboBox<String> getWhereCB1() {
+        return whereCB1;
+    }
+
+    public ComboBox<String> getWhereOpCB1() {
+        return whereOpCB1;
+    }
+
+    public TextField getThanTxt1() {
+        return thanTxt1;
+    }
+    
     public Scene getScene() {
         return scene;
     }    
@@ -251,6 +278,7 @@ public class AppControllerChB implements Initializable
         operators.add("<=");
         operators.add(">=");
        whereOpCB.getItems().addAll(operators);
+       whereOpCB1.getItems().addAll(operators);
     }
     
     

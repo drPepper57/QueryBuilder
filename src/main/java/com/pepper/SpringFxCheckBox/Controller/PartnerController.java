@@ -23,7 +23,8 @@ public class PartnerController
     private List<TextField> asTxtList;
     private List<CheckBox> checkBoxes;
     private String query;
-    private TextArea queryTxtArea; // utóbbi 2 nem biztos, h kell
+    StringBuilder queryBuilder;
+    private boolean whereAdded, orderAdded, groupAdded;
     
     public PartnerController(AppControllerChB parent)
     {
@@ -31,6 +32,7 @@ public class PartnerController
         this.prtColNames = new ArrayList<>();
         this.P = parent;
         model = AppCoreChB.getContext().getBean(Model.class);
+        whereAdded = orderAdded = groupAdded = false;
     }
     
     public void createPrtCheckBoxes()
@@ -49,11 +51,13 @@ public class PartnerController
             P.getPrtChbContainer().getChildren().add(chb);
         }
         createSelectColumnOnAction(checkBoxes);
-        Platform.runLater(() -> {createAStxtField(); });
+        
         //comboboxok feltöltése
-        inflateCombobox(P.getWhereCB1(), prtColNames); //
-        inflateCombobox(P.getOrderByCB(), prtColNames); //ezeket nem tölti fel mert size()>1...
-        inflateCombobox(P.getGroupByCB(), prtColNames);
+        inflateCombobox(P.getWhereCB1(), prtColNames, whereAdded); //
+        inflateCombobox(P.getOrderByCB(), prtColNames, orderAdded); //ezeket nem tölti fel mert size()>1...
+        inflateCombobox(P.getGroupByCB(), prtColNames, groupAdded);
+        
+        //Platform.runLater(() -> {createAStxtField(); });
     }
     public void clearCheckBoxes() // ez kell
     {        
@@ -80,11 +84,12 @@ public class PartnerController
                 } else { selectedColumns.remove(prtColNames.get(index)); booleans.get(index).get();}
             });
         }
+        Platform.runLater(() -> {createAStxtField(); });
     }
     public void createAStxtField()
     {
         asTxtList = new ArrayList<>();
-        Platform.runLater(() -> {
+        
             for(int i = 0; i < prtColNames.size(); i++)
             {   //checkBoxes.get(i).getWidth() + 
                 double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();
@@ -92,7 +97,7 @@ public class PartnerController
                 TextField asTxt = new TextField(P.getAsPrt(), chbWidth);
                 asTxtList.add(asTxt);
             }
-        });
+        
         
     }
     public int getChbIndex(String chbTxt)
@@ -109,7 +114,7 @@ public class PartnerController
     
     public void buildQuery() // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
     {
-        StringBuilder queryBuilder = new StringBuilder("SELECT ");
+        queryBuilder = new StringBuilder("SELECT ");
         for(int i = 0; i < selectedColumns.size(); i++) //kiválasztott oszlopok közé vesszőt szór
         {
             String alias = asTxtList.get(getChbIndex(selectedColumns.get(i))).getText().trim();
@@ -169,6 +174,10 @@ public class PartnerController
                 // Show an error message to the user, or handle it based on your application's requirements
             }
         }
+        //ORDER BY
+        if(P.getGroupByCB().getValue() != null){
+            queryBuilder.append(" GROUP BY ").append(P.getGroupByCB().getValue());
+        }
         // ORDER BY
         if(P.getOrderBy() != null){
             queryBuilder.append(" ORDER BY ").append(P.getOrderBy());
@@ -187,10 +196,11 @@ public class PartnerController
         P.getQueryTxtArea().setText(query);
     }
     
-    private void inflateCombobox(ComboBox<String> comboBox, List<String> namesList) 
+    private void inflateCombobox(ComboBox<String> comboBox, List<String> namesList, boolean isAdded) 
     {
-        if(comboBox.getItems().size() == 1){
+        if(comboBox.getItems().size() == 1 && !isAdded){
             comboBox.getItems().addAll(namesList);
+            isAdded = true;
         }        
     }
 

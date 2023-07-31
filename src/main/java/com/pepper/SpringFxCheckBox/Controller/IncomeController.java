@@ -23,7 +23,8 @@ public class IncomeController
     private final List<String> selectedColumns;    
     private List<String> inColJoinNames;
     private List<TextField> asTxtList;
-    private List<CheckBox> checkBoxes; 
+    private List<CheckBox> checkBoxes;
+    StringBuilder queryBuilder, originalQ;
     private String query;
     
     public IncomeController(AppControllerChB parent)
@@ -51,13 +52,15 @@ public class IncomeController
             CheckBox chb = checkBoxes.get(i);
             P.getIncChBContainer().getChildren().add(chb);
         }
-        Platform.runLater(() -> {createAStxtField(); });
+        
         
         addSelectedColumnOnAction(checkBoxes);
         //HIBA ahányszor kijelölik a táblát annyiszor adja hozzá
         inflateCombobox(P.getOrderByCB(), inColNames);//comboboxok feltöltése
         inflateCombobox(P.getWhereCB(), inColNames);
-        inflateCombobox(P.getGroupByCB(), inColNames);        
+        inflateCombobox(P.getGroupByCB(), inColNames);  
+        
+        Platform.runLater(() -> {createAStxtField(); });
     }    
     public void clearCheckBoxes() // ez kell
     {
@@ -93,11 +96,12 @@ public class IncomeController
                 } // ha megszünt a kijelölést törli
             });
         }
+        //Platform.runLater(() -> {createAStxtField(); });
     }
     public void createAStxtField()
     {
         asTxtList = new ArrayList<>(); //AS txtFieldek
-        Platform.runLater(() -> {
+        
             for(int i = 0; i < inColNames.size(); i++)
             {   //checkBoxes.get(i).getWidth() + 
                 double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();
@@ -105,7 +109,7 @@ public class IncomeController
                 TextField asTxt = new TextField(P.getAsInc(), chbWidth);
                 asTxtList.add(asTxt);
             }
-        });
+        
     }
     public int getChbIndex(String chbTxt)
     {
@@ -125,7 +129,7 @@ public class IncomeController
     */
     public void buildQuery() // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
     {
-        StringBuilder queryBuilder = new StringBuilder("SELECT ");
+        queryBuilder = new StringBuilder("SELECT ");
         
         if(P.getJoinCBValue() != null) // ha kiválasztottak join table-t
         {
@@ -171,6 +175,18 @@ public class IncomeController
                 queryBuilder.append(" FROM db_income");
             }
         }
+        /*
+        SELECT column1, column2, ...
+        FROM table_name
+        WHERE condition1
+        AND/OR condition2
+        AND/OR condition3
+        ...;  
+        
+        SELECT product_name, unit_price
+        FROM products
+        WHERE (category = 'Electronics' AND unit_price > 500)
+        OR (category = 'Appliances' AND unit_price > 300);*/
         // WHERE *** IS NULL
         if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null)
         {            
@@ -218,23 +234,46 @@ public class IncomeController
                 // Show an error message to the user, or handle it based on your application's requirements
             }
         }
+        /*
+        SELECT column1, column2, ...
+        FROM table_name
+        WHERE condition
+        ORDER BY column1 ASC/DESC, column2 ASC/DESC, ...;*/
+        
+        if(P.getGroupByCB().getValue() != null){
+            queryBuilder.append(" GROUP BY ").append(P.getGroupByCB().getValue());
+        }
+        
         // ORDER BY
         if(P.getOrderBy() != null){
-            queryBuilder.append(" ORDER BY ").append(P.getOrderBy());
+            
+            if(!P.getOrderByTF().getText().isEmpty())
+            {
+                String orderBy = P.getOrderByTF().getText();
+                int length = orderBy.length();
+                String orderByReady = orderBy.substring(0, length - 2); //", "
+                queryBuilder.append(" ORDER BY ").append(orderByReady);
+            } else {
+                queryBuilder.append(" ORDER BY ").append(P.getOrderByCB().getValue());
+            }
+            
         } 
-        if(P.descIsSelected() && P.getOrderBy() != null) {
-            queryBuilder.append(" DESC "); // itt van egy extra szóköz ha DESC is belekerül
-        }
+              
+        
         if(!P.isLimitSelected()){
             queryBuilder.append(" LIMIT ").append(P.getTopValue());
         }
+        originalQ = queryBuilder;
         
         queryBuilder.append(";");
         query = queryBuilder.toString();
         P.getQueryTxtArea().setText(query);
     }
 
-     public String getQuery() {
+    public StringBuilder getOriginalQ() {
+        return originalQ;
+    }
+    public String getQuery() {
         return query;
     }
     public List<String> getColNames() {
@@ -271,6 +310,8 @@ public class IncomeController
         }
         return inColJoinNames;
     }
+    
+    
     
     /*
     public void selectColumn0() // EZEK AZ ONACTION FGVNYEK TXTAREA-hoz adnak hozzá stringeket, közvetetten a selectedColumns-szal
@@ -323,6 +364,8 @@ public class IncomeController
         } else { selectedColumns.remove(getColNames().get(5)); chb5b = false; }
     }
 */
+
+    
 
     
 }

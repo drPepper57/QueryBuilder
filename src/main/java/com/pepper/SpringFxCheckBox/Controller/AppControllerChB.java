@@ -46,7 +46,7 @@ public class AppControllerChB implements Initializable
     @FXML
     private ComboBox<String> orderByCB, whereCB, whereCB1, gourpByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1;
     @FXML
-    private TextField thanTxt, thanTxt1, joinAS0, joinAS1;
+    private TextField thanTxt, thanTxt1, joinAS0, joinAS1, orderByTF;
 
    
     
@@ -69,7 +69,7 @@ public class AppControllerChB implements Initializable
         if(prtTableChB.isSelected())
         {
             partnerController.createPrtCheckBoxes();
-            queryTxtArea.setText("SELECT ");            
+            queryTxtArea.setText("SELECT ");      
         } 
         else 
         {            
@@ -85,7 +85,7 @@ public class AppControllerChB implements Initializable
         {            
             //IncomeController.setIncomeTableColumnNames();
             incomeController.createIncCheckBoxes();
-            queryTxtArea.setText("SELECT ");            
+            queryTxtArea.setText("SELECT ");
         } else {
             incomeController.clearCheckBoxes();
             asInc.getChildren().clear();
@@ -112,9 +112,34 @@ public class AppControllerChB implements Initializable
         }       
     }
     
+    public void addOrderByClause()
+    {
+        if(orderByCB.getValue() != null)
+        {
+            if(descChb.isSelected()){
+                orderByTF.appendText(orderByCB.getValue() + " DESC, ");
+            } else {
+                orderByTF.appendText(orderByCB.getValue() + " ASC, ");
+            }
+            
+        }        
+    }
+    public void delLastOrderByClause()
+    {
+        String txt = orderByTF.getText().trim();
+        txt = txt.substring(0, txt.length()-2);        
+        if (!txt.isEmpty())
+        {
+            int lastSpaceIndex = txt.lastIndexOf(" ") + 1;
+            if(lastSpaceIndex > 0){
+                orderByTF.setText(txt.substring(0, lastSpaceIndex));
+            }
+        }
+    }
+    
     public void setUpUI()
     {
-        Tooltip tooltip = new Tooltip("Unselect all to select all");
+        Tooltip tooltip = new Tooltip("Unselect all to SELECT * ");
         tooltip.setShowDelay(Duration.ZERO);
         Tooltip.install(nfo, tooltip);
                 
@@ -266,6 +291,9 @@ public class AppControllerChB implements Initializable
     }
     public String getOnCB1() {
         return onCB1.getValue();
+    }
+    public TextField getOrderByTF() {
+        return orderByTF;
     }
     
     

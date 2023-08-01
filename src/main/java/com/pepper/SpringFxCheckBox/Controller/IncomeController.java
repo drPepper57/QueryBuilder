@@ -156,11 +156,11 @@ public class IncomeController
                 if(P.getAggregateMap().containsKey(selectedColumns.get(i)))
                 {   
                     String aggregateFunction = P.getAggregateMap().get(selectedColumns.get(i));
-                    queryBuilder.append(aggregateFunction).append("(").append(selectedColumns.get(i)).append(")").append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..                    
+                    queryBuilder.append(aggregateFunction).append("(").append(selectedColumns.get(i)).append(")").append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..                    
                 }
                 else
                 {
-                    queryBuilder.append(selectedColumns.get(i)).append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..
+                    queryBuilder.append(selectedColumns.get(i)).append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..
                 }
             }            
             else if(P.getAggregateMap().containsKey(selectedColumns.get(i))) //AGGREGATE CLAUSE
@@ -197,24 +197,19 @@ public class IncomeController
         OR (category = 'Appliances' AND unit_price > 300);
         */
         // WHERE *** IS NULL
-        if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null)
-        {            
-            /* String operator = parent.getwhereOpCBValue(); //törlés StringBuilderből: String lekérése
-            int operatorIndex = queryBuilder.indexOf(operator); // String indexe, ez a két adat kell törléshez            
-            if(operatorIndex >= 0 && valueIndex >= 0){
-                queryBuilder.delete(operatorIndex, operatorIndex + operator.length());            
-            }*/
-            queryBuilder.append(" WHERE ").append(P.getWhereCB().getValue()).append(" IS NULL");            
+        if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null && P.getAndOrTF().getText() == null)
+        {
+            queryBuilder.append(" WHERE ").append(P.getWhereCB().getValue()).append(" IS NULL");
         }
         // WHERE kisebb nagyobb mint 
-        if(P.getWhereCB().getValue() != null && P.getThanTxt().getText() != null && P.getwhereOpCB().getValue() != null)
+        if(P.getWhereCB().getValue() != null && P.getThanTxt().getText() != null && P.getwhereOpCB().getValue() != null && P.getAndOrTF().getText() == null)
         {            
             String whereColName = P.getWhereCB().getValue();            
             String operator = P.getwhereOpCB().getSelectionModel().getSelectedItem();            
             // Check if the user entered a numeric value
             try {
             int value = Integer.parseInt(P.getThanTxt().getText(), 10); // You can use other numeric types if needed
-                System.out.println(value);
+                
                 // Append the appropriate condition based on the operator
                 switch (operator) 
                 {
@@ -243,14 +238,23 @@ public class IncomeController
                 // Show an error message to the user, or handle it based on your application's requirements
             }
         }
-        /*
-        SELECT column1, column2, ...
-        FROM table_name
-        WHERE condition
-        ORDER BY column1 ASC/DESC, column2 ASC/DESC, ...;*/
+        if(P.getAndOrTF().getText() != null)
+        {
+            queryBuilder.append( " WHERE ").append(P.getAndOrTF().getText());
+        }
         
+        // GROUP BY
         if(P.getGroupByCB().getValue() != null){
-            queryBuilder.append(" GROUP BY ").append(P.getGroupByCB().getValue());
+            
+            if(!P.getGroupTF().getText().isEmpty())
+            {
+                String orderBy = P.getGroupTF().getText();
+                int length = orderBy.length();
+                String groupByReady = orderBy.substring(0, length - 2); //", "
+                queryBuilder.append(" GROUP BY ").append(groupByReady);
+            } else {
+                queryBuilder.append(" GROUP BY ").append(P.getGroupByCB().getValue());
+            }            
         }
         
         // ORDER BY
@@ -269,7 +273,7 @@ public class IncomeController
             
         } 
               
-        
+        //LIMIT
         if(!P.isLimitSelected()){
             queryBuilder.append(" LIMIT ").append(P.getTopValue());
         }
@@ -324,6 +328,13 @@ public class IncomeController
     
     
     /*
+    //törlés StringBuilderből:
+     String operator = parent.getwhereOpCBValue(); //törlés StringBuilderből: String lekérése
+            int operatorIndex = queryBuilder.indexOf(operator); // String indexe, ez a két adat kell törléshez            
+            if(operatorIndex >= 0 && valueIndex >= 0){
+                queryBuilder.delete(operatorIndex, operatorIndex + operator.length());            
+            }
+    
     public void selectColumn0() // EZEK AZ ONACTION FGVNYEK TXTAREA-hoz adnak hozzá stringeket, közvetetten a selectedColumns-szal
     {                           // lényegében csak stringeket adok hozzá egy  List<String> selectedColumns hoz
         if (checkBoxes.get(0).isSelected() && chb0b == false) {

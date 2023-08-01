@@ -99,8 +99,9 @@ public class JoinController
             String alias = asTxtListIncome.get(incomeController.getChbIndex(selectedColumns1.get(i))).getText().trim(); //AS txtField tartalma
             if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
             {
-                queryBuilder.append(joinColumnNames1.get(i)).append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..
+                queryBuilder.append(joinColumnNames1.get(i)).append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..
 
+                
             }
             else 
             {queryBuilder.append(joinColumnNames1.get(i));} 
@@ -128,13 +129,14 @@ public class JoinController
                 queryBuilder.append(", ");
             }
         }
-        if(joinColumnNames1.size() <= 0 && joinColumnNames2.size() <= 0 ){
+        if(joinColumnNames1.size() <= 0 && joinColumnNames2.size() <= 0 )
+        {
                               //ezt átírni dinamikusra
-        queryBuilder.append(" * FROM db_income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());
-         
-        }else{
-                           //ezt átírni dinamikusra
-        queryBuilder.append(" FROM db_income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());
+            queryBuilder.append(" * FROM db_income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());         
+        }
+        else
+        {                    //ezt átírni dinamikusra
+            queryBuilder.append(" FROM db_income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());
         }
         // WHERE *** IS NULL
         if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null)
@@ -178,13 +180,51 @@ public class JoinController
                 // Show an error message to the user, or handle it based on your application's requirements
             }
         }
-        // ORDER BY
-        if(P.getOrderBy() != null){
-            queryBuilder.append(" ORDER BY ").append(P.getOrderBy());
-        } 
-        if(P.descIsSelected() && P.getOrderBy() != null) {
-            queryBuilder.append(" DESC "); // itt van egy extra szóköz ha DESC is belekerül
+        // GROUP BY
+        if(P.getGroupByCB().getValue() != null){
+            
+            if(!P.getGroupTF().getText().isEmpty())
+            {
+                String orderBy = P.getGroupTF().getText();
+                int length = orderBy.length();
+                String groupByReady = orderBy.substring(0, length - 2); //", "
+                queryBuilder.append(" GROUP BY ").append(groupByReady);
+            } else {
+                queryBuilder.append(" GROUP BY ").append(P.getGroupByCB().getValue());
+            }            
         }
+        
+        // ORDER BY
+        if(P.getOrderByCB1().getValue() != null)
+        {
+            
+            if(!P.getOrderByTF().getText().isEmpty())
+            {
+                String orderBy = P.getOrderByTF().getText();
+                int length = orderBy.length();
+                String orderByReady = orderBy.substring(0, length - 2); //", "
+                queryBuilder.append(" ORDER BY ").append(orderByReady);
+            } else {
+                queryBuilder.append(" ORDER BY ").append(P.getOrderByCB1().getValue());
+            }
+            
+        }
+        if(P.getOrderBy() != null)
+        {
+            
+            if(!P.getOrderByTF().getText().isEmpty())
+            {
+                String orderBy = P.getOrderByTF().getText();
+                int length = orderBy.length();
+                String orderByReady = orderBy.substring(0, length - 2); //", "
+                queryBuilder.append(" ORDER BY ").append(orderByReady);
+            } else {
+                queryBuilder.append(" ORDER BY ").append(P.getOrderByCB().getValue());
+            }
+            
+        }
+        
+        //LIMIT
         if(!P.isLimitSelected()){
             queryBuilder.append(" LIMIT ").append(P.getTopValue());
         }

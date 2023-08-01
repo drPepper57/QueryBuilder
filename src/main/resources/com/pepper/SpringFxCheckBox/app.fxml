@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" stylesheets="@../../../styles/app.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pepper.SpringFxCheckBox.Controller.AppControllerChB">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@../../../styles/app.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pepper.SpringFxCheckBox.Controller.AppControllerChB">
    <children>
       <VBox alignment="CENTER" prefHeight="17.0" prefWidth="100.0" style="-fx-background-color: lightgrey;">
          <children>
@@ -111,7 +111,7 @@
          <children>
             <VBox fx:id="join" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="120.0" style="-fx-background-color: darkgrey;">
                <children>
-                  <Label alignment="TOP_LEFT" contentDisplay="CENTER" text="Join">
+                  <Label alignment="TOP_LEFT" contentDisplay="CENTER" text="JOIN">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
@@ -149,9 +149,9 @@
                         <Insets top="15.0" />
                      </VBox.margin>
                   </HBox>
-                  <Label text="1.TableName." />
+                  <Label text="1.TableName" />
                   <TextField fx:id="joinAS0" promptText="alias" />
-                  <Label text="2.TableName." />
+                  <Label text="2.TableName" />
                   <TextField fx:id="joinAS1" promptText="alias">
                      <VBox.margin>
                         <Insets top="2.0" />
@@ -162,7 +162,7 @@
                   <Insets bottom="3.0" />
                </padding>
             </VBox>
-            <VBox fx:id="WHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="120.0" style="-fx-background-color: lightgrey;">
+            <VBox fx:id="WHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="250.0" style="-fx-background-color: lightgrey;">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="WHERE">
                      <font>
@@ -174,38 +174,48 @@
                         <Insets left="2.0" right="2.0" />
                      </VBox.margin>
                   </ComboBox>
-                  <HBox prefHeight="21.0" prefWidth="120.0">
+                  <HBox alignment="CENTER" prefHeight="21.0" prefWidth="120.0">
                      <children>
                         <CheckBox fx:id="isNullChB" mnemonicParsing="false" text="Null">
                            <HBox.margin>
                               <Insets left="2.0" top="6.0" />
                            </HBox.margin>
                         </CheckBox>
-                        <ComboBox fx:id="whereOpCB" prefHeight="25.0" prefWidth="60.0" promptText="&lt;&gt;">
+                        <ComboBox fx:id="whereOpCB" prefHeight="25.0" prefWidth="59.0" promptText="&lt;&gt;">
                            <HBox.margin>
-                              <Insets left="12.0" top="4.0" />
+                              <Insets left="5.0" top="4.0" />
                            </HBox.margin>
                         </ComboBox>
+                        <TextField fx:id="thanTF" prefWidth="95.0">
+                           <HBox.margin>
+                              <Insets left="5.0" top="4.0" />
+                           </HBox.margin>
+                        </TextField>
                      </children>
                   </HBox>
-                  <TextField fx:id="thanTxt" prefWidth="116.0" text="lehet több WHERE..">
+                  <TextField fx:id="andOrTF" prefWidth="116.0">
                      <VBox.margin>
-                        <Insets left="2.0" top="4.0" />
+                        <Insets left="2.0" top="5.0" />
                      </VBox.margin>
                   </TextField>
-                  <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                      <children>
-                        <Button mnemonicParsing="false" text="AND">
+                        <Button mnemonicParsing="false" onAction="#andWhereClause" text="AND">
                            <HBox.margin>
                               <Insets left="18.0" />
                            </HBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" text="OR" />
+                        <Button mnemonicParsing="false" onAction="#orWhereClause" text="OR" />
+                        <Button mnemonicParsing="false" onAction="#addWhereClause" text="Add" />
+                        <Button mnemonicParsing="false" text="⌫" />
                      </children>
+                     <padding>
+                        <Insets top="3.0" />
+                     </padding>
                   </HBox>
                </children>
             </VBox>
-            <VBox fx:id="WHERE1" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="120.0" style="-fx-background-color: lightgrey;">
+            <VBox fx:id="WHERE1" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="205.0" style="-fx-background-color: lightgrey;">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="WHERE">
                      <font>
@@ -217,23 +227,28 @@
                         <Insets left="2.0" right="2.0" />
                      </VBox.margin>
                   </ComboBox>
-                  <HBox prefHeight="21.0" prefWidth="120.0">
+                  <HBox prefHeight="21.0" prefWidth="121.0">
                      <children>
                         <CheckBox fx:id="isNullChB1" mnemonicParsing="false" text="Null">
                            <HBox.margin>
                               <Insets left="2.0" top="6.0" />
                            </HBox.margin>
                         </CheckBox>
-                        <ComboBox fx:id="whereOpCB1" prefHeight="25.0" prefWidth="60.0" promptText="&lt;&gt;">
+                        <ComboBox fx:id="whereOpCB1" prefHeight="25.0" prefWidth="59.0" promptText="&lt;&gt;">
                            <HBox.margin>
-                              <Insets left="12.0" top="4.0" />
+                              <Insets left="5.0" top="4.0" />
                            </HBox.margin>
                         </ComboBox>
+                        <TextField fx:id="thanTF1" prefWidth="95.0">
+                           <HBox.margin>
+                              <Insets top="4.0" />
+                           </HBox.margin>
+                        </TextField>
                      </children>
                   </HBox>
-                  <TextField fx:id="thanTxt1" prefWidth="116.0" text="lehet több WHERE..">
+                  <TextField fx:id="andOrTF1" prefWidth="116.0">
                      <VBox.margin>
-                        <Insets left="2.0" top="4.0" />
+                        <Insets left="2.0" top="5.0" />
                      </VBox.margin>
                   </TextField>
                   <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
@@ -244,13 +259,18 @@
                            </HBox.margin>
                         </Button>
                         <Button mnemonicParsing="false" text="OR" />
+                        <Button mnemonicParsing="false" text="Add" />
+                        <Button mnemonicParsing="false" text="⌫" />
                      </children>
+                     <padding>
+                        <Insets top="3.0" />
+                     </padding>
                   </HBox>
                </children>
             </VBox>
             <VBox fx:id="groupBy" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="160.0" style="-fx-background-color: darkgrey;">
                <children>
-                  <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="Group by">
+                  <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="GROUP BY">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
@@ -260,6 +280,19 @@
                         <Insets left="2.0" right="2.0" />
                      </VBox.margin>
                   </ComboBox>
+                  <HBox alignment="CENTER" prefHeight="20.0" prefWidth="200.0" spacing="10.0">
+                     <children>
+                        <Button fx:id="addGroupBtn" mnemonicParsing="false" onAction="#addGroupByClause" text="Add">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#delLastGroupByClause" text="⌫" />
+                     </children>
+                     <padding>
+                        <Insets top="5.0" />
+                     </padding>
+                  </HBox>
                   <TextField fx:id="groupTF">
                      <VBox.margin>
                         <Insets top="5.0" />
@@ -269,7 +302,7 @@
             </VBox>
             <VBox fx:id="orderBy" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="230.0">
                <children>
-                  <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="Order by">
+                  <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="ORDER BY">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
@@ -286,8 +319,14 @@
                         <Button fx:id="addOrdByBtn" mnemonicParsing="false" onAction="#addOrderByClause" text="Add" />
                         <Button mnemonicParsing="false" onAction="#delLastOrderByClause" text="⌫" />
                      </children>
+                     <padding>
+                        <Insets top="5.0" />
+                     </padding>
                   </HBox>
-                  <TextField fx:id="orderByTF" />
+                  <TextField fx:id="orderByTF">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin></TextField>
                </children>
             </VBox>
             <VBox fx:id="top" alignment="TOP_CENTER" prefHeight="200.0" prefWidth="70.0" style="-fx-background-color: darkgrey;">

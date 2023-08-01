@@ -139,11 +139,11 @@ public class PartnerController
                 if(P.getAggregateMap().containsKey(selectedColumns.get(i)))
                 {   
                     String aggregateFunction = P.getAggregateMap().get(selectedColumns.get(i));
-                    queryBuilder.append(aggregateFunction).append("(").append(selectedColumns.get(i)).append(")").append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..                    
+                    queryBuilder.append(aggregateFunction).append("(").append(selectedColumns.get(i)).append(")").append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..                    
                 }
                 else
                 {
-                    queryBuilder.append(selectedColumns.get(i)).append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..
+                    queryBuilder.append(selectedColumns.get(i)).append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..
                 }
             }
             else if(P.getAggregateMap().containsKey(selectedColumns.get(i))) //AGGREGATE CLAUSE
@@ -206,9 +206,18 @@ public class PartnerController
                 // Show an error message to the user, or handle it based on your application's requirements
             }
         }
-        //GROUP BY
+        // GROUP BY
         if(P.getGroupByCB().getValue() != null){
-            queryBuilder.append(" GROUP BY ").append(P.getGroupByCB().getValue());
+            
+            if(!P.getGroupTF().getText().isEmpty())
+            {
+                String orderBy = P.getGroupTF().getText();
+                int length = orderBy.length();
+                String groupByReady = orderBy.substring(0, length - 2); //", "
+                queryBuilder.append(" GROUP BY ").append(groupByReady);
+            } else {
+                queryBuilder.append(" GROUP BY ").append(P.getGroupByCB().getValue());
+            }            
         }
         // ORDER BY
         if(P.getOrderByCB1().getValue() != null)
@@ -224,7 +233,7 @@ public class PartnerController
                 queryBuilder.append(" ORDER BY ").append(P.getOrderByCB1().getValue());
             }
             
-        } 
+        }
         if(P.descIsSelected() && P.getOrderBy() != null) {
             queryBuilder.append(" DESC "); // itt van egy extra szóköz ha DESC is belekerül
         }

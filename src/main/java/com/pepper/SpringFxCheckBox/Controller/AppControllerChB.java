@@ -49,7 +49,7 @@ public class AppControllerChB implements Initializable
     @FXML
     private ComboBox<String> orderByCB, orderByCB1, whereCB, whereCB1, groupByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1, aggregateCB, aggName;
     @FXML
-    private TextField thanTxt, thanTxt1, joinAS0, joinAS1, orderByTF;
+    private TextField andOrTF, andOrTF1, thanTF, thanTF1, joinAS0, joinAS1, orderByTF, groupTF;
     private List<String> selectedAggrFunct, selectedAggrNameList;
     private Map<String, String> aggregateMap = new HashMap<>();
     public String aggregateFunction = new String();
@@ -114,9 +114,73 @@ public class AppControllerChB implements Initializable
             partnerController.buildQuery();
         }       
     }
+    //WHERE
+    public void andWhereClause()
+    {
+        if(whereCB.getValue() != null)
+        {
+            if(isNullChB.isSelected()){
+                
+                andOrTF.appendText(whereCB.getValue() + " IS NULL AND ");
+            }
+            if(whereOpCB.getValue() != null && thanTF.getText() != null){
+                andOrTF.appendText(whereCB.getValue() + whereOpCB.getValue() + " " +  thanTF.getText() + " AND ");
+            }
+            
+        }
+    }
+    public void orWhereClause()
+    {
+        if(whereCB.getValue() != null)
+        {
+            if(isNullChB.isSelected()){
+                
+                andOrTF.appendText(whereCB.getValue() + " IS NULL OR");
+            }
+            if(whereOpCB.getValue() != null && thanTF.getText() != null){
+                andOrTF.appendText(whereCB.getValue() + whereOpCB.getValue() + " " +  thanTF.getText() + " OR ");
+            }
+            
+        }
+    }
+    public void addWhereClause()
+    {
+        if(whereCB.getValue() != null)
+        {
+            if(isNullChB.isSelected()){
+                
+                andOrTF.appendText(whereCB.getValue() + " IS NULL");
+            }
+            if(whereOpCB.getValue() != null && thanTF.getText() != null){
+                andOrTF.appendText(whereCB.getValue() + " " + whereOpCB.getValue() + " " +  thanTF.getText());
+            }
+        }
+    }
     
     
-    
+    //GROUP BY
+    public void addGroupByClause()
+    {
+        if(groupByCB.getValue() != null)
+        {
+            groupTF.appendText(groupByCB.getValue() + ", ");
+        }
+    }
+    public void delLastGroupByClause()
+    {
+        String txt = groupTF.getText().trim();
+        txt = txt.substring(0, txt.length()-2); // utolsó szóköz és vessző törlése
+        if (!txt.isEmpty())
+        {
+            int lastSpaceIndex = txt.lastIndexOf(" ") + 1;
+            if(lastSpaceIndex > 0){
+                groupTF.setText(txt.substring(0, lastSpaceIndex));
+                System.out.println(lastSpaceIndex + "last SpaceIndex");
+            }
+            
+        }
+    }
+    //ORDER BY 
     public void addOrderByClause()
     {
         if(orderByCB.getValue() != null)
@@ -174,13 +238,13 @@ public class AppControllerChB implements Initializable
         isNullChB.setOnAction(event -> // null<->operátor egymást inaktiválja
         { 
             isNullChB.setSelected(true);
-            thanTxt.clear();
+            thanTF.clear();
             whereOpCB.getSelectionModel().select(0);
         });
         isNullChB1.setOnAction(event -> // null<->operátor egymást inaktiválja
         { 
             isNullChB1.setSelected(true);
-            thanTxt1.clear();
+            thanTF1.clear();
             whereOpCB1.getSelectionModel().select(0);
         });        
         whereOpCB.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> 
@@ -198,6 +262,8 @@ public class AppControllerChB implements Initializable
                 isNullChB1.setSelected(false);
             }
         });
+        
+        
         //ORDER BY
         AtomicBoolean orderByCBChanged = new AtomicBoolean(false);
         AtomicBoolean orderByCB1Changed = new AtomicBoolean(false);
@@ -315,6 +381,9 @@ public class AppControllerChB implements Initializable
     public ComboBox<String> getGroupByCB() {
         return groupByCB;
     }
+    public TextField getGroupTF() {
+        return groupTF;
+    }    
     //WHERE
     public boolean isNull(){ //SELECT * FROM your_table_name WHERE approved IS NULL;
         return isNullChB.isSelected();
@@ -326,13 +395,13 @@ public class AppControllerChB implements Initializable
         return whereCB;
     }
     public TextField getThanTxt() {
-        return thanTxt;
+        return thanTF;
     }
     public TextField getThanTxt1(){
-        return thanTxt1;
+        return thanTF1;
     }
     public String getThanTxtValue(){
-        return thanTxt.getText();
+        return thanTF.getText();
     }
     public ComboBox<String> getwhereOpCB(){
         return whereOpCB;
@@ -349,6 +418,11 @@ public class AppControllerChB implements Initializable
     public ComboBox<String> getWhereCB1() {
         return whereCB1;
     }
+    public TextField getAndOrTF() {
+        return andOrTF;
+    }
+    
+    
     public Scene getScene() {
         return scene;
     }    

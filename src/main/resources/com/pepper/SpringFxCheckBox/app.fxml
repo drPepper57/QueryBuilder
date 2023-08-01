@@ -248,37 +248,43 @@
                   </HBox>
                </children>
             </VBox>
-            <VBox fx:id="groupBy" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="120.0" style="-fx-background-color: darkgrey;">
+            <VBox fx:id="groupBy" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="160.0" style="-fx-background-color: darkgrey;">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="Group by">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Label>
-                  <ComboBox fx:id="gourpByCB" prefHeight="25.0" prefWidth="116.0">
+                  <ComboBox fx:id="groupByCB" prefHeight="25.0" prefWidth="116.0">
                      <VBox.margin>
                         <Insets left="2.0" right="2.0" />
                      </VBox.margin>
                   </ComboBox>
+                  <TextField fx:id="groupTF">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </TextField>
                </children>
             </VBox>
-            <VBox fx:id="orderBy" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="150.0">
+            <VBox fx:id="orderBy" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="230.0">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="Order by">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Label>
-                  <ComboBox fx:id="orderByCB" prefHeight="25.0" prefWidth="116.0">
-                     <VBox.margin>
-                        <Insets left="2.0" right="2.0" />
-                     </VBox.margin>
-                  </ComboBox>
+                  <HBox maxHeight="25.0" prefHeight="25.0" prefWidth="200.0">
+                     <children>
+                        <ComboBox fx:id="orderByCB" prefHeight="25.0" prefWidth="116.0" />
+                        <ComboBox fx:id="orderByCB1" prefWidth="116.0" />
+                     </children>
+                  </HBox>
                   <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0" spacing="5.0">
                      <children>
                         <CheckBox fx:id="descChb" mnemonicParsing="false" text="DESC" />
                         <Button fx:id="addOrdByBtn" mnemonicParsing="false" onAction="#addOrderByClause" text="Add" />
-                        <Button mnemonicParsing="false" onAction="#delLastOrderByClause" text="Del" />
+                        <Button mnemonicParsing="false" onAction="#delLastOrderByClause" text="⌫" />
                      </children>
                   </HBox>
                   <TextField fx:id="orderByTF" />
@@ -310,12 +316,12 @@
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Label>
-                  <ComboBox fx:id="orderByCB14" prefHeight="25.0" prefWidth="116.0" promptText="SUM,AVG,COUNT">
+                  <ComboBox fx:id="aggregateCB" prefHeight="25.0" prefWidth="116.0" promptText="SUM,AVG,COUNT">
                      <VBox.margin>
                         <Insets left="2.0" right="2.0" />
                      </VBox.margin>
                   </ComboBox>
-                  <ComboBox prefWidth="116.0">
+                  <ComboBox fx:id="aggName" prefWidth="116.0">
                      <VBox.margin>
                         <Insets top="5.0" />
                      </VBox.margin>

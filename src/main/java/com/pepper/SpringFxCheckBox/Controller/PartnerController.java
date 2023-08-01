@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
 import javafx.scene.control.CheckBox;
@@ -25,6 +27,7 @@ public class PartnerController
     private String query;
     StringBuilder queryBuilder;
     private boolean whereAdded, orderAdded, groupAdded;
+    private Timer timer;
     
     public PartnerController(AppControllerChB parent)
     {
@@ -54,10 +57,37 @@ public class PartnerController
         
         //comboboxok feltöltése
         inflateCombobox(P.getWhereCB1(), prtColNames, whereAdded); //
-        inflateCombobox(P.getOrderByCB(), prtColNames, orderAdded); //ezeket nem tölti fel mert size()>1...
+        inflateCombobox(P.getOrderByCB1(), prtColNames, orderAdded); //ezeket nem tölti fel mert size()>1...
         inflateCombobox(P.getGroupByCB(), prtColNames, groupAdded);
         
-        //Platform.runLater(() -> {createAStxtField(); });
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+        @Override
+        public void run() {
+            Platform.runLater(() -> {
+                createAStxtField();
+            });
+        }
+        }, 200);
+    }
+    public void createAStxtField()
+    {
+        asTxtList = new ArrayList<>();
+        
+            for(int i = 0; i < prtColNames.size(); i++)
+            {   //checkBoxes.get(i).getWidth() + 
+                double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();
+                System.out.println(checkBoxes.get(i).getWidth() + " " + checkBoxes.get(i).getLayoutBounds().getWidth());
+                TextField asTxt = new TextField(P.getAsPrt(), chbWidth);
+                asTxtList.add(asTxt);
+            }
+        stopTimer();
+    }
+    private void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
     }
     public void clearCheckBoxes() // ez kell
     {        
@@ -83,23 +113,9 @@ public class PartnerController
                     booleans.get(index).set(true);
                 } else { selectedColumns.remove(prtColNames.get(index)); booleans.get(index).get();}
             });
-        }
-        Platform.runLater(() -> {createAStxtField(); });
+        }        
     }
-    public void createAStxtField()
-    {
-        asTxtList = new ArrayList<>();
-        
-            for(int i = 0; i < prtColNames.size(); i++)
-            {   //checkBoxes.get(i).getWidth() + 
-                double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();
-                System.out.println(checkBoxes.get(i).getWidth() + " " + checkBoxes.get(i).getLayoutBounds().getWidth());
-                TextField asTxt = new TextField(P.getAsPrt(), chbWidth);
-                asTxtList.add(asTxt);
-            }
-        
-        
-    }
+    
     public int getChbIndex(String chbTxt)
     {
         int index = -1;
@@ -119,10 +135,26 @@ public class PartnerController
         {
             String alias = asTxtList.get(getChbIndex(selectedColumns.get(i))).getText().trim();
             if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
-                { 
-                    queryBuilder.append(selectedColumns.get(i)).append(" AS ").append(alias); // ..ColName AS alias..
-
-                } else {queryBuilder.append(selectedColumns.get(i));}
+            { 
+                if(P.getAggregateMap().containsKey(selectedColumns.get(i)))
+                {   
+                    String aggregateFunction = P.getAggregateMap().get(selectedColumns.get(i));
+                    queryBuilder.append(aggregateFunction).append("(").append(selectedColumns.get(i)).append(")").append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..                    
+                }
+                else
+                {
+                    queryBuilder.append(selectedColumns.get(i)).append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..
+                }
+            }
+            else if(P.getAggregateMap().containsKey(selectedColumns.get(i))) //AGGREGATE CLAUSE
+            {   // SUM, AVG, etc
+                String aggregateFunction = P.getAggregateMap().get(selectedColumns.get(i));
+                queryBuilder.append(aggregateFunction).append("(").append(selectedColumns.get(i)).append(")");
+            }
+            else 
+            {
+                queryBuilder.append(selectedColumns.get(i));
+            }
             
             if(i < selectedColumns.size()-1 )
             {
@@ -136,17 +168,17 @@ public class PartnerController
             queryBuilder.append(" FROM db_partner");
         }
         // WHERE IS NULL
-        if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null){
-            queryBuilder.append(" WHERE ").append(P.getWhereCB().getValue()).append(" IS NULL");            
+        if(P.getWhereCB1().getValue() != null && P.isNull1() && P.getwhereOpCBValue1() == null){
+            queryBuilder.append(" WHERE ").append(P.getWhereCB1().getValue()).append(" IS NULL");            
         }
         // WHERE kisebb nagyobb mint 
-        if(P.getWhereCB().getValue() != null && P.getThanTxt().getText() != null && P.getwhereOpCB().getValue() != null)
+        if(P.getWhereCB1().getValue() != null && P.getThanTxt1().getText() != null && P.getWhereOpCB1().getValue() != null)
         {
-            String whereColName = P.getWhereCB().getValue();            
-            String operator = P.getwhereOpCB().getSelectionModel().getSelectedItem();
+            String whereColName = P.getWhereCB1().getValue();            
+            String operator = P.getWhereOpCB1().getSelectionModel().getSelectedItem();
             try 
             {
-                int value = Integer.parseInt(P.getThanTxt().getText(), 10);
+                int value = Integer.parseInt(P.getThanTxt1().getText(), 10);
                 
                 switch (operator) 
                 {
@@ -174,13 +206,24 @@ public class PartnerController
                 // Show an error message to the user, or handle it based on your application's requirements
             }
         }
-        //ORDER BY
+        //GROUP BY
         if(P.getGroupByCB().getValue() != null){
             queryBuilder.append(" GROUP BY ").append(P.getGroupByCB().getValue());
         }
         // ORDER BY
-        if(P.getOrderBy() != null){
-            queryBuilder.append(" ORDER BY ").append(P.getOrderBy());
+        if(P.getOrderByCB1().getValue() != null)
+        {
+            
+            if(!P.getOrderByTF().getText().isEmpty())
+            {
+                String orderBy = P.getOrderByTF().getText();
+                int length = orderBy.length();
+                String orderByReady = orderBy.substring(0, length - 2); //", "
+                queryBuilder.append(" ORDER BY ").append(orderByReady);
+            } else {
+                queryBuilder.append(" ORDER BY ").append(P.getOrderByCB1().getValue());
+            }
+            
         } 
         if(P.descIsSelected() && P.getOrderBy() != null) {
             queryBuilder.append(" DESC "); // itt van egy extra szóköz ha DESC is belekerül

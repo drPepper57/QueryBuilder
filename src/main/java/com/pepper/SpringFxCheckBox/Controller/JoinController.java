@@ -96,13 +96,10 @@ public class JoinController
         
         for(int i = 0; i < joinColumnNames1.size(); i ++) // aliasok hozzáadása columnNevekhez textFieldekbe írt 
         {
-            System.out.println("Entered joinController's Qbuilder first loop");
-            System.out.println(joinColumnNames1.get(i));
-            //ITT VAN HIBA, ha utólag adok hozzá aliast a textFieldbe összehányja magát ........amount, project, amount, project
             String alias = asTxtListIncome.get(incomeController.getChbIndex(selectedColumns1.get(i))).getText().trim(); //AS txtField tartalma
             if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
             {
-                queryBuilder.append(joinColumnNames1.get(i)).append(" AS ").append(alias); // ..ColName AS alias..
+                queryBuilder.append(joinColumnNames1.get(i)).append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..
 
             }
             else 
@@ -120,7 +117,7 @@ public class JoinController
             String alias = asTxtListPrt.get(partnerController.getChbIndex(selectedColumns2.get(i))).getText().trim(); //AS txtField tartalma
             if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
             {
-                queryBuilder.append(" ").append(joinColumnNames2.get(i)).append(" AS ").append(alias); // ..ColName AS alias..
+                queryBuilder.append(" ").append(joinColumnNames2.get(i)).append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..
 
             }
             else 
@@ -131,9 +128,14 @@ public class JoinController
                 queryBuilder.append(", ");
             }
         }
+        if(joinColumnNames1.size() <= 0 && joinColumnNames2.size() <= 0 ){
+                              //ezt átírni dinamikusra
+        queryBuilder.append(" * FROM db_income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());
+         
+        }else{
                            //ezt átírni dinamikusra
         queryBuilder.append(" FROM db_income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());
-        
+        }
         // WHERE *** IS NULL
         if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null)
         {

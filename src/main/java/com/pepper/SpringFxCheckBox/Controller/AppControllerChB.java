@@ -5,8 +5,11 @@ import com.pepper.SpringFxCheckBox.Model.Model;
 import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -44,12 +47,13 @@ public class AppControllerChB implements Initializable
     @FXML
     private CheckBox disableTopSpin, descChb, isNullChB, isNullChB1;
     @FXML
-    private ComboBox<String> orderByCB, whereCB, whereCB1, gourpByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1;
+    private ComboBox<String> orderByCB, orderByCB1, whereCB, whereCB1, groupByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1, aggregateCB, aggName;
     @FXML
     private TextField thanTxt, thanTxt1, joinAS0, joinAS1, orderByTF;
-
-   
-    
+    private List<String> selectedAggrFunct, selectedAggrNameList;
+    private Map<String, String> aggregateMap = new HashMap<>();
+    public String aggregateFunction = new String();
+    public String selectedAggName = new String();
     
     @Override
     public void initialize(URL url, ResourceBundle rb) 
@@ -82,8 +86,7 @@ public class AppControllerChB implements Initializable
     public void setColNames() //1.tábla kiválasztása
     {
         if(incTableChB.isSelected())
-        {            
-            //IncomeController.setIncomeTableColumnNames();
+        {
             incomeController.createIncCheckBoxes();
             queryTxtArea.setText("SELECT ");
         } else {
@@ -112,6 +115,8 @@ public class AppControllerChB implements Initializable
         }       
     }
     
+    
+    
     public void addOrderByClause()
     {
         if(orderByCB.getValue() != null)
@@ -121,8 +126,15 @@ public class AppControllerChB implements Initializable
             } else {
                 orderByTF.appendText(orderByCB.getValue() + " ASC, ");
             }
-            
-        }        
+        }
+        if(orderByCB1.getValue() != null)
+        {
+            if(descChb.isSelected()){
+                orderByTF.appendText(orderByCB1.getValue() + " DESC, ");
+            } else {
+                orderByTF.appendText(orderByCB1.getValue() + " ASC, ");
+            }
+        }
     }
     public void delLastOrderByClause()
     {
@@ -139,10 +151,19 @@ public class AppControllerChB implements Initializable
     
     public void setUpUI()
     {
+        selectedAggrFunct = new ArrayList<>();
+        selectedAggrNameList = new ArrayList<>();
         Tooltip tooltip = new Tooltip("Unselect all to SELECT * ");
         tooltip.setShowDelay(Duration.ZERO);
-        Tooltip.install(nfo, tooltip);
-                
+        Tooltip.install(nfo, tooltip);        
+        nfo.getStyleClass().add("nfo");
+        nfo.setOnMouseEntered(event -> {
+            nfo.getStyleClass().add("hover");
+        });
+        nfo.setOnMouseExited(event -> {
+            nfo.getStyleClass().remove("hover");
+        });
+        
         SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 25);
         topSpin.setValueFactory(valueFactory);
         disableTopSpin.setOnAction(event -> {
@@ -161,47 +182,95 @@ public class AppControllerChB implements Initializable
             isNullChB1.setSelected(true);
             thanTxt1.clear();
             whereOpCB1.getSelectionModel().select(0);
-        });
-        
-        whereOpCB.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-        if (newValue != null) {
-            isNullChB.setSelected(false);
+        });        
+        whereOpCB.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> 
+        {
+            if (newValue != null) 
+            {
+                isNullChB.setSelected(false);
+            }
         }
+        );
+        whereOpCB1.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> 
+        {
+            if (newValue != null) 
+            {
+                isNullChB1.setSelected(false);
+            }
         });
-        whereOpCB1.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-        if (newValue != null) {
-            isNullChB1.setSelected(false);
-        }
+        //ORDER BY
+        AtomicBoolean orderByCBChanged = new AtomicBoolean(false);
+        AtomicBoolean orderByCB1Changed = new AtomicBoolean(false);
+        orderByCB.valueProperty().addListener((observable, oldValue, newValue) -> 
+        {
+            if (newValue != null && !orderByCBChanged.get()) 
+            {
+                orderByCB1.getSelectionModel().select(0);  
+                orderByTF.clear();
+            }
+            orderByCBChanged.set(true);
+            orderByCB1Changed.set(false);
+            
         });
-        
-        joinCB.getItems().add(0, null);
-        onCB0.getItems().add(0, null);
-        onCB1.getItems().add(0, null);
-        orderByCB.getItems().add(0, null);
-        whereCB.getItems().add(0, null);
-        whereCB1.getItems().add(0, null);
-        gourpByCB.getItems().add(0, null);
-        whereOpCB.getItems().add(0, null);
+        orderByCB1.valueProperty().addListener((observable, oldValue, newValue) -> 
+        {
+            if (newValue != null && !orderByCB1Changed.get()) 
+            {
+                orderByCB.getSelectionModel().select(0);   
+                orderByTF.clear();
+            }
+            orderByCBChanged.set(false);
+            orderByCB1Changed.set(true);
+        });
         
         //JOIN
         List<String> tableNames = model.getTableNames(model.getJdbcTemplate(), "financial_management");
         joinCB.getItems().addAll(tableNames);        
-        //ON
+        //ON átírni dinamikusra
         onCB0.getItems().addAll(model.getColumnNames("db__income"));
         onCB1.getItems().addAll(model.getColumnNames("db__partners"));
-        // IIIIITTTTT TARTOOOK lehet kéne egy JoinController mert 
+        aggName.getItems().addAll(model.getColumnNames("db__income"));
+        aggName.getItems().addAll(model.getColumnNames("db__partners"));
+        groupByCB.getItems().addAll(model.getColumnNames("db__income"));
+        groupByCB.getItems().addAll(model.getColumnNames("db__partners"));
+        // IIIIITTTTT TARTOOOK lehet kéne egy JoinController mert         
         
-        nfo.getStyleClass().add("nfo");
-        nfo.setOnMouseEntered(event -> {
-            nfo.getStyleClass().add("hover");
+        //AGGREGATE CLAUSE
+        
+        aggregateCB.valueProperty().addListener((observable, oldValue, newValue) ->
+        {        
+            if(aggName.getValue() != null)
+            {
+                String selectedColumn = aggName.getValue();
+                aggregateMap.put(selectedColumn, newValue);
+                System.out.println("Selected Aggregate Function for " + selectedColumn + ": " + newValue);
+            }
         });
-        nfo.setOnMouseExited(event -> {
-            nfo.getStyleClass().remove("hover");
+        aggName.valueProperty().addListener((observable, oldValue, newValue) ->
+        {
+            if(aggregateCB.getValue() != null)
+            {
+                String selectedAggregate = aggregateCB.getValue();
+                aggregateMap.put(newValue, selectedAggregate);
+                System.out.println("Selected Column for " + selectedAggregate + ": " + newValue);
+            }
         });
         
         
         
+        setAggregateCB();
         setwhereOpCB();
+        joinCB.getItems().add(0, null);
+        onCB0.getItems().add(0, null);
+        onCB1.getItems().add(0, null);
+        orderByCB.getItems().add(0, null);
+        orderByCB1.getItems().add(0, null);
+        whereCB.getItems().add(0, null);
+        whereCB1.getItems().add(0, null);
+        groupByCB.getItems().add(0, null);
+        whereOpCB.getItems().add(0, null);
+        whereOpCB1.getItems().add(0, null);
+        aggregateCB.getItems().add(0,null);
     }
     
     /*
@@ -210,18 +279,13 @@ public class AppControllerChB implements Initializable
     JOIN db__partners p ON i.partner = p.id;
     */
     
-    public boolean isNull(){ //SELECT * FROM your_table_name WHERE approved IS NULL;
-        return isNullChB.isSelected();
-    }
+    
     public boolean isLimitSelected(){
         return disableTopSpin.isSelected();
     }
     public int getTopValue(){
         return topSpin.getValue();
-    }
-    public String getOrderBy(){
-        return orderByCB.getValue();
-    }
+    }    
     public Pane getIncChBContainer() {
         return chbIncContainer;
     }
@@ -234,18 +298,41 @@ public class AppControllerChB implements Initializable
     public boolean descIsSelected() {
         return descChb.isSelected();
     }
+    //ORDER BY
     public ComboBox<String> getOrderByCB() {
         return orderByCB;
+    }
+    public String getOrderBy(){
+        return orderByCB.getValue();
+    }
+    public ComboBox<String> getOrderByCB1() {
+        return orderByCB1;
+    }
+    public TextField getOrderByTF() {
+        return orderByTF;
+    }    
+    //GROUP BY
+    public ComboBox<String> getGroupByCB() {
+        return groupByCB;
+    }
+    //WHERE
+    public boolean isNull(){ //SELECT * FROM your_table_name WHERE approved IS NULL;
+        return isNullChB.isSelected();
+    }
+    public boolean  isNull1(){
+        return isNullChB1.isSelected();
     }
     public ComboBox<String> getWhereCB() {
         return whereCB;
     }
-    public ComboBox<String> getGroupByCB() {
-        return gourpByCB;
-    }
-    //WHERE
     public TextField getThanTxt() {
         return thanTxt;
+    }
+    public TextField getThanTxt1(){
+        return thanTxt1;
+    }
+    public String getThanTxtValue(){
+        return thanTxt.getText();
     }
     public ComboBox<String> getwhereOpCB(){
         return whereOpCB;
@@ -253,21 +340,15 @@ public class AppControllerChB implements Initializable
     public String getwhereOpCBValue(){
         return whereOpCB.getValue();
     }
-    public String getThanTxtValue(){
-        return thanTxt.getText();
-    }
-    public ComboBox<String> getWhereCB1() {
-        return whereCB1;
-    }
-
     public ComboBox<String> getWhereOpCB1() {
         return whereOpCB1;
     }
-
-    public TextField getThanTxt1() {
-        return thanTxt1;
+    public String getwhereOpCBValue1(){
+        return whereOpCB1.getValue();
+    }    
+    public ComboBox<String> getWhereCB1() {
+        return whereCB1;
     }
-    
     public Scene getScene() {
         return scene;
     }    
@@ -292,11 +373,37 @@ public class AppControllerChB implements Initializable
     public String getOnCB1() {
         return onCB1.getValue();
     }
-    public TextField getOrderByTF() {
-        return orderByTF;
+    //AGGREGATE CLAUSE
+    public ComboBox getAggregateCB(){
+        return aggregateCB;
+    }
+    public ComboBox<String> getAggName() {
+        return aggName;
+    }
+    public List<String> getAggregateList(){
+        return selectedAggrFunct;
+    }
+    public List<String> getSelectedAggrNameList(){
+        return selectedAggrNameList;
+    }
+    public Map<String, String> getAggregateMap() {
+        return aggregateMap;
     }
     
     
+    
+    private void setAggregateCB(){
+        List<String> aggregateFunctionsList = new ArrayList<>();        
+        aggregateFunctionsList.add("SUM");
+        aggregateFunctionsList.add("AVG");
+        aggregateFunctionsList.add("COUNT");
+        aggregateFunctionsList.add("MAX");
+        aggregateFunctionsList.add("MIN");
+        aggregateFunctionsList.add("GROUP_CONCAT");
+        aggregateFunctionsList.add("STDDEV");
+        aggregateFunctionsList.add("VARIANCE");
+       aggregateCB.getItems().addAll(aggregateFunctionsList);
+    }
     
     private void setwhereOpCB() {
         List<String> operators = new ArrayList<>();

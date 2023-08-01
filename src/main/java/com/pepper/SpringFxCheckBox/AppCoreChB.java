@@ -29,8 +29,16 @@ public class AppCoreChB extends Application
         primaryStage.setScene(scene);
         primaryStage.setTitle("DataBase query builder");
         primaryStage.show();
-        
-        //AppControllerChB controller = new AppControllerChB(scene);
+    }
+    @Override
+    public void stop() throws Exception 
+    {
+        // Close the Spring Boot context when the JavaFX application stops
+        context.close();
+        // Perform any cleanup or resource release tasks here
+
+        // Call the superclass's stop() method to ensure proper shutdown
+        super.stop();
     }
 
     @Override

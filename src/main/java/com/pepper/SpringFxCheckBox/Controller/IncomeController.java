@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
 import javafx.scene.control.CheckBox;
@@ -26,6 +28,7 @@ public class IncomeController
     private List<CheckBox> checkBoxes;
     StringBuilder queryBuilder, originalQ;
     private String query;
+    private Timer timer;
     
     public IncomeController(AppControllerChB parent)
     {
@@ -60,7 +63,15 @@ public class IncomeController
         inflateCombobox(P.getWhereCB(), inColNames);
         inflateCombobox(P.getGroupByCB(), inColNames);  
         
-        Platform.runLater(() -> {createAStxtField(); });
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+        @Override
+        public void run() {
+            Platform.runLater(() -> {
+                createAStxtField();
+            });
+        }
+        }, 200);
     }    
     public void clearCheckBoxes() // ez kell
     {
@@ -109,7 +120,13 @@ public class IncomeController
                 TextField asTxt = new TextField(P.getAsInc(), chbWidth);
                 asTxtList.add(asTxt);
             }
-        
+        stopTimer();
+    }
+    private void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
     }
     public int getChbIndex(String chbTxt)
     {
@@ -129,52 +146,43 @@ public class IncomeController
     */
     public void buildQuery() // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
     {
-        queryBuilder = new StringBuilder("SELECT ");
+        queryBuilder = new StringBuilder("SELECT ");        
+        for(int i = 0; i < selectedColumns.size(); i++) // oszlop nevek hozzáadása
+        {
+            String alias = asTxtList.get(getChbIndex(selectedColumns.get(i))).getText().trim(); //AS txtField tartalma
+            if(!alias.isEmpty()) // HA megadtak ALIAS-t, asTxtList tartalmazza az AS TextFieldeket
+            {   // MAX(age) AS max_age, ITT KÉNE HOZZÁADNI AZ AGGREGATE CLAUSE
+                
+                if(P.getAggregateMap().containsKey(selectedColumns.get(i)))
+                {   
+                    String aggregateFunction = P.getAggregateMap().get(selectedColumns.get(i));
+                    queryBuilder.append(aggregateFunction).append("(").append(selectedColumns.get(i)).append(")").append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..                    
+                }
+                else
+                {
+                    queryBuilder.append(selectedColumns.get(i)).append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..
+                }
+            }            
+            else if(P.getAggregateMap().containsKey(selectedColumns.get(i))) //AGGREGATE CLAUSE
+            {   // SUM, AVG, etc
+                String aggregateFunction = P.getAggregateMap().get(selectedColumns.get(i));
+                queryBuilder.append(aggregateFunction).append("(").append(selectedColumns.get(i)).append(")");
+            }
+            else {queryBuilder.append(selectedColumns.get(i));} 
+
+
+            if( i < selectedColumns.size()-1 ) // utolsó előtti elemig ", " ad hozzá
+            {
+                queryBuilder.append(", ");
+            }
+        }
+        if( selectedColumns.size() <= 0) // ha nincs oszlop kijelölve 
+        {
+            queryBuilder.append(" * FROM db_income");
+        } else {
+            queryBuilder.append(" FROM db_income");
+        }
         
-        if(P.getJoinCBValue() != null) // ha kiválasztottak join table-t
-        {
-            createInColJoinNames(); // ez nincs jó helyen
-            for(int i = 0; i < inColJoinNames.size(); i ++)
-            {
-                System.out.println(inColJoinNames.get(i));
-                String alias = asTxtList.get(getChbIndex(selectedColumns.get(i))).getText().trim(); //AS txtField tartalma
-                if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
-                { 
-                    queryBuilder.append(inColJoinNames.get(i)).append(" AS ").append(alias); // ..ColName AS alias..
-
-                } else {queryBuilder.append(inColJoinNames.get(i));} 
-                if( i < selectedColumns.size()-1 ) // az utolsó előtti elemig ", " ad hozzá
-                {
-                    queryBuilder.append(", ");
-                }
-            }  
-            
-            queryBuilder.append(" FROM db_income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());
-        }
-        else
-        {
-            for(int i = 0; i < selectedColumns.size(); i++) // oszlop nevek hozzáadása
-            {
-                String alias = asTxtList.get(getChbIndex(selectedColumns.get(i))).getText().trim(); //AS txtField tartalma
-                if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
-                { 
-                    queryBuilder.append(selectedColumns.get(i)).append(" AS ").append(alias); // ..ColName AS alias..
-
-                } else {queryBuilder.append(selectedColumns.get(i));} 
-
-
-                if( i < selectedColumns.size()-1 ) // első elem után ", " ad hozzá
-                {
-                    queryBuilder.append(", ");
-                }
-            }
-            if( selectedColumns.size() <= 0) // ha nincs oszlop kijelölve 
-            {
-                queryBuilder.append(" * FROM db_income");
-            } else {
-                queryBuilder.append(" FROM db_income");
-            }
-        }
         /*
         SELECT column1, column2, ...
         FROM table_name
@@ -186,7 +194,8 @@ public class IncomeController
         SELECT product_name, unit_price
         FROM products
         WHERE (category = 'Electronics' AND unit_price > 500)
-        OR (category = 'Appliances' AND unit_price > 300);*/
+        OR (category = 'Appliances' AND unit_price > 300);
+        */
         // WHERE *** IS NULL
         if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null)
         {            
@@ -245,7 +254,8 @@ public class IncomeController
         }
         
         // ORDER BY
-        if(P.getOrderBy() != null){
+        if(P.getOrderBy() != null)
+        {
             
             if(!P.getOrderByTF().getText().isEmpty())
             {

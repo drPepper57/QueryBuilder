@@ -2,7 +2,6 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Model.Model;
-import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,11 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -27,7 +24,7 @@ import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
 public class AppControllerChB implements Initializable 
-{
+{ // !!!! HIBA: ha nincs hozzáadva TEXTFIELDHEZ WHERE, ORDERBY, GROUP BY colName akkor is bekerül a querybe "WHERE" "ORDER BY".. colName nélkül
     AppCoreChB appCore;
     IncomeController incomeController;
     PartnerController partnerController;
@@ -47,7 +44,7 @@ public class AppControllerChB implements Initializable
     @FXML
     private CheckBox disableTopSpin, descChb, isNullChB, isNullChB1;
     @FXML
-    private ComboBox<String> orderByCB, orderByCB1, whereCB, whereCB1, groupByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1, aggregateCB, aggName;
+    private ComboBox<String> orderByCB, orderByCB1, whereCB, whereJoinCB, groupByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1, aggregateCB, aggName;
     @FXML
     private TextField andOrTF, andOrTF1, thanTF, thanTF1, joinAS0, joinAS1, orderByTF, groupTF;
     private List<String> selectedAggrFunct, selectedAggrNameList;
@@ -100,7 +97,7 @@ public class AppControllerChB implements Initializable
         if(incTableChB.isSelected() && prtTableChB.isSelected())
         {
             System.out.println("join query");
-            joinController.setUpQueryMaterial();
+            joinController.setUpQueryData();
             joinController.buildQuery();
         }
         else if(incTableChB.isSelected() )
@@ -108,12 +105,64 @@ public class AppControllerChB implements Initializable
             System.out.println("income query");
             incomeController.buildQuery();
         }
-        else
+        else if(prtTableChB.isSelected())
         {
             System.out.println("partner query");
             partnerController.buildQuery();
         }       
     }
+    //JOIN
+    public void inflateJoinWhereCB()
+    {
+        String a = joinAS0.getText();
+        String b = joinAS1.getText();
+        if(!a.isEmpty() && !b.isEmpty())
+        {
+            joinController.inflateWhereCb(a, b);
+        }
+    }
+    public void andWhereClause1()
+    {
+        if(whereJoinCB.getValue() != null)
+        {
+            if(isNullChB1.isSelected()){
+                
+                andOrTF1.appendText(whereJoinCB.getValue() + " IS NULL AND ");
+            }
+            if(whereOpCB1.getValue() != null && thanTF1.getText() != null){
+                andOrTF1.appendText(whereJoinCB.getValue() + whereOpCB1.getValue() + " " +  thanTF1.getText() + " AND ");
+            }
+            
+        }
+    }
+    public void orWhereClause1()
+    {
+        if(whereJoinCB.getValue() != null)
+        {
+            if(isNullChB.isSelected()){
+                
+                andOrTF1.appendText(whereJoinCB.getValue() + " IS NULL OR");
+            }
+            if(whereOpCB1.getValue() != null && thanTF1.getText() != null){
+                andOrTF1.appendText(whereJoinCB.getValue() + whereOpCB1.getValue() + " " +  thanTF1.getText() + " OR ");
+            }
+            
+        }
+    }
+    public void addWhereClause1()
+    {
+        if(whereJoinCB.getValue() != null)
+        {
+            if(isNullChB.isSelected()){
+                
+                andOrTF1.appendText(whereJoinCB.getValue() + " IS NULL");
+            }
+            if(whereOpCB1.getValue() != null && thanTF1.getText() != null){
+                andOrTF1.appendText(whereJoinCB.getValue() + " " + whereOpCB1.getValue() + " " +  thanTF1.getText());
+            }
+        }
+    }
+    
     //WHERE
     public void andWhereClause()
     {
@@ -156,7 +205,7 @@ public class AppControllerChB implements Initializable
             }
         }
     }
-    
+    //Kell delete()
     
     //GROUP BY
     public void addGroupByClause()
@@ -214,7 +263,7 @@ public class AppControllerChB implements Initializable
     }
     
     public void setUpUI()
-    {
+    {   //INFO MSG
         selectedAggrFunct = new ArrayList<>();
         selectedAggrNameList = new ArrayList<>();
         Tooltip tooltip = new Tooltip("Unselect all to SELECT * ");
@@ -290,8 +339,18 @@ public class AppControllerChB implements Initializable
         });
         
         //JOIN
+        
         List<String> tableNames = model.getTableNames(model.getJdbcTemplate(), "financial_management");
-        joinCB.getItems().addAll(tableNames);        
+        joinCB.getItems().addAll(tableNames);
+        joinAS0.textProperty().addListener((observable, oldValue, newValue) ->
+        {
+            inflateJoinWhereCB();
+        });
+        joinAS1.textProperty().addListener((observable, oldValue, newValue) ->
+        {
+            inflateJoinWhereCB();
+        });
+        
         //ON átírni dinamikusra
         onCB0.getItems().addAll(model.getColumnNames("db__income"));
         onCB1.getItems().addAll(model.getColumnNames("db__partners"));
@@ -299,6 +358,9 @@ public class AppControllerChB implements Initializable
         aggName.getItems().addAll(model.getColumnNames("db__partners"));
         groupByCB.getItems().addAll(model.getColumnNames("db__income"));
         groupByCB.getItems().addAll(model.getColumnNames("db__partners"));
+        whereCB.getItems().addAll(model.getColumnNames("db__income"));
+        whereCB.getItems().addAll(model.getColumnNames("db__partners"));
+        
         // IIIIITTTTT TARTOOOK lehet kéne egy JoinController mert         
         
         //AGGREGATE CLAUSE
@@ -332,7 +394,7 @@ public class AppControllerChB implements Initializable
         orderByCB.getItems().add(0, null);
         orderByCB1.getItems().add(0, null);
         whereCB.getItems().add(0, null);
-        whereCB1.getItems().add(0, null);
+        whereJoinCB.getItems().add(0, null);
         groupByCB.getItems().add(0, null);
         whereOpCB.getItems().add(0, null);
         whereOpCB1.getItems().add(0, null);
@@ -416,8 +478,9 @@ public class AppControllerChB implements Initializable
         return whereOpCB1.getValue();
     }    
     public ComboBox<String> getWhereCB1() {
-        return whereCB1;
+        return whereJoinCB;
     }
+       
     public TextField getAndOrTF() {
         return andOrTF;
     }
@@ -432,6 +495,13 @@ public class AppControllerChB implements Initializable
     public Pane getAsPrt() {
         return asPrt;
     }
+    //JOIN
+    public ComboBox<String> getWhereJoinCB() {
+        return whereJoinCB;
+    }
+    public TextField getAndOrTF1() {
+        return andOrTF1;
+    }    
     public String getJoinAS0() {
         return joinAS0.getText();
     }

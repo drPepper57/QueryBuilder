@@ -37,7 +37,7 @@ public class JoinController
         
         model = AppCoreChB.getContext().getBean(Model.class);
     }
-    public void setUpQueryMaterial()
+    public void setUpQueryData() // 2 tábla kiválasztásakor fut le
     {
         inColNames = model.getColumnNames("db__income");
         prtColNames = model.getColumnNames("db__partners");
@@ -69,20 +69,21 @@ public class JoinController
         asTxtListPrt = partnerController.getAsTxtList();
         System.out.println("TextField Listek mérete setUpQueryMaterial() végén: " + asTxtListIncome.size() + " " + asTxtListPrt.size());
         
+        
     }
     public List<String> createJoinNames(List<String> list, String alias)
     {
-        System.out.println("createInColJoinNames triggered in JoinController");
+        System.out.println("createJoinNames triggered in JoinController");
         
         
         if(list.isEmpty()){
-            System.out.println("Nem érkeztek nevek a createInColJoinNames metódusba");
-        } else {System.out.println("createInColJoinNames, kapott lista !null");}
+            System.out.println("Nem érkeztek nevek a createJoinNames metódusba");
+        } else {System.out.println("createJoinNames, kapott lista !null");}
         
         List<String> aliasDotColNames = new ArrayList<>();
         for(int i = 0; i < list.size(); i++)
         {
-            System.out.println("loop entered in createInColJoinNames");
+            System.out.println("loop entered in createJoinNames");
             
             aliasDotColNames.add(alias + "." +list.get(i));
             System.out.println(aliasDotColNames.get(i));
@@ -90,7 +91,8 @@ public class JoinController
         return aliasDotColNames;
     }
     
-    public void buildQuery()  // akkor is hibára fut ha aliast és akkor is ha újabb oszlopot jelölök ki és futtatom le újra  
+    
+    public void buildQuery()
     {
         StringBuilder queryBuilder = new StringBuilder("SELECT ");
         
@@ -99,9 +101,22 @@ public class JoinController
             String alias = asTxtListIncome.get(incomeController.getChbIndex(selectedColumns1.get(i))).getText().trim(); //AS txtField tartalma
             if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
             {
-                queryBuilder.append(joinColumnNames1.get(i)).append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..
-
+                //queryBuilder.append(joinColumnNames1.get(i)).append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..
+                if(P.getAggregateMap().containsKey(selectedColumns1.get(i)))
+                {   
+                    String aggregateFunction = P.getAggregateMap().get(selectedColumns1.get(i));
+                    queryBuilder.append(aggregateFunction).append("(").append(joinColumnNames1.get(i)).append(")").append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..                    
+                }
+                else
+                {
+                    queryBuilder.append(joinColumnNames1.get(i)).append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..
+                }
                 
+            }
+            else if(P.getAggregateMap().containsKey(selectedColumns1.get(i))) //AGGREGATE CLAUSE
+            {   // SUM, AVG, etc
+                String aggregateFunction = P.getAggregateMap().get(selectedColumns1.get(i));
+                queryBuilder.append(aggregateFunction).append("(").append(joinColumnNames1.get(i)).append(")");
             }
             else 
             {queryBuilder.append(joinColumnNames1.get(i));} 
@@ -118,8 +133,20 @@ public class JoinController
             String alias = asTxtListPrt.get(partnerController.getChbIndex(selectedColumns2.get(i))).getText().trim(); //AS txtField tartalma
             if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
             {
-                queryBuilder.append(" ").append(joinColumnNames2.get(i)).append(" AS ").append("'").append(alias).append("'"); // ..ColName AS alias..
-
+                if(P.getAggregateMap().containsKey(selectedColumns2.get(i)))
+                {   
+                    String aggregateFunction = P.getAggregateMap().get(selectedColumns2.get(i));
+                    queryBuilder.append(aggregateFunction).append("(").append(joinColumnNames2.get(i)).append(")").append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..                    
+                }
+                else
+                {
+                    queryBuilder.append(joinColumnNames2.get(i)).append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..
+                }
+            }
+            else if(P.getAggregateMap().containsKey(selectedColumns2.get(i))) //AGGREGATE CLAUSE
+            {   // SUM, AVG, etc
+                String aggregateFunction = P.getAggregateMap().get(selectedColumns2.get(i));
+                queryBuilder.append(aggregateFunction).append("(").append(joinColumnNames2.get(i)).append(")");
             }
             else 
             {queryBuilder.append(joinColumnNames2.get(i));} 
@@ -139,12 +166,12 @@ public class JoinController
             queryBuilder.append(" FROM db_income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());
         }
         // WHERE *** IS NULL
-        if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null)
+        if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null && P.getAndOrTF1().getText() == null)
         {
             queryBuilder.append(" WHERE ").append(P.getWhereCB().getValue()).append(" IS NULL");            
         }
         // WHERE kisebb nagyobb mint 
-        if(P.getWhereCB().getValue() != null && P.getThanTxt().getText() != null && P.getwhereOpCB().getValue() != null)
+        if(P.getWhereCB().getValue() != null && P.getThanTxt().getText() != null && P.getwhereOpCB().getValue() != null && P.getAndOrTF1().getText() == null)
         {            
             String whereColName = P.getWhereCB().getValue();            
             String operator = P.getwhereOpCB().getSelectionModel().getSelectedItem();            
@@ -155,30 +182,23 @@ public class JoinController
                 // Append the appropriate condition based on the operator
                 switch (operator) 
                 {
-                    case ">": 
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" > ").append(value);
-                        break;
-                    case "<":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" < ").append(value);
-                        break;
-                    case "=":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" = ").append(value);
-                        break;
-                    case "<=":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
-                        break;
-                    case ">=":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
-                        break;                                        
-                    default:
-                        // Handle unsupported operator or show an error message to the user
-                        break;
+                    case ">" -> queryBuilder.append( " WHERE ").append(whereColName).append(" > ").append(value);
+                    case "<" -> queryBuilder.append( " WHERE ").append(whereColName).append(" < ").append(value);
+                    case "=" -> queryBuilder.append( " WHERE ").append(whereColName).append(" = ").append(value);
+                    case "<=" -> queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
+                    case ">=" -> queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
+                    default ->{}
                 }
-            } catch (NumberFormatException e) {
+                // Handle unsupported operator or show an error message to the user
+                            } catch (NumberFormatException e) {
                 System.out.println("number format exception");
                 // Handle the case where the user entered a non-numeric value in the textfield
                 // Show an error message to the user, or handle it based on your application's requirements
             }
+        }
+        if(P.getAndOrTF1().getText() != null)
+        {
+            queryBuilder.append( " WHERE ").append(P.getAndOrTF1().getText());
         }
         // GROUP BY
         if(P.getGroupByCB().getValue() != null){
@@ -232,7 +252,27 @@ public class JoinController
         queryBuilder.append(";");
         query = queryBuilder.toString();
         P.getQueryTxtArea().setText(query);
-    }    
+    }
     
-
+    public void inflateWhereCb(String a, String b)
+    {
+        List<String> allColNames = new ArrayList<>();
+        
+        List<String> firstColNames = new ArrayList<>();
+        firstColNames.addAll(model.getColumnNames("db__income"));
+        firstColNames = createJoinNames(firstColNames, a);
+        
+        List<String> secColNames = new ArrayList<>();
+        secColNames.addAll(model.getColumnNames("db__partners"));
+        secColNames = createJoinNames(secColNames, b);
+        
+        allColNames.addAll(firstColNames);
+        allColNames.addAll(secColNames);
+        if(allColNames.isEmpty()){
+            System.out.println("allColNames is empty");
+        } else{
+            System.out.println("allColNames not empty");
+        }
+        P.getWhereJoinCB().getItems().addAll(allColNames);
+    }
 }

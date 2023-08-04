@@ -55,8 +55,7 @@ public class PartnerController
         }
         createSelectColumnOnAction(checkBoxes);
         
-        //comboboxok feltöltése
-        inflateCombobox(P.getWhereCB1(), prtColNames, whereAdded); //
+        //comboboxok feltöltése        
         inflateCombobox(P.getOrderByCB1(), prtColNames, orderAdded); //ezeket nem tölti fel mert size()>1...
         inflateCombobox(P.getGroupByCB(), prtColNames, groupAdded);
         
@@ -182,23 +181,12 @@ public class PartnerController
                 
                 switch (operator) 
                 {
-                    case ">": 
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" > ").append(value);
-                        break;
-                    case "<":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" < ").append(value);
-                        break;
-                    case "=":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" = ").append(value);
-                        break;
-                    case "<=":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
-                        break;
-                    case ">=":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
-                        break;                                        
-                    default:                       
-                        break;
+                    case ">" -> queryBuilder.append( " WHERE ").append(whereColName).append(" > ").append(value);
+                    case "<" -> queryBuilder.append( " WHERE ").append(whereColName).append(" < ").append(value);
+                    case "=" -> queryBuilder.append( " WHERE ").append(whereColName).append(" = ").append(value);
+                    case "<=" -> queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
+                    case ">=" -> queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
+                    default ->{}
                 }
             } catch (NumberFormatException e) {
                 System.out.println("number format exception");

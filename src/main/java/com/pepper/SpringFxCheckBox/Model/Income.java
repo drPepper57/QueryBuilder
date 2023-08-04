@@ -1,8 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package com.pepper.SpringFxCheckBox.Model;
 
 import jakarta.persistence.Column;
@@ -13,22 +8,24 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import org.springframework.data.annotation.Transient;
 
  @Entity
  @Table(name = "db__income")
 public class Income 
 {
+     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     
     
     @Column(name = "partner")
-    private Integer partnerId;
+    private int partnerId;
 
+    @Transient 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partner", referencedColumnName = "id", insertable = false, updatable = false)
     private Partner partner;
@@ -41,11 +38,14 @@ public class Income
    
 
     public Income(){}
-
+  
     public int getId() {
         return id;
     }
-    public Integer getPartner() {
+    public Partner getPartner() {
+        return partner;
+    }
+    public Integer getPartnerId() {
         return partnerId;
     }
     public int getAmount() {
@@ -60,9 +60,7 @@ public class Income
     public LocalDate getApproved() {
         return approved;
     }
-    public Integer getPartnerId() {
-        return partnerId;
-    }
+    
     
     
     public void setAmount(int amount) {
@@ -80,7 +78,7 @@ public class Income
 
     @Override
     public String toString() {
-        return "Income{" + "id=" + id + ", partner=" + partner + ", amount=" + amount + ", project=" + project + ", created=" + created + ", approved=" + approved + '}';
+        return "Income{" + "id=" + id + ", partner=" + partnerId + ", amount=" + amount + ", project=" + project + ", created=" + created + ", approved=" + approved + '}';
     }
      
     

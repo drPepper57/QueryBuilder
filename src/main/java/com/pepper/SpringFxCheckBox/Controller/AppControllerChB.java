@@ -1,7 +1,9 @@
 package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
+import com.pepper.SpringFxCheckBox.Model.Income;
 import com.pepper.SpringFxCheckBox.Model.Model;
+import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,15 +14,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 public class AppControllerChB implements Initializable 
@@ -51,6 +57,10 @@ public class AppControllerChB implements Initializable
     private Map<String, String> aggregateMap = new HashMap<>();
     public String aggregateFunction = new String();
     public String selectedAggName = new String();
+    // Table
+    @FXML
+    private VBox root;
+    
     
     @Override
     public void initialize(URL url, ResourceBundle rb) 
@@ -61,6 +71,7 @@ public class AppControllerChB implements Initializable
         partnerController = new PartnerController(this);
         joinController = new JoinController(this, incomeController, partnerController); // Pass the existing instances here
         model = AppCoreChB.getContext().getBean(Model.class);
+        
         
         setUpUI();
     }
@@ -110,6 +121,17 @@ public class AppControllerChB implements Initializable
             System.out.println("partner query");
             partnerController.buildQuery();
         }       
+    }
+    public void expectoQuery()
+    {
+        String query = queryTxtArea.getText();
+        ExecuteQuery eq = new ExecuteQuery();
+        List<Income> list = eq.executeQuery(query, Income.class);
+                
+        DynamicTable<Income> dynamicTable = new DynamicTable<>(root, Income.class);
+        
+        dynamicTable.setItems(list);
+        
     }
     //JOIN
     public void inflateJoinWhereCB()
@@ -284,6 +306,7 @@ public class AppControllerChB implements Initializable
             else {topSpin.setDisable(false); disableTopSpin.setText("Disable");}         
         });
         //WHERE
+        andOrTF.setText(null);
         isNullChB.setOnAction(event -> // null<->operátor egymást inaktiválja
         { 
             isNullChB.setSelected(true);

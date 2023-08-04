@@ -58,9 +58,8 @@ public class IncomeController
         
         
         addSelectedColumnOnAction(checkBoxes);
-        //HIBA ahányszor kijelölik a táblát annyiszor adja hozzá
-        inflateCombobox(P.getOrderByCB(), inColNames);//comboboxok feltöltése
-        inflateCombobox(P.getWhereCB(), inColNames);
+        //HIBA ahányszor kijelölik a táblát annyiszor adja hozzá FIXED
+        inflateCombobox(P.getOrderByCB(), inColNames);//comboboxok feltöltése        
         inflateCombobox(P.getGroupByCB(), inColNames);  
         
         timer = new Timer();
@@ -162,7 +161,7 @@ public class IncomeController
                 {
                     queryBuilder.append(selectedColumns.get(i)).append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..
                 }
-            }            
+            }
             else if(P.getAggregateMap().containsKey(selectedColumns.get(i))) //AGGREGATE CLAUSE
             {   // SUM, AVG, etc
                 String aggregateFunction = P.getAggregateMap().get(selectedColumns.get(i));
@@ -178,9 +177,9 @@ public class IncomeController
         }
         if( selectedColumns.size() <= 0) // ha nincs oszlop kijelölve 
         {
-            queryBuilder.append(" * FROM db_income");
+            queryBuilder.append(" * FROM db__income");
         } else {
-            queryBuilder.append(" FROM db_income");
+            queryBuilder.append(" FROM db__income");
         }
         
         /*
@@ -199,11 +198,13 @@ public class IncomeController
         // WHERE *** IS NULL
         if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null && P.getAndOrTF().getText() == null)
         {
+            System.out.println("WHERE HIBA 1");
             queryBuilder.append(" WHERE ").append(P.getWhereCB().getValue()).append(" IS NULL");
         }
         // WHERE kisebb nagyobb mint 
         if(P.getWhereCB().getValue() != null && P.getThanTxt().getText() != null && P.getwhereOpCB().getValue() != null && P.getAndOrTF().getText() == null)
-        {            
+        {      
+             System.out.println("WHERE HIBA 2");
             String whereColName = P.getWhereCB().getValue();            
             String operator = P.getwhereOpCB().getSelectionModel().getSelectedItem();            
             // Check if the user entered a numeric value
@@ -213,26 +214,15 @@ public class IncomeController
                 // Append the appropriate condition based on the operator
                 switch (operator) 
                 {
-                    case ">": 
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" > ").append(value);
-                        break;
-                    case "<":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" < ").append(value);
-                        break;
-                    case "=":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" = ").append(value);
-                        break;
-                    case "<=":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
-                        break;
-                    case ">=":
-                        queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
-                        break;                                        
-                    default:
-                        // Handle unsupported operator or show an error message to the user
-                        break;
+                    case ">" -> queryBuilder.append( " WHERE ").append(whereColName).append(" > ").append(value);
+                    case "<" -> queryBuilder.append( " WHERE ").append(whereColName).append(" < ").append(value);
+                    case "=" -> queryBuilder.append( " WHERE ").append(whereColName).append(" = ").append(value);
+                    case "<=" -> queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
+                    case ">=" -> queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
+                    default ->{}
                 }
-            } catch (NumberFormatException e) {
+                // Handle unsupported operator or show an error message to the user
+                            } catch (NumberFormatException e) {
                 System.out.println("number format exception");
                 // Handle the case where the user entered a non-numeric value in the textfield
                 // Show an error message to the user, or handle it based on your application's requirements
@@ -240,6 +230,7 @@ public class IncomeController
         }
         if(P.getAndOrTF().getText() != null)
         {
+             System.out.println("WHERE HIBA 3");
             queryBuilder.append( " WHERE ").append(P.getAndOrTF().getText());
         }
         

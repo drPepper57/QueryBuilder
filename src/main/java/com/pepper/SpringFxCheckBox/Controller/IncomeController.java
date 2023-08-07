@@ -2,7 +2,9 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.TextField;
+import com.pepper.SpringFxCheckBox.Model.Income;
 import com.pepper.SpringFxCheckBox.Model.Model;
+import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,8 +13,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 
 
@@ -29,6 +33,7 @@ public class IncomeController
     StringBuilder queryBuilder, originalQ;
     private String query;
     private Timer timer;
+    DynamicTable<Income> dynamicTable;
     
     public IncomeController(AppControllerChB parent)
     {
@@ -63,23 +68,42 @@ public class IncomeController
         inflateCombobox(P.getGroupByCB(), inColNames);  
         
         timer = new Timer();
-        timer.schedule(new TimerTask() {
-        @Override
-        public void run() {
-            Platform.runLater(() -> {
-                createAStxtField();
-            });
-        }
+        timer.schedule(new TimerTask() 
+        {
+            @Override
+            public void run() 
+            {
+                Platform.runLater(() -> {
+                    createAStxtField();
+                });
+            }
         }, 200);
-    }    
-    public void clearCheckBoxes() // ez kell
+    }
+    public void createAStxtField()
+    {
+        asTxtList = new ArrayList<>(); //AS txtFieldek
+        
+            for(int i = 0; i < inColNames.size(); i++)
+            {   //checkBoxes.get(i).getWidth() + 
+                double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();
+                System.out.println(checkBoxes.get(i).getWidth() + " " + checkBoxes.get(i).getLayoutBounds().getWidth());
+                TextField asTxt = new TextField(P.getAsInc(), chbWidth);
+                asTxtList.add(asTxt);
+            }
+        stopTimer();
+    }
+    private void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
+    public void clearCheckBoxes()
     {
         System.out.println("clearCheckBoxes() is triggered");
         P.getIncChBContainer().getChildren().clear();
         selectedColumns.clear();
     }    
-    
-    
     
     public void addSelectedColumnOnAction(List<CheckBox> chb) // onAction hozzáadása checkboxokhoz
     {
@@ -105,28 +129,9 @@ public class IncomeController
                     
                 } // ha megszünt a kijelölést törli
             });
-        }
-        //Platform.runLater(() -> {createAStxtField(); });
+        }        
     }
-    public void createAStxtField()
-    {
-        asTxtList = new ArrayList<>(); //AS txtFieldek
-        
-            for(int i = 0; i < inColNames.size(); i++)
-            {   //checkBoxes.get(i).getWidth() + 
-                double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();
-                System.out.println(checkBoxes.get(i).getWidth() + " " + checkBoxes.get(i).getLayoutBounds().getWidth());
-                TextField asTxt = new TextField(P.getAsInc(), chbWidth);
-                asTxtList.add(asTxt);
-            }
-        stopTimer();
-    }
-    private void stopTimer() {
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
-    }
+    
     public int getChbIndex(String chbTxt)
     {
         int index = -1;
@@ -138,11 +143,7 @@ public class IncomeController
         }
         return index;
     }
-    /*
-    SELECT i.id, i.amount, i.created, i.approved, p.name AS partner_name, p.contact AS partner_contact
-    FROM db__income i
-    JOIN db__partners p ON i.partner = p.id;
-    */
+   
     public void buildQuery() // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
     {
         queryBuilder = new StringBuilder("SELECT ");        
@@ -180,31 +181,16 @@ public class IncomeController
             queryBuilder.append(" * FROM db__income");
         } else {
             queryBuilder.append(" FROM db__income");
-        }
+        }        
         
-        /*
-        SELECT column1, column2, ...
-        FROM table_name
-        WHERE condition1
-        AND/OR condition2
-        AND/OR condition3
-        ...;  
-        
-        SELECT product_name, unit_price
-        FROM products
-        WHERE (category = 'Electronics' AND unit_price > 500)
-        OR (category = 'Appliances' AND unit_price > 300);
-        */
         // WHERE *** IS NULL
         if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null && P.getAndOrTF().getText() == null)
         {
-            System.out.println("WHERE HIBA 1");
             queryBuilder.append(" WHERE ").append(P.getWhereCB().getValue()).append(" IS NULL");
         }
         // WHERE kisebb nagyobb mint 
         if(P.getWhereCB().getValue() != null && P.getThanTxt().getText() != null && P.getwhereOpCB().getValue() != null && P.getAndOrTF().getText() == null)
-        {      
-             System.out.println("WHERE HIBA 2");
+        {
             String whereColName = P.getWhereCB().getValue();            
             String operator = P.getwhereOpCB().getSelectionModel().getSelectedItem();            
             // Check if the user entered a numeric value
@@ -230,10 +216,8 @@ public class IncomeController
         }
         if(P.getAndOrTF().getText() != null)
         {
-             System.out.println("WHERE HIBA 3");
             queryBuilder.append( " WHERE ").append(P.getAndOrTF().getText());
         }
-        
         // GROUP BY
         if(P.getGroupByCB().getValue() != null){
             
@@ -247,7 +231,6 @@ public class IncomeController
                 queryBuilder.append(" GROUP BY ").append(P.getGroupByCB().getValue());
             }            
         }
-        
         // ORDER BY
         if(P.getOrderBy() != null)
         {
@@ -258,12 +241,16 @@ public class IncomeController
                 int length = orderBy.length();
                 String orderByReady = orderBy.substring(0, length - 2); //", "
                 queryBuilder.append(" ORDER BY ").append(orderByReady);
-            } else {
-                queryBuilder.append(" ORDER BY ").append(P.getOrderByCB().getValue());
             }
-            
-        } 
-              
+            else
+            {
+                if(P.descIsSelected()){
+                    queryBuilder.append(" ORDER BY ").append(P.getOrderByCB().getValue()).append(" DESC");
+                } else{
+                    queryBuilder.append(" ORDER BY ").append(P.getOrderByCB().getValue());
+                }
+            }
+        }    
         //LIMIT
         if(!P.isLimitSelected()){
             queryBuilder.append(" LIMIT ").append(P.getTopValue());
@@ -274,7 +261,50 @@ public class IncomeController
         query = queryBuilder.toString();
         P.getQueryTxtArea().setText(query);
     }
-
+    //TABLE
+    public void fullTable()
+    {
+        deleteTable();        
+        if(dynamicTable != null &&  !dynamicTable.getColumns().isEmpty())
+        {
+            dynamicTable.getItems().clear();
+            dynamicTable.getColumns().clear();
+        }
+        dynamicTable = new DynamicTable<>(P.getRoot(), Income.class);
+        String query = P.getQueryTxtArea().getText();
+        ExecuteQuery eq = new ExecuteQuery();
+        List<Income> list = eq.executeQuery(query, Income.class);
+        dynamicTable.setItems(list);
+    }    
+    public void customTable() //crashel
+    {
+        deleteTable();        
+        if(dynamicTable != null &&  !dynamicTable.getColumns().isEmpty())
+        {
+            dynamicTable.getItems().clear();
+            dynamicTable.getColumns().clear();
+        }
+        dynamicTable = new DynamicTable<>(P.getRoot(), Income.class, selectedColumns);
+        String query = P.getQueryTxtArea().getText();
+        ExecuteQuery eq = new ExecuteQuery();
+        List<Income> list = eq.executeQuery(query, Income.class);
+        dynamicTable.setItems(list);
+    }
+    public void deleteTable()
+    {
+        TableView<?> table = null;
+        for(Node node : P.getRoot().getChildren()) //Node elemek
+        {
+            if(node instanceof TableView<?>)
+            {
+                table = (TableView<?>) node;
+                P.getRoot().getChildren().remove(table);
+                
+                break;
+            }
+        }
+    }
+    
     public StringBuilder getOriginalQ() {
         return originalQ;
     }

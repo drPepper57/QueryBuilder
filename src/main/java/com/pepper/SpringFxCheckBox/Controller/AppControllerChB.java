@@ -65,6 +65,7 @@ public class AppControllerChB implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb) 
     {
+        
         appCore = new AppCoreChB();
         scene = appCore.getScene();
         incomeController = new IncomeController(this);
@@ -124,13 +125,20 @@ public class AppControllerChB implements Initializable
     }
     public void expectoQuery()
     {
-        String query = queryTxtArea.getText();
-        ExecuteQuery eq = new ExecuteQuery();
-        List<Income> list = eq.executeQuery(query, Income.class);
-                
-        DynamicTable<Income> dynamicTable = new DynamicTable<>(root, Income.class);
+        if(incTableChB.isSelected() && incomeController.getSelectedColumns().isEmpty()){
+            incomeController.fullTable();
+        } else {
+            //incomeController.customTable(); CRASHEL
+        }
+        if(prtTableChB.isSelected() && partnerController.getSelectedColumns().isEmpty()){
+            //FULL PARTNER TABLE
+        } else {
+            // CUSTOM PARTNER TABLE
+        }
         
-        dynamicTable.setItems(list);
+        
+       
+        
         
     }
     //JOIN
@@ -461,7 +469,10 @@ public class AppControllerChB implements Initializable
     }
     public TextField getOrderByTF() {
         return orderByTF;
-    }    
+    }
+    public boolean isDescSelected(){
+       return descChb.isSelected();
+    }
     //GROUP BY
     public ComboBox<String> getGroupByCB() {
         return groupByCB;
@@ -502,13 +513,10 @@ public class AppControllerChB implements Initializable
     }    
     public ComboBox<String> getWhereCB1() {
         return whereJoinCB;
-    }
-       
+    }       
     public TextField getAndOrTF() {
         return andOrTF;
-    }
-    
-    
+    }    
     public Scene getScene() {
         return scene;
     }    
@@ -556,6 +564,11 @@ public class AppControllerChB implements Initializable
     public Map<String, String> getAggregateMap() {
         return aggregateMap;
     }
+    //TABLE    
+    public VBox getRoot() {
+        return root;
+    }
+    
     
     
     

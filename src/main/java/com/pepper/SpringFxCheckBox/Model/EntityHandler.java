@@ -16,7 +16,7 @@ public class EntityHandler<T>
     public EntityHandler(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
-
+    // meg kell kapja a selectedColumns-t parameterben
     public List<T> processResultSet(ResultSet resultSet) throws SQLException 
     {
         
@@ -32,6 +32,7 @@ public class EntityHandler<T>
                 for (Field field : fields) 
                 {
                     String fieldName = field.getName();
+                    
                     field.setAccessible(true);
   
                     if (field.getType() == String.class && !"partnerId".equals(fieldName)) 
@@ -70,4 +71,50 @@ public class EntityHandler<T>
         }
         return queryResult;
     }
+    /*
+    for (Field field : fields) {
+            String fieldName = field.getName();
+            if (selectedColumns.contains(fieldName)) {
+                field.setAccessible(true);
+                Object value = resultSet.getObject(fieldName);
+
+                try {
+                    field.set(entity, value);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    for (Field field : fields) 
+    {
+        String fieldName = field.getName();
+
+        field.setAccessible(true);
+
+        if (field.getType() == String.class && !"partnerId".equals(fieldName)) 
+        {                        
+            field.set(entity, resultSet.getString(fieldName));
+        }
+        else if (field.getType() == int.class) 
+        {
+            if("partnerId".equals(fieldName)){
+                fieldName = "partner";
+                System.out.println(resultSet.getInt(fieldName));
+                field.set(entity, resultSet.getInt(fieldName));
+            }
+           field.set(entity, resultSet.getInt(fieldName));
+        }
+        else if (field.getType() == double.class || field.getType() == Double.class) 
+        {
+            field.set(entity, resultSet.getDouble(fieldName));
+        }
+        else if (field.getType() == boolean.class || field.getType() == Boolean.class) 
+        {
+            field.set(entity, resultSet.getInt(fieldName) == 1);
+        }
+        else if(field.getType() == LocalDate.class )
+        {
+            field.set(entity, resultSet.getObject(fieldName, LocalDate.class));
+        }              
+    }*/
 }

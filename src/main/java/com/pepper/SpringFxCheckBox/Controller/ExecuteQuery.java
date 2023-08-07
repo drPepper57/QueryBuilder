@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExecuteQuery<T>
-{
+{   // meg kell kapja a selectedColumns-t parameterben
     public <T> List<T> executeQuery(String query, Class<T> entityClass) 
     {
         List<T> queryResult = new ArrayList<>();

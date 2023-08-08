@@ -2,15 +2,11 @@ package com.pepper.SpringFxCheckBox.Model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import org.springframework.data.annotation.Transient;
 
  @Entity
  @Table(name = "db__income")
@@ -23,13 +19,13 @@ public class Income
     
     
     @Column(name = "partner")
-    private int partnerId;
-
+    private int partner;
+/*
     @Transient 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partner", referencedColumnName = "id", insertable = false, updatable = false)
     private Partner partner;
-    
+    */
     private int amount;
     private String project;
     private LocalDate created;
@@ -41,12 +37,9 @@ public class Income
   
     public int getId() {
         return id;
-    }
-    public Partner getPartner() {
-        return partner;
-    }
+    }    
     public Integer getPartnerId() {
-        return partnerId;
+        return partner;
     }
     public int getAmount() {
         return amount;
@@ -78,7 +71,7 @@ public class Income
 
     @Override
     public String toString() {
-        return "Income{" + "id=" + id + ", partner=" + partnerId + ", amount=" + amount + ", project=" + project + ", created=" + created + ", approved=" + approved + '}';
+        return "Income{" + "id=" + id + ", partner=" + partner + ", amount=" + amount + ", project=" + project + ", created=" + created + ", approved=" + approved + '}';
     }
      
     

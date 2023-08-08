@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ExecuteQuery<T>
 {   // meg kell kapja a selectedColumns-t parameterben
-    public <T> List<T> executeQuery(String query, Class<T> entityClass) 
+    public <T> List<T> executeQuery(String query, Class<T> entityClass, List<String> selectedColumns) 
     {
         List<T> queryResult = new ArrayList<>();
         try (Connection connection = Database.getDataSource().getConnection();
@@ -20,12 +20,19 @@ public class ExecuteQuery<T>
         {
             EntityHandler<T> entityHandler = new EntityHandler<>(entityClass);
             // Process the result set
-            queryResult = entityHandler.processResultSet(resultSet);
-            /*for (T entity : queryResult) {
-                System.out.println(" executeQuery method");
-            System.out.println(entity.toString());
+            if(selectedColumns.isEmpty()){
+                queryResult = entityHandler.processResultSet(resultSet);
+                System.out.println("ExecuteQuery without selected columns");
+            } else {
+                System.out.println("ExecuteQuery with selected columns");
+                queryResult = entityHandler.processResultSet(resultSet, selectedColumns);
+            }
+            
+            for (String name : selectedColumns) {
+                System.out.println("selectedColumns " + name);
+            
             // Do other processing with the entities
-            }*/
+            }
         } catch (SQLException e) {
             
             e.printStackTrace();

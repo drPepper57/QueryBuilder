@@ -273,7 +273,8 @@ public class IncomeController
         dynamicTable = new DynamicTable<>(P.getRoot(), Income.class);
         String query = P.getQueryTxtArea().getText();
         ExecuteQuery eq = new ExecuteQuery();
-        List<Income> list = eq.executeQuery(query, Income.class);
+        List<Income> list = eq.executeQuery(query, Income.class, selectedColumns); // itt kell paraméterben a SelectedColumns de kell egy processResultSet verzió ami nem kap
+                                                                             // selectedColumnst, ha Select * van -> selectedColumns == null
         dynamicTable.setItems(list);
     }    
     public void customTable() //crashel
@@ -287,7 +288,7 @@ public class IncomeController
         dynamicTable = new DynamicTable<>(P.getRoot(), Income.class, selectedColumns);
         String query = P.getQueryTxtArea().getText();
         ExecuteQuery eq = new ExecuteQuery();
-        List<Income> list = eq.executeQuery(query, Income.class);
+        List<Income> list = eq.executeQuery(query, Income.class, selectedColumns);
         dynamicTable.setItems(list);
     }
     public void deleteTable()
@@ -318,6 +319,9 @@ public class IncomeController
     {   
         if(selectedColumns.isEmpty()){System.out.println("selectedColumns IS NULL inside IncomeController");}
         return selectedColumns;
+    }
+    public boolean isSelectedColNull(){
+        return selectedColumns.isEmpty();
     }
     public List<CheckBox> getCheckBoxes() {
         return checkBoxes;

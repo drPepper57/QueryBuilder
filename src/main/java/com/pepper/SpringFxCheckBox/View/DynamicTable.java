@@ -55,7 +55,7 @@ public class DynamicTable<T> extends TableView<T> {
     }
     
     public DynamicTable(Pane parent, Class<T> entityClass, List<String> selectedColumns)
-    {
+    { // LEHET ITT A BAJ
         super();
         parent.getChildren().add(this);
                 

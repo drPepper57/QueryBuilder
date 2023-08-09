@@ -1,11 +1,14 @@
 package com.pepper.SpringFxCheckBox.Controller;
 
+
+import com.pepper.SpringFxCheckBox.Gui.MessageBox;
 import com.pepper.SpringFxCheckBox.Model.Database;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,23 +23,16 @@ public class ExecuteQuery<T>
         {
             EntityHandler<T> entityHandler = new EntityHandler<>(entityClass);
             // Process the result set
-            if(selectedColumns.isEmpty()){
-                queryResult = entityHandler.processResultSet(resultSet);
-                System.out.println("ExecuteQuery without selected columns");
-            } else {
-                System.out.println("ExecuteQuery with selected columns");
-                queryResult = entityHandler.processResultSet(resultSet, selectedColumns);
-            }
-            
-            for (String name : selectedColumns) {
-                System.out.println("selectedColumns " + name);
-            
-            // Do other processing with the entities
-            }
-        } catch (SQLException e) {
-            
+            queryResult = entityHandler.processResultSet(resultSet, selectedColumns);
+           
+        } catch (SQLSyntaxErrorException e) {
             e.printStackTrace();
-            System.out.println("An error occurred executing query: " + e.getMessage());
+            MessageBox.Show("Error","SQL syntax error",  e.getMessage()+"\nPlease check your query and try again.", 2);
+        }
+        catch (SQLException e) {
+            
+            e.printStackTrace();            
+            MessageBox.Show("Error", "SQL error", e.getMessage());
         }
         return queryResult;
     }

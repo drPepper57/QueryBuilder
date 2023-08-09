@@ -125,16 +125,12 @@ public class AppControllerChB implements Initializable
     }
     public void expectoQuery()
     {
-        if(incTableChB.isSelected() && incomeController.isSelectedColNull()){
-            incomeController.fullTable();
-        } else {
-            incomeController.customTable(); //CRASHEL
-        }
-        if(prtTableChB.isSelected() && partnerController.getSelectedColumns() == null){
-            //FULL PARTNER TABLE
-        } else {
-            // CUSTOM PARTNER TABLE
-        }
+        if(incTableChB.isSelected()){
+            incomeController.expectoResult();
+        } 
+        if(prtTableChB.isSelected()){
+            partnerController.expectoResult();
+        } 
         
         
        

@@ -3,6 +3,8 @@ package com.pepper.SpringFxCheckBox.Controller;
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.TextField;
 import com.pepper.SpringFxCheckBox.Model.Model;
+import com.pepper.SpringFxCheckBox.Model.Partner;
+import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,8 +13,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 
 
@@ -28,6 +32,7 @@ public class PartnerController
     StringBuilder queryBuilder;
     private boolean whereAdded, orderAdded, groupAdded;
     private Timer timer;
+    DynamicTable<Partner> dynamicTable;
     
     public PartnerController(AppControllerChB parent)
     {
@@ -162,9 +167,9 @@ public class PartnerController
         }
         if( selectedColumns.size() <= 0)
         {
-            queryBuilder.append(" * FROM db_partner");
+            queryBuilder.append(" * FROM db__partners");
         } else {
-            queryBuilder.append(" FROM db_partner");
+            queryBuilder.append(" FROM db__partners");
         }
         // WHERE IS NULL
         if(P.getWhereCB1().getValue() != null && P.isNull1() && P.getwhereOpCBValue1() == null){
@@ -236,12 +241,37 @@ public class PartnerController
         P.getQueryTxtArea().setText(query);
     }
     
-    private void inflateCombobox(ComboBox<String> comboBox, List<String> namesList, boolean isAdded) 
+    public void expectoResult()
     {
-        if(comboBox.getItems().size() == 1 && !isAdded){
-            comboBox.getItems().addAll(namesList);
-            isAdded = true;
-        }        
+        System.out.println("Partner controller expectoAll triggered");
+        deleteTable();
+        if(dynamicTable != null && !dynamicTable.getColumns().isEmpty())
+        {
+            System.out.println("hiba 1");
+            dynamicTable.getItems().clear();
+            System.out.println("hiba 2");
+            dynamicTable.getColumns().clear();
+        }
+        dynamicTable = new DynamicTable<>(P.getRoot(), Partner.class, selectedColumns);
+        String query = P.getQueryTxtArea().getText();
+        ExecuteQuery eq = new ExecuteQuery();
+        List<Partner> list = eq.executeQuery(query, Partner.class, selectedColumns);
+        
+        dynamicTable.setItems(list);
+    }
+    public void deleteTable()
+    {
+        System.out.println("hiba 3");
+        TableView<?> table = null;
+        for(Node node : P.getRoot().getChildren())
+        {
+            if(node instanceof TableView<?>)
+            {
+                table = (TableView<?>) node;
+                P.getRoot().getChildren().remove(table);
+                break;
+            }
+        }
     }
 
     public List<String> getPrtColNames() {
@@ -250,6 +280,9 @@ public class PartnerController
     public List<String> getSelectedColumns() {
         return selectedColumns;
     }
+    public boolean isSelectedColNull(){
+        return selectedColumns.isEmpty();
+    }
     public List<CheckBox> getCheckBoxes() {
         return checkBoxes;
     }
@@ -257,6 +290,12 @@ public class PartnerController
         return asTxtList;
     }
     
-
+    private void inflateCombobox(ComboBox<String> comboBox, List<String> namesList, boolean isAdded) 
+        {
+            if(comboBox.getItems().size() == 1 && !isAdded){
+                comboBox.getItems().addAll(namesList);
+                isAdded = true;
+            }        
+        }
 
 }

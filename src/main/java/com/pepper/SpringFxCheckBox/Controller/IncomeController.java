@@ -262,22 +262,7 @@ public class IncomeController
         P.getQueryTxtArea().setText(query);
     }
     //TABLE
-    public void fullTable()
-    {
-        deleteTable();        
-        if(dynamicTable != null &&  !dynamicTable.getColumns().isEmpty())
-        {
-            dynamicTable.getItems().clear();
-            dynamicTable.getColumns().clear();
-        }
-        dynamicTable = new DynamicTable<>(P.getRoot(), Income.class);
-        String query = P.getQueryTxtArea().getText();
-        ExecuteQuery eq = new ExecuteQuery();
-        List<Income> list = eq.executeQuery(query, Income.class, selectedColumns); // itt kell paraméterben a SelectedColumns de kell egy processResultSet verzió ami nem kap
-                                                                             // selectedColumnst, ha Select * van -> selectedColumns == null
-        dynamicTable.setItems(list);
-    }    
-    public void customTable() //crashel
+    public void expectoResult()
     {
         deleteTable();        
         if(dynamicTable != null &&  !dynamicTable.getColumns().isEmpty())
@@ -288,7 +273,8 @@ public class IncomeController
         dynamicTable = new DynamicTable<>(P.getRoot(), Income.class, selectedColumns);
         String query = P.getQueryTxtArea().getText();
         ExecuteQuery eq = new ExecuteQuery();
-        List<Income> list = eq.executeQuery(query, Income.class, selectedColumns);
+        List<Income> list = eq.executeQuery(query, Income.class, selectedColumns); // itt kell paraméterben a SelectedColumns de kell egy processResultSet verzió ami nem kap
+                                                                             // selectedColumnst, ha Select * van -> selectedColumns == null
         dynamicTable.setItems(list);
     }
     public void deleteTable()
@@ -337,18 +323,7 @@ public class IncomeController
         }        
     }
     
-    public List<String> createInColJoinNames()
-    {
-        System.out.println("createInColJoinNames triggered in IncomeController");
-        String a = P.getJoinAS0();
-
-        inColJoinNames = new ArrayList<>();
-        for(int i = 0; i < selectedColumns.size(); i++){
-            inColJoinNames.add(a + "." + selectedColumns.get(i));
-            System.out.println(inColJoinNames.get(i));
-        }
-        return inColJoinNames;
-    }
+    
     
     
     

@@ -2,6 +2,8 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.TextField;
+import com.pepper.SpringFxCheckBox.Model.EntityHandler;
+import com.pepper.SpringFxCheckBox.Model.Income;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.Model.Partner;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
@@ -45,7 +47,7 @@ public class PartnerController
     
     public void createPrtCheckBoxes()
     {
-        prtColNames = model.getColumnNames("db__partners");
+        prtColNames = model.getColumnNames(Partner.class);
         checkBoxes = new ArrayList<>();
         
         for(int i = 0; i < prtColNames.size(); i++)
@@ -113,9 +115,19 @@ public class PartnerController
             {
                 if(chb.get(index).isSelected() && !booleans.get(index).get())
                 {
-                    selectedColumns.add(prtColNames.get(index));
-                    booleans.get(index).set(true);
-                } else { selectedColumns.remove(prtColNames.get(index)); booleans.get(index).get();}
+                    if(index < selectedColumns.size())
+                    {
+                        selectedColumns.add(index,prtColNames.get(index));// ha kiválaszt egy oszlopot hozzáadja egy List<String>-hez
+                        booleans.get(index).set(true);
+                    } else {
+                        selectedColumns.add(prtColNames.get(index));
+                        booleans.get(index).set(true);
+                    }
+                } else 
+                {
+                    selectedColumns.remove(prtColNames.get(index));
+                    booleans.get(index).set(false);
+                }
             });
         }        
     }
@@ -252,11 +264,13 @@ public class PartnerController
             System.out.println("hiba 2");
             dynamicTable.getColumns().clear();
         }
-        dynamicTable = new DynamicTable<>(P.getRoot(), Partner.class, selectedColumns);
+        
         String query = P.getQueryTxtArea().getText();
         ExecuteQuery eq = new ExecuteQuery();
-        List<Partner> list = eq.executeQuery(query, Partner.class, selectedColumns);
+        EntityHandler entHand = new EntityHandler(Partner.class);      
+        List<Partner> list = eq.executeQuery(query, Partner.class, selectedColumns, entHand);
         
+        dynamicTable = new DynamicTable<>(P.getRoot(), Partner.class, selectedColumns, entHand);
         dynamicTable.setItems(list);
     }
     public void deleteTable()

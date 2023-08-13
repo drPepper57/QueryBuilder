@@ -12,15 +12,25 @@ import org.springframework.data.annotation.Transient;
 public class EntityHandler<T> 
 {
     private final Class<T> entityClass;
-    List<T> queryResult = new ArrayList<>();
+    private List<T> queryResult = new ArrayList<>();
+    private List<String> columnLabel = new ArrayList<>();
     
     public EntityHandler(Class<T> entityClass) {
-        this.entityClass = entityClass;
+        this.entityClass = entityClass;        
     }
+    
     public List<T> processResultSet(ResultSet resultSet, List<String> selectedColumns) throws SQLException 
     {
         ResultSetMetaData metaData = resultSet.getMetaData();
         int columnCount = metaData.getColumnCount();
+        
+        for (int i = 1; i <= columnCount; i++) {
+            String columnName = metaData.getColumnName(i); // eredeti column name
+            String columnAlias = metaData.getColumnLabel(i); // Alias, ha van, ha nincs = columnName
+            columnLabel.add(columnAlias);
+            System.out.println(columnAlias +  " ALIAS");
+        }
+        
         try 
         {
             while (resultSet.next()) 
@@ -28,22 +38,36 @@ public class EntityHandler<T>
                 T entity = entityClass.getDeclaredConstructor().newInstance();
                 
                 Field[] fields = entityClass.getDeclaredFields();
+                int i = 1;
                 for (Field field : fields) 
                 {
                     String fieldName = field.getName();
-        
+                    System.out.println("all fieldNames : " + fieldName );
+                    
+                    
                     if (selectedColumns.contains(fieldName) && !field.isAnnotationPresent(Transient.class))
                     {
-                        System.out.println("Entered if (selectedColumns.contains(fieldName) " + fieldName);
+                        //Ha tartalmaz alias-t a metaData-> fieldName = alias (=columnLabel)
+                        String columnLabel = metaData.getColumnLabel(i); // Get the column label from metadata
+                        if (!fieldName.equals(columnLabel)) {
+                            System.out.println("IF fieldName != columnLabel " + fieldName + " != " +  columnLabel);
+                            fieldName = columnLabel;
+                            System.out.println(fieldName + " index " + i);
+                            if (i < fields.length) { i++; }
+                        } else {
+                            System.out.println("ELSE fieldName equals columnLabel");
+                            System.out.println(fieldName + " index " + i);
+                            if (i < fields.length) { i++; }
+                        }
                         field.setAccessible(true);
-                        Object value = resultSet.getObject(fieldName);
                                                                //valamiért azt hitte String és crashelt
                         if (field.getType() == String.class && !"partnerId".equals(fieldName)) 
-                        {                        
+                        {
                             field.set(entity, resultSet.getString(fieldName));
                         }
                         else if (field.getType() == int.class) 
                         {
+                            System.out.println("4 getType: " + field.getType() + " fieldName " + fieldName);
                            field.set(entity, resultSet.getInt(fieldName));
                         }
                         else if (field.getType() == double.class || field.getType() == Double.class) 
@@ -58,6 +82,7 @@ public class EntityHandler<T>
                         {
                             field.set(entity, resultSet.getObject(fieldName, LocalDate.class));
                         }
+                        
                     } else if(selectedColumns.isEmpty() || selectedColumns == null && !field.isAnnotationPresent(Transient.class))
                     {
                         field.setAccessible(true);
@@ -85,9 +110,7 @@ public class EntityHandler<T>
                         }
                     }
                 }
-                queryResult.add(entity);  
-                // Process the entity as needed, for example, print its values
-                //System.out.println("EntityHandler toString "+entity.toString());
+                queryResult.add(entity);
             }
         }
         catch (Exception e) {
@@ -95,10 +118,32 @@ public class EntityHandler<T>
         }
         return queryResult;
     }
+    public List<String> getColLabel(){
+        System.out.println("EntityHandler getColLabel triggered, columnLabel.isEmpty: " + columnLabel.isEmpty());
+        return columnLabel;
+    }
+    /*
+    EntityHandler class is attempting to access a column by
+    its original name (not the alias) and failing to find it.
     
+    ResultSetMetaData interface provides information about the columns in a result set obtained from
+    a database query. It gives you details about the structure and characteristics of the columns in the
+    result set,such as column names, data types, whether columns are nullable, and more.
     
-    
-    
+    1. Oszlopadatok Lekérdezése: A ResultSetMetaData segítségével információt kaphatsz a lekérdezésből származó
+    eredményhalmaz oszlopairól, ideértve azok neveit, aliasait, adattípusait és azt, hogy olvashatók-e.
+
+    2. Dinamikus Oszlophandling: Ha olyan eredményhalmazzal dolgozol, amelynek oszlopstruktúrája előre nem ismert
+    (pl. dinamikus lekérdezések vagy felhasználó által definiált lekérdezések esetén), a ResultSetMetaData
+    használható az oszlopnevek és adattípusok dinamikus meghatározásához.
+
+    3. Jelentések Generálása vagy Adatok Exportálása: Amikor jelentéseket kell generálnod vagy adatokat
+    különböző formátumokba exportálnod (például CSV, Excel vagy PDF), a ResultSetMetaData segítségével
+    oszlopadatokat kaphatsz a fejlécek létrehozásához vagy a kimenet formázásához.
+
+    4. Lekérdezési Eredmények Ellenőrzése: A ResultSetMetaData használatával ellenőrizheted,
+    hogy a kapott eredményhalmaz megfelel-e az elvárt oszlopstruktúrának, mielőtt további feldolgozásra kerülne.
+    */
     
     /*
     public List<T> processResultSet(ResultSet resultSet) throws SQLException 
@@ -199,4 +244,6 @@ public class EntityHandler<T>
             field.set(entity, resultSet.getObject(fieldName, LocalDate.class));
         }              
     }*/
+
+    
 }

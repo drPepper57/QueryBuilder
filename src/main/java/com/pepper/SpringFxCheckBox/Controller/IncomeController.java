@@ -2,6 +2,7 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.TextField;
+import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.Model.Income;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
@@ -47,8 +48,10 @@ public class IncomeController
     
     public void createIncCheckBoxes() // checkboxok dinamikus létrehozása hozzáadása szöveggel parenthez, onAction nélkül
     {
-        inColNames = model.getColumnNames("db__income");
-        checkBoxes = new ArrayList<>();        
+        inColNames = model.getColumnNames(Income.class);
+        
+        checkBoxes = new ArrayList<>();
+        
         
         for(int i = 0; i < inColNames.size(); i++) // checkboxok létrehozása
         {
@@ -107,7 +110,7 @@ public class IncomeController
     
     public void addSelectedColumnOnAction(List<CheckBox> chb) // onAction hozzáadása checkboxokhoz
     {
-        final Map<Integer, AtomicBoolean> booleans = new HashMap<>();      // lehet nem is kell AtomicBoolean ...
+        final Map<Integer, AtomicBoolean> booleans = new HashMap<>();        
         for(int i = 0; i < chb.size(); i++) // AtomicBoolean dinamikus létrehozása
         {
             AtomicBoolean atcBoolean = new AtomicBoolean(false);
@@ -120,8 +123,14 @@ public class IncomeController
             {//
                 if(chb.get(index).isSelected() && !booleans.get(index).get()) 
                 {
-                    selectedColumns.add(inColNames.get(index)); // ha kiválaszt egy oszlopot hozzáadja egy List<String>-hez
-                    booleans.get(index).set(true);
+                    if(index < selectedColumns.size())
+                    {
+                        selectedColumns.add(index,inColNames.get(index));// ha kiválaszt egy oszlopot hozzáadja egy List<String>-hez
+                        booleans.get(index).set(true);
+                    } else {
+                        selectedColumns.add(inColNames.get(index));
+                        booleans.get(index).set(true);
+                    }
                 } else //
                 {
                     selectedColumns.remove(inColNames.get(index));
@@ -141,19 +150,18 @@ public class IncomeController
                 break;
             }
         }
-        return index;
+        return index; //végigmegyünk a checkbox list szövegein, ahol equals selectedColumn, annak az indexét adja vissza és az alapján kérjük le az aliasTF szövegét
     }
    
     public void buildQuery() // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
     {
         queryBuilder = new StringBuilder("SELECT ");        
         for(int i = 0; i < selectedColumns.size(); i++) // oszlop nevek hozzáadása
-        {
+        {                            //lekérjük a checkbox indexét 
             String alias = asTxtList.get(getChbIndex(selectedColumns.get(i))).getText().trim(); //AS txtField tartalma
             if(!alias.isEmpty()) // HA megadtak ALIAS-t, asTxtList tartalmazza az AS TextFieldeket
-            {   // MAX(age) AS max_age, ITT KÉNE HOZZÁADNI AZ AGGREGATE CLAUSE
-                
-                if(P.getAggregateMap().containsKey(selectedColumns.get(i)))
+            {
+                if(P.getAggregateMap().containsKey(selectedColumns.get(i))) //SUM,AVG, etc
                 {   
                     String aggregateFunction = P.getAggregateMap().get(selectedColumns.get(i));
                     queryBuilder.append(aggregateFunction).append("(").append(selectedColumns.get(i)).append(")").append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..                    
@@ -170,14 +178,11 @@ public class IncomeController
             }
             else {queryBuilder.append(selectedColumns.get(i));} 
 
-
-            if( i < selectedColumns.size()-1 ) // utolsó előtti elemig ", " ad hozzá
-            {
+            if( i < selectedColumns.size()-1 ){ // utolsó előtti elemig ", " ad hozzá
                 queryBuilder.append(", ");
             }
         }
-        if( selectedColumns.size() <= 0) // ha nincs oszlop kijelölve 
-        {
+        if( selectedColumns.size() <= 0){ // ha nincs oszlop kijelölve 
             queryBuilder.append(" * FROM db__income");
         } else {
             queryBuilder.append(" FROM db__income");
@@ -270,11 +275,13 @@ public class IncomeController
             dynamicTable.getItems().clear();
             dynamicTable.getColumns().clear();
         }
-        dynamicTable = new DynamicTable<>(P.getRoot(), Income.class, selectedColumns);
+        
         String query = P.getQueryTxtArea().getText();
         ExecuteQuery eq = new ExecuteQuery();
-        List<Income> list = eq.executeQuery(query, Income.class, selectedColumns); // itt kell paraméterben a SelectedColumns de kell egy processResultSet verzió ami nem kap
+        EntityHandler entHand = new EntityHandler(Income.class);        
+        List<Income> list = eq.executeQuery(query, Income.class, selectedColumns, entHand); // itt kell paraméterben a SelectedColumns de kell egy processResultSet verzió ami nem kap
                                                                              // selectedColumnst, ha Select * van -> selectedColumns == null
+        dynamicTable = new DynamicTable<>(P.getRoot(), Income.class, selectedColumns, entHand);
         dynamicTable.setItems(list);
     }
     public void deleteTable()

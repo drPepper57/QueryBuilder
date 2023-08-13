@@ -2,7 +2,9 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.TextField;
+import com.pepper.SpringFxCheckBox.Model.Income;
 import com.pepper.SpringFxCheckBox.Model.Model;
+import com.pepper.SpringFxCheckBox.Model.Partner;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.CheckBox;
@@ -39,8 +41,8 @@ public class JoinController
     }
     public void setUpQueryData() // 2 tábla kiválasztásakor fut le
     {
-        inColNames = model.getColumnNames("db__income");
-        prtColNames = model.getColumnNames("db__partners");
+        inColNames = model.getColumnNames(Income.class);
+        prtColNames = model.getColumnNames(Partner.class);
                 
         this.selectedColumns1 = new ArrayList<>();
         this.selectedColumns2 = new ArrayList<>();
@@ -159,20 +161,22 @@ public class JoinController
         if(joinColumnNames1.size() <= 0 && joinColumnNames2.size() <= 0 )
         {
                               //ezt átírni dinamikusra
-            queryBuilder.append(" * FROM db_income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());         
+            queryBuilder.append(" * FROM db__income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());         
         }
         else
         {                    //ezt átírni dinamikusra
-            queryBuilder.append(" FROM db_income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());
+            queryBuilder.append(" FROM db__income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());
         }
         // WHERE *** IS NULL
         if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null && P.getAndOrTF1().getText() == null)
         {
+            System.out.println("hiba 1");
             queryBuilder.append(" WHERE ").append(P.getWhereCB().getValue()).append(" IS NULL");            
         }
         // WHERE kisebb nagyobb mint 
         if(P.getWhereCB().getValue() != null && P.getThanTxt().getText() != null && P.getwhereOpCB().getValue() != null && P.getAndOrTF1().getText() == null)
-        {            
+        {      
+            System.out.println("hiba 2");
             String whereColName = P.getWhereCB().getValue();            
             String operator = P.getwhereOpCB().getSelectionModel().getSelectedItem();            
             // Check if the user entered a numeric value
@@ -198,6 +202,7 @@ public class JoinController
         }
         if(P.getAndOrTF1().getText() != null)
         {
+            System.out.println("hiba 3!!!!!!!!!!!!!!!!!!!!!!!!!");
             queryBuilder.append( " WHERE ").append(P.getAndOrTF1().getText());
         }
         // GROUP BY
@@ -259,11 +264,11 @@ public class JoinController
         List<String> allColNames = new ArrayList<>();
         
         List<String> firstColNames = new ArrayList<>();
-        firstColNames.addAll(model.getColumnNames("db__income"));
+        firstColNames.addAll(model.getColumnNames(Income.class));
         firstColNames = createJoinNames(firstColNames, a);
         
         List<String> secColNames = new ArrayList<>();
-        secColNames.addAll(model.getColumnNames("db__partners"));
+        secColNames.addAll(model.getColumnNames(Partner.class));
         secColNames = createJoinNames(secColNames, b);
         
         allColNames.addAll(firstColNames);

@@ -3,6 +3,7 @@ package com.pepper.SpringFxCheckBox.Controller;
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Model.Income;
 import com.pepper.SpringFxCheckBox.Model.Model;
+import com.pepper.SpringFxCheckBox.Model.Partner;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.net.URL;
 import java.util.ArrayList;
@@ -379,14 +380,14 @@ public class AppControllerChB implements Initializable
         });
         
         //ON átírni dinamikusra
-        onCB0.getItems().addAll(model.getColumnNames("db__income"));
-        onCB1.getItems().addAll(model.getColumnNames("db__partners"));
-        aggName.getItems().addAll(model.getColumnNames("db__income"));
-        aggName.getItems().addAll(model.getColumnNames("db__partners"));
-        groupByCB.getItems().addAll(model.getColumnNames("db__income"));
-        groupByCB.getItems().addAll(model.getColumnNames("db__partners"));
-        whereCB.getItems().addAll(model.getColumnNames("db__income"));
-        whereCB.getItems().addAll(model.getColumnNames("db__partners"));
+        onCB0.getItems().addAll(model.getColumnNames(Income.class));
+        onCB1.getItems().addAll(model.getColumnNames(Partner.class));
+        aggName.getItems().addAll(model.getColumnNames(Income.class));
+        aggName.getItems().addAll(model.getColumnNames(Partner.class));
+        groupByCB.getItems().addAll(model.getColumnNames(Income.class));
+        groupByCB.getItems().addAll(model.getColumnNames(Partner.class));
+        whereCB.getItems().addAll(model.getColumnNames(Income.class));
+        whereCB.getItems().addAll(model.getColumnNames(Partner.class));
         
         // IIIIITTTTT TARTOOOK lehet kéne egy JoinController mert         
         

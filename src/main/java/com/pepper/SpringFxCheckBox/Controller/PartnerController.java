@@ -2,6 +2,7 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.TextField;
+import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.Model.Income;
 import com.pepper.SpringFxCheckBox.Model.Model;
@@ -34,7 +35,7 @@ public class PartnerController
     StringBuilder queryBuilder;
     private boolean whereAdded, orderAdded, groupAdded;
     private Timer timer;
-    DynamicTable<Partner> dynamicTable;
+    DynamicTable dynamicTable;
     
     public PartnerController(AppControllerChB parent)
     {
@@ -47,7 +48,7 @@ public class PartnerController
     
     public void createPrtCheckBoxes()
     {
-        prtColNames = model.getColumnNames(Partner.class);
+        prtColNames = model.getColumnNames("db__partners");
         checkBoxes = new ArrayList<>();
         
         for(int i = 0; i < prtColNames.size(); i++)
@@ -255,27 +256,24 @@ public class PartnerController
     
     public void expectoResult()
     {
-        System.out.println("Partner controller expectoAll triggered");
+        System.out.println("Partner controller expectoResult triggered");
         deleteTable();
         if(dynamicTable != null && !dynamicTable.getColumns().isEmpty())
         {
-            System.out.println("hiba 1");
             dynamicTable.getItems().clear();
-            System.out.println("hiba 2");
             dynamicTable.getColumns().clear();
         }
         
         String query = P.getQueryTxtArea().getText();
         ExecuteQuery eq = new ExecuteQuery();
-        EntityHandler entHand = new EntityHandler(Partner.class);      
-        List<Partner> list = eq.executeQuery(query, Partner.class, selectedColumns, entHand);
+        EntityHandler entHand = new EntityHandler(DynamicDTO.class);      
+        List<DynamicDTO> list = eq.executeQuery(query, DynamicDTO.class, selectedColumns, entHand);
         
-        dynamicTable = new DynamicTable<>(P.getRoot(), Partner.class, selectedColumns, entHand);
+        dynamicTable = new DynamicTable<>(P.getRoot(), DynamicDTO.class, selectedColumns, entHand);
         dynamicTable.setItems(list);
     }
     public void deleteTable()
     {
-        System.out.println("hiba 3");
         TableView<?> table = null;
         for(Node node : P.getRoot().getChildren())
         {

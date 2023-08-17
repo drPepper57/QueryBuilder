@@ -7,7 +7,6 @@ import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
@@ -18,13 +17,13 @@ public class ExecuteQuery<T>
     // meg kell kapja a selectedColumns-t parameterben
     public <T> List<T> executeQuery(String query, Class<T> entityClass, List<String> selectedColumns, EntityHandler<T> entityHandler) 
     {
-        List<T> queryResult = new ArrayList<>();
+        List<T> entityList = new ArrayList<>();
         try (Connection connection = Database.getDataSource().getConnection();
              PreparedStatement statement = connection.prepareStatement(query);
              ResultSet resultSet = statement.executeQuery())
         {
             // Process the result set
-            queryResult = entityHandler.processResultSet(resultSet, selectedColumns);
+            entityList = entityHandler.processResultSet(resultSet, selectedColumns);
            
         } catch (SQLSyntaxErrorException e) {
             e.printStackTrace();
@@ -35,6 +34,6 @@ public class ExecuteQuery<T>
             e.printStackTrace();            
             MessageBox.Show("Error", "SQL error", e.getMessage());
         }
-        return queryResult;
+        return entityList;
     }
 }

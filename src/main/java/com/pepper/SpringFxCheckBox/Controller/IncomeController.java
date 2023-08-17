@@ -2,6 +2,7 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.TextField;
+import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.Model.Income;
 import com.pepper.SpringFxCheckBox.Model.Model;
@@ -34,7 +35,7 @@ public class IncomeController
     StringBuilder queryBuilder, originalQ;
     private String query;
     private Timer timer;
-    DynamicTable<Income> dynamicTable;
+    DynamicTable dynamicTable;
     
     public IncomeController(AppControllerChB parent)
     {
@@ -48,7 +49,7 @@ public class IncomeController
     
     public void createIncCheckBoxes() // checkboxok dinamikus létrehozása hozzáadása szöveggel parenthez, onAction nélkül
     {
-        inColNames = model.getColumnNames(Income.class);
+        inColNames = model.getColumnNames("db__income");
         
         checkBoxes = new ArrayList<>();
         
@@ -88,8 +89,7 @@ public class IncomeController
         
             for(int i = 0; i < inColNames.size(); i++)
             {   //checkBoxes.get(i).getWidth() + 
-                double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();
-                System.out.println(checkBoxes.get(i).getWidth() + " " + checkBoxes.get(i).getLayoutBounds().getWidth());
+                double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();                
                 TextField asTxt = new TextField(P.getAsInc(), chbWidth);
                 asTxtList.add(asTxt);
             }
@@ -269,6 +269,7 @@ public class IncomeController
     //TABLE
     public void expectoResult()
     {
+        System.out.println("Income controller expectoResult triggered");
         deleteTable();        
         if(dynamicTable != null &&  !dynamicTable.getColumns().isEmpty())
         {
@@ -278,10 +279,10 @@ public class IncomeController
         
         String query = P.getQueryTxtArea().getText();
         ExecuteQuery eq = new ExecuteQuery();
-        EntityHandler entHand = new EntityHandler(Income.class);        
-        List<Income> list = eq.executeQuery(query, Income.class, selectedColumns, entHand); // itt kell paraméterben a SelectedColumns de kell egy processResultSet verzió ami nem kap
+        EntityHandler entHand = new EntityHandler(DynamicDTO.class);        
+        List<DynamicDTO> list = eq.executeQuery(query, DynamicDTO.class, selectedColumns, entHand); // itt kell paraméterben a SelectedColumns de kell egy processResultSet verzió ami nem kap
                                                                              // selectedColumnst, ha Select * van -> selectedColumns == null
-        dynamicTable = new DynamicTable<>(P.getRoot(), Income.class, selectedColumns, entHand);
+        dynamicTable = new DynamicTable<>(P.getRoot(), DynamicDTO.class, selectedColumns, entHand);
         dynamicTable.setItems(list);
     }
     public void deleteTable()

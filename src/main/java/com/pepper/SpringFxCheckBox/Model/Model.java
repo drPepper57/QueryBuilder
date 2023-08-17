@@ -32,22 +32,11 @@ public class Model<T>
         return IncomeRepo.findTop25ByOrderByCreatedDesc();
         //SELECT *FROM your_table ORDER BY created DESC LIMIT 25;
     }
-    public List<String> getColumnNames(Class<T> entityClass) 
+    public List<String> getColumnNames(String tableName) 
     {
-    /*String query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE LOWER(TABLE_NAME) = LOWER(?) AND UPPER(COLUMN_NAME) NOT IN ('PARTNER_ID')";
-    return jdbcTemplate.queryForList(query, new Object[] { tableName }, String.class);*/
-        Field[] fields = entityClass.getDeclaredFields();
-        List<String> colNames = new ArrayList<>();
+        String query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE LOWER(TABLE_NAME) = LOWER(?) AND UPPER(COLUMN_NAME) NOT IN ('PARTNER_ID') ORDER BY ORDINAL_POSITION";
+        return jdbcTemplate.queryForList(query, new Object[] { tableName }, String.class);
 
-    for (Field field : fields) {
-        if (!field.isAnnotationPresent(Transient.class)) {
-            colNames.add(field.getName()); // Assuming database column names are uppercase
-        }
-    }
-
-   
-
-    return colNames;
     }
     
     public List<String> getTableNames(JdbcTemplate jdbcTemplate, String databaseName) {

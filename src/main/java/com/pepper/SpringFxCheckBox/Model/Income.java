@@ -20,12 +20,7 @@ public class Income
     
     @Column(name = "partner")
     private int partner;
-/*
-    @Transient 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "partner", referencedColumnName = "id", insertable = false, updatable = false)
-    private Partner partner;
-    */
+
     private int amount;
     private String project;
     private LocalDate created;

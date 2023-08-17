@@ -11,7 +11,7 @@
 	<groupId>com.pepper</groupId>
 	<artifactId>SpringFxCheckBox</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>SpringFxCheckBox</name>
+	<name>SpringFxCheckBoxTest</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>

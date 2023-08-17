@@ -109,7 +109,7 @@
       </TextArea>
       <HBox fx:id="CLAUSES" prefHeight="135.0" prefWidth="900.0" style="-fx-background-color: lightgrey;">
          <children>
-            <VBox fx:id="join" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="120.0" style="-fx-background-color: darkgrey;">
+            <VBox fx:id="join" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="150.0" style="-fx-background-color: darkgrey;">
                <children>
                   <ComboBox fx:id="joinCB" prefHeight="25.0" prefWidth="116.0" promptText="Table names">
                      <VBox.margin>
@@ -125,7 +125,7 @@
                      </VBox.margin></ComboBox>
                </children>
             </VBox>
-            <VBox fx:id="join1" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="120.0" style="-fx-background-color: darkgrey;">
+            <VBox fx:id="join1" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="150.0" style="-fx-background-color: darkgrey;">
                <children>
                   <Label alignment="TOP_LEFT" contentDisplay="CENTER" text="JOIN">
                      <font>
@@ -148,7 +148,7 @@
                   <Insets bottom="3.0" />
                </padding>
             </VBox>
-            <VBox fx:id="joinWHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="250.0" style="-fx-background-color: darkgrey;">
+            <VBox fx:id="joinWHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="300.0" style="-fx-background-color: darkgrey;">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="WHERE">
                      <font>
@@ -160,11 +160,19 @@
                         <Insets left="2.0" right="2.0" />
                      </VBox.margin>
                   </ComboBox>
-                  <HBox prefHeight="21.0" prefWidth="121.0">
+                  <HBox prefHeight="21.0" prefWidth="120.0">
                      <children>
                         <CheckBox fx:id="isNullChB1" mnemonicParsing="false" text="Null">
                            <HBox.margin>
                               <Insets left="2.0" top="6.0" />
+                           </HBox.margin>
+                        </CheckBox>
+                        <CheckBox fx:id="notNullChB1" mnemonicParsing="false" text="Not null">
+                           <padding>
+                              <Insets left="2.0" />
+                           </padding>
+                           <HBox.margin>
+                              <Insets top="6.0" />
                            </HBox.margin>
                         </CheckBox>
                         <ComboBox fx:id="whereOpCB1" prefHeight="25.0" prefWidth="59.0" promptText="&lt;&gt;">
@@ -172,9 +180,9 @@
                               <Insets left="5.0" top="4.0" />
                            </HBox.margin>
                         </ComboBox>
-                        <TextField fx:id="thanTF1" prefWidth="95.0">
+                        <TextField fx:id="thanTF1" prefWidth="110.0">
                            <HBox.margin>
-                              <Insets top="4.0" />
+                              <Insets left="5.0" top="4.0" />
                            </HBox.margin>
                         </TextField>
                      </children>
@@ -193,7 +201,7 @@
                         </Button>
                         <Button mnemonicParsing="false" onAction="#orWhereClause1" text="OR" />
                         <Button mnemonicParsing="false" onAction="#addWhereClause1" text="Add" />
-                        <Button mnemonicParsing="false" text="⌫" />
+                        <Button fx:id="delBtn1" mnemonicParsing="false" text="⌫" />
                      </children>
                      <padding>
                         <Insets top="3.0" />
@@ -201,7 +209,7 @@
                   </HBox>
                </children>
             </VBox>
-            <VBox fx:id="WHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="250.0" style="-fx-background-color: lightgrey;">
+            <VBox fx:id="WHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="300.0" style="-fx-background-color: lightgrey;">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="WHERE">
                      <font>
@@ -220,12 +228,20 @@
                               <Insets left="2.0" top="6.0" />
                            </HBox.margin>
                         </CheckBox>
+                        <CheckBox fx:id="notNullChB" mnemonicParsing="false" text="Not null">
+                           <HBox.margin>
+                              <Insets top="6.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets left="2.0" />
+                           </padding>
+                        </CheckBox>
                         <ComboBox fx:id="whereOpCB" prefHeight="25.0" prefWidth="59.0" promptText="&lt;&gt;">
                            <HBox.margin>
                               <Insets left="5.0" top="4.0" />
                            </HBox.margin>
                         </ComboBox>
-                        <TextField fx:id="thanTF" prefWidth="95.0">
+                        <TextField fx:id="thanTF" prefWidth="110.0">
                            <HBox.margin>
                               <Insets left="5.0" top="4.0" />
                            </HBox.margin>
@@ -246,7 +262,7 @@
                         </Button>
                         <Button mnemonicParsing="false" onAction="#orWhereClause" text="OR" />
                         <Button mnemonicParsing="false" onAction="#addWhereClause" text="Add" />
-                        <Button mnemonicParsing="false" text="⌫" />
+                        <Button fx:id="delBtn" mnemonicParsing="false" text="⌫" />
                      </children>
                      <padding>
                         <Insets top="3.0" />

@@ -24,18 +24,3 @@ public class DynamicDTO
     }
 
 }
-/* Majd az EntityHandlerbe:
-    // ... Inside your processing code ...
-
-ResultSetMetaData metaData = resultSet.getMetaData();
-int columnCount = metaData.getColumnCount();
-
-DynamicDTO dto = new DynamicDTO();
-for (int i = 1; i <= columnCount; i++) {
-    String columnName = metaData.getColumnName(i);
-    Object value = resultSet.getObject(i);
-    dto.setValue(columnName, value);
-}
-
-// Use dto to access the retrieved values
-*/

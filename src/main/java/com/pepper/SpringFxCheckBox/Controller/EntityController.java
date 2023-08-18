@@ -1,6 +1,7 @@
 package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
+import com.pepper.SpringFxCheckBox.Gui.ColumnNameContainer;
 import com.pepper.SpringFxCheckBox.Gui.TextField;
 import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
@@ -18,55 +19,55 @@ import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 
 
-public class IncomeController 
+public class EntityController 
 {
     private AppControllerChB P;
     private Model model;    
-    private List<String> inColNames;
+    private List<String> colNames;
     private final List<String> selectedColumns;    
-    private List<String> inColJoinNames;
     private List<TextField> asTxtList;
     private List<CheckBox> checkBoxes;
-    StringBuilder queryBuilder, originalQ;
+    private StringBuilder queryBuilder, originalQ;
     private String query;
     private Timer timer;
-    DynamicTable dynamicTable;
+    private DynamicTable dynamicTable;
+    private ColumnNameContainer colNContainer;    
+    private HBox AScontainer, nameChbCont, container;
     
-    public IncomeController(AppControllerChB parent)
+    
+    public EntityController(AppControllerChB parent, Pane container)
     {
-        this.inColNames = new ArrayList<>();
+        this.colNames = new ArrayList<>();
         this.selectedColumns = new ArrayList<>();
         this.P = parent;        
         model = AppCoreChB.getContext().getBean(Model.class);
-    }  
-    
-    
-    public void createIncCheckBoxes() // checkboxok dinamikus létrehozása hozzáadása szöveggel parenthez, onAction nélkül
-    {
-        inColNames = model.getColumnNames("db__income");
+        this.container = (HBox) container;
         
+    }
+    
+    public void createColumnChb( String tableName, int index)
+    {
+        System.out.println("EntityController createColumn checkboxes");
+        colNames = model.getColumnNames(tableName);
         checkBoxes = new ArrayList<>();
         
+        colNContainer = new ColumnNameContainer(container);        
+        AScontainer = colNContainer.getAsTFcontainer();        
+        nameChbCont = colNContainer.getColNameChbContainer();        
         
-        for(int i = 0; i < inColNames.size(); i++) // checkboxok létrehozása
+        for(int i = 0; i < colNames.size(); i++)
         {
-            checkBoxes.add(new CheckBox(inColNames.get(i)));         
+            checkBoxes.add(new CheckBox(colNames.get(i)));
+            
+            nameChbCont.getChildren().add(checkBoxes.get(i)); //
         }
-        
-        for(int i = 0; i < checkBoxes.size(); i++) // checkboxok hozzáadása parenthez
-        {
-            CheckBox chb = checkBoxes.get(i);
-            P.getIncChBContainer().getChildren().add(chb);
-        }
-        
         
         addSelectedColumnOnAction(checkBoxes);
-        //HIBA ahányszor kijelölik a táblát annyiszor adja hozzá FIXED
-        inflateCombobox(P.getOrderByCB(), inColNames);//comboboxok feltöltése        
-        inflateCombobox(P.getGroupByCB(), inColNames);  
+        inflateCombobox(P.getOrderBcBList().get(index), colNames);
         
         timer = new Timer();
         timer.schedule(new TimerTask() 
@@ -78,34 +79,9 @@ public class IncomeController
                     createAStxtField();
                 });
             }
-        }, 200);
+        }, 100);
     }
-    public void createAStxtField()
-    {
-        asTxtList = new ArrayList<>(); //AS txtFieldek
-        
-            for(int i = 0; i < inColNames.size(); i++)
-            {   //checkBoxes.get(i).getWidth() + 
-                double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();                
-                TextField asTxt = new TextField(P.getAsInc(), chbWidth);
-                asTxtList.add(asTxt);
-            }
-        stopTimer();
-    }
-    private void stopTimer() {
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
-    }
-    public void clearCheckBoxes()
-    {
-        System.out.println("clearCheckBoxes() is triggered");
-        P.getIncChBContainer().getChildren().clear();
-        selectedColumns.clear();
-    }    
-    
-    public void addSelectedColumnOnAction(List<CheckBox> chb) // onAction hozzáadása checkboxokhoz
+    private void addSelectedColumnOnAction(List<CheckBox> chb) 
     {
         final Map<Integer, AtomicBoolean> booleans = new HashMap<>();        
         for(int i = 0; i < chb.size(); i++) // AtomicBoolean dinamikus létrehozása
@@ -122,20 +98,47 @@ public class IncomeController
                 {
                     if(index < selectedColumns.size())
                     {
-                        selectedColumns.add(index,inColNames.get(index));// ha kiválaszt egy oszlopot hozzáadja egy List<String>-hez
+                        selectedColumns.add(index,colNames.get(index));// ha kiválaszt egy oszlopot hozzáadja egy List<String>-hez
                         booleans.get(index).set(true);
                     } else {
-                        selectedColumns.add(inColNames.get(index));
+                        selectedColumns.add(colNames.get(index));
                         booleans.get(index).set(true);
                     }
                 } else //
                 {
-                    selectedColumns.remove(inColNames.get(index));
+                    selectedColumns.remove(colNames.get(index));
                     booleans.get(index).set(false); 
                     
                 } // ha megszünt a kijelölést törli
             });
         }
+    } 
+    public void createAStxtField()
+    {
+        
+        asTxtList = new ArrayList<>(); //AS txtFieldek
+        
+            for(int i = 0; i < colNames.size(); i++)
+            {   //checkBoxes.get(i).getWidth() + 
+                double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();                
+                TextField asTxt = new TextField(AScontainer, chbWidth);
+                asTxtList.add(asTxt);
+            }
+        stopTimer();
+    }
+    private void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
+    public void clearCheckBoxes()
+    {
+        System.out.println("clearCheckBoxes() is triggered");
+        container.getChildren().clear();
+        nameChbCont.getChildren().clear();
+        AScontainer.getChildren().clear();
+        selectedColumns.clear();
     }
     
     public int getChbIndex(String chbTxt)
@@ -149,8 +152,8 @@ public class IncomeController
         }
         return index; //végigmegyünk a checkbox list szövegein, ahol equals selectedColumn, annak az indexét adja vissza és az alapján kérjük le az aliasTF szövegét
     }
-   
-    public void buildQuery() // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
+    
+    public void buildQuery(String tableName) // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
     {
         queryBuilder = new StringBuilder("SELECT ");        
         for(int i = 0; i < selectedColumns.size(); i++) // oszlop nevek hozzáadása
@@ -180,9 +183,9 @@ public class IncomeController
             }
         }
         if( selectedColumns.size() <= 0){ // ha nincs oszlop kijelölve 
-            queryBuilder.append(" * FROM db__income");
+            queryBuilder.append(" * FROM " + tableName);
         } else {
-            queryBuilder.append(" FROM db__income");
+            queryBuilder.append(" * FROM " + tableName);
         }        
         
         // WHERE *** IS NULL
@@ -210,6 +213,7 @@ public class IncomeController
                     case ">=" -> queryBuilder.append( " WHERE ").append(whereColName).append(" <= ").append(value);
                     default ->{}
                 }
+                // Handle unsupported operator or show an error message to the user
             } catch (NumberFormatException e) {
                 System.out.println("number format exception");
                 // Handle the case where the user entered a non-numeric value in the textfield
@@ -263,11 +267,11 @@ public class IncomeController
         query = queryBuilder.toString();
         P.getQueryTxtArea().setText(query);
     }
-    //TABLE
+    
     public void expectoResult()
     {
-        System.out.println("Income controller expectoResult triggered");
-        deleteTable();        
+        System.out.println("Entity controller expectoResult triggered");
+        deleteTable();
         if(dynamicTable != null &&  !dynamicTable.getColumns().isEmpty())
         {
             dynamicTable.getItems().clear();
@@ -276,16 +280,16 @@ public class IncomeController
         
         String query = P.getQueryTxtArea().getText();
         ExecuteQuery eq = new ExecuteQuery();
-        EntityHandler entHand = new EntityHandler(DynamicDTO.class);        
-        List<DynamicDTO> list = eq.executeQuery(query, DynamicDTO.class, selectedColumns, entHand); // itt kell paraméterben a SelectedColumns de kell egy processResultSet verzió ami nem kap
-                                                                             // selectedColumnst, ha Select * van -> selectedColumns == null
+        EntityHandler entHand = new EntityHandler(DynamicDTO.class);
+        List<DynamicDTO> list = eq.executeQuery(query, DynamicDTO.class, selectedColumns, entHand);
+
         dynamicTable = new DynamicTable<>(P.getRoot(), DynamicDTO.class, selectedColumns, entHand);
         dynamicTable.setItems(list);
     }
     public void deleteTable()
     {
         TableView<?> table = null;
-        for(Node node : P.getRoot().getChildren()) //Node elemek
+        for(Node node : P.getRoot().getChildren()) //Node: elemek gyűjtőneve
         {
             if(node instanceof TableView<?>)
             {
@@ -297,18 +301,19 @@ public class IncomeController
         }
     }
     
-    public StringBuilder getOriginalQ() {
-        return originalQ;
+    private void inflateCombobox(ComboBox<String> cb, List<String> nameList)
+    {
+        if(cb.getItems().size() == 1){
+            cb.getItems().addAll(nameList);
+        }
     }
-    public String getQuery() {
-        return query;
-    }
+    
     public List<String> getColNames() {
-       return inColNames;
+       return colNames;
     }
     public List<String> getSelectedColumns() 
     {   
-        if(selectedColumns.isEmpty()){System.out.println("selectedColumns IS NULL inside IncomeController");}
+        if(selectedColumns.isEmpty()){System.out.println("selectedColumns IS NULL inside EntityController");}
         return selectedColumns;
     }
     public boolean isSelectedColNull(){
@@ -320,78 +325,4 @@ public class IncomeController
     public List<TextField> getAsTxtList() {
         return asTxtList;
     }
-    
-    private void inflateCombobox(ComboBox<String> comboBox, List<String> namesList) 
-    {
-        if(comboBox.getItems().size() == 1){
-            comboBox.getItems().addAll(namesList);
-        }        
-    }
-    
-    
-    
-    
-    
-    /*
-    //törlés StringBuilderből:
-     String operator = parent.getwhereOpCBValue(); //törlés StringBuilderből: String lekérése
-            int operatorIndex = queryBuilder.indexOf(operator); // String indexe, ez a két adat kell törléshez            
-            if(operatorIndex >= 0 && valueIndex >= 0){
-                queryBuilder.delete(operatorIndex, operatorIndex + operator.length());            
-            }
-    
-    public void selectColumn0() // EZEK AZ ONACTION FGVNYEK TXTAREA-hoz adnak hozzá stringeket, közvetetten a selectedColumns-szal
-    {                           // lényegében csak stringeket adok hozzá egy  List<String> selectedColumns hoz
-        if (checkBoxes.get(0).isSelected() && chb0b == false) {
-        //selectedColumns.add("amount ");
-        selectedColumns.add(getColNames().get(0));
-        chb0b = true;
-        
-        }   else { selectedColumns.remove(getColNames().get(0)); chb0b = false; }
-    }
-    public void selectColumn1()
-    {
-        if (checkBoxes.get(1).isSelected() && chb1b == false) {
-        selectedColumns.add(getColNames().get(1));
-        chb1b = true;
-        
-        } else { selectedColumns.remove(getColNames().get(1)); chb1b = false; }
-    }
-    public void selectColumn2()
-    {
-        if (checkBoxes.get(2).isSelected() && chb2b == false) {
-        selectedColumns.add(getColNames().get(2));
-        chb2b = true;
-        
-        } else { selectedColumns.remove(getColNames().get(2)); chb2b = false; }
-    }
-    public void selectColumn3()
-    {
-        if (checkBoxes.get(3).isSelected() && chb3b == false) {
-        selectedColumns.add(getColNames().get(3));
-        chb3b = true;
-        
-        } else { selectedColumns.remove(getColNames().get(3)); chb3b = false; }
-    }
-    public void selectColumn4()
-    {
-        if (checkBoxes.get(4).isSelected() && chb4b == false) {
-        selectedColumns.add(getColNames().get(4));
-        chb4b = true;
-        
-        } else { selectedColumns.remove(getColNames().get(4)); chb4b = false; }
-    }
-    public void selectColumn5()
-    {
-       if (checkBoxes.get(5).isSelected() && chb5b == false) {
-        selectedColumns.add(getColNames().get(5));
-        chb5b = true;
-        
-        } else { selectedColumns.remove(getColNames().get(5)); chb5b = false; }
-    }
-*/
-
-    
-
-    
 }

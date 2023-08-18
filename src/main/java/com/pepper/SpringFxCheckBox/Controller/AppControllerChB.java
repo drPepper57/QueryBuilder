@@ -1,10 +1,7 @@
 package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
-import com.pepper.SpringFxCheckBox.Model.Income;
 import com.pepper.SpringFxCheckBox.Model.Model;
-import com.pepper.SpringFxCheckBox.Model.Partner;
-import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,8 +10,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.animation.PauseTransition;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -24,13 +19,13 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public class AppControllerChB implements Initializable 
@@ -39,6 +34,7 @@ public class AppControllerChB implements Initializable
     IncomeController incomeController;
     PartnerController partnerController;
     JoinController joinController;
+    private List<EntityController> entityList;
     Model model;
     PauseTransition triggerDel;
     private Scene scene;
@@ -47,7 +43,7 @@ public class AppControllerChB implements Initializable
     @FXML
     private CheckBox incTableChB, prtTableChB;
     @FXML
-    private Button delBtn1, delBtn;
+    private Button delBtn1, delBtn, loadBtn;
     @FXML
     private TextArea queryTxtArea;
     @FXML
@@ -64,9 +60,12 @@ public class AppControllerChB implements Initializable
     private Map<String, String> aggregateMap = new HashMap<>();
     public String aggregateFunction = new String();
     public String selectedAggName = new String();
+    private List<ComboBox> orderByCBList;
     // Table
     @FXML
     private VBox root;
+    @FXML                         //oszlop név checkBoxok
+    private HBox tableChbContainer, colNameChbContainer, orderBcontainer;
     
     
     @Override
@@ -79,9 +78,64 @@ public class AppControllerChB implements Initializable
         partnerController = new PartnerController(this);
         joinController = new JoinController(this, incomeController, partnerController); // Pass the existing instances here
         model = AppCoreChB.getContext().getBean(Model.class);
+        orderByCBList = new ArrayList<>();
+        entityList = new ArrayList<>();
         
+        //orderByCBList.add(orderByCB);
+        //orderByCBList.add(orderByCB1);
         
         setUpUI();
+        createTableChbs();
+    }
+    
+    public void createTableChbs()
+    {                                                 //ezt majd textFieldből 
+        List<String> tableNames = model.getTableNames("financial_management");
+        List<CheckBox> tbChbList = new ArrayList<>();
+        
+        for(int i = 0; i < tableNames.size(); i++){
+            tbChbList.add(new CheckBox(tableNames.get(i))); // checkbox létrehozása tábla névvel
+            Text txt = new Text( tbChbList.get(i).getText());
+            Double width = txt.getLayoutBounds().getWidth();            
+            tbChbList.get(i).setMinWidth(width * 1.4);            
+            tableChbContainer.getChildren().add(tbChbList.get(i)); // checkbox konténerhez adása
+            
+            EntityController entity = new EntityController(this, colNameChbContainer);//új entity
+            entityList.add(entity); 
+            
+            ComboBox<String> comboBox = new ComboBox<>(); // orderBy comboboxok létrehozása
+            comboBox.getItems().add("Új kombobox");
+            orderByCBList.add(comboBox);
+            orderBcontainer.getChildren().add(orderByCBList.get(i));
+        }
+        for(int i =0; i < tableNames.size(); i++) //táblaNév checkboxokhoz onAction hozzáadása
+        {
+            final int index = i;
+            tbChbList.get(i).setOnAction(event ->{
+                if(tbChbList.get(index).isSelected())
+                {
+                    entityList.get(index).createColumnChb( tableNames.get(index), index);
+                    queryTxtArea.setText("SELECT ");
+                }
+                else
+                {
+                    entityList.get(index).clearCheckBoxes();
+                }
+            });
+        }            
+    }
+    /*
+    public void setColNames() //1.tábla kiválasztása
+    {
+        if(incTableChB.isSelected())
+        {
+            incomeController.createIncCheckBoxes();
+            queryTxtArea.setText("SELECT ");
+        } else {
+            incomeController.clearCheckBoxes();
+            asInc.getChildren().clear();
+            queryTxtArea.clear();
+        }  
     }
     
     public void setColNames1()  //2.tábla kiválasztása
@@ -98,19 +152,7 @@ public class AppControllerChB implements Initializable
             queryTxtArea.clear();
         }  
     }
-    
-    public void setColNames() //1.tábla kiválasztása
-    {
-        if(incTableChB.isSelected())
-        {
-            incomeController.createIncCheckBoxes();
-            queryTxtArea.setText("SELECT ");
-        } else {
-            incomeController.clearCheckBoxes();
-            asInc.getChildren().clear();
-            queryTxtArea.clear();
-        }  
-    }
+    */
     public void setQueryToTxtArea()
     {
         if(incTableChB.isSelected() && prtTableChB.isSelected())
@@ -329,7 +371,7 @@ public class AppControllerChB implements Initializable
         nfo.setOnMouseExited(event -> {
             nfo.getStyleClass().remove("hover");
         });
-        
+        //LIMIT
         SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 25);
         topSpin.setValueFactory(valueFactory);
         disableTopSpin.setOnAction(event -> {
@@ -431,7 +473,7 @@ public class AppControllerChB implements Initializable
         whereCB.getItems().addAll(model.getColumnNames("db__income"));
         whereCB.getItems().addAll(model.getColumnNames("db__partners"));
         
-        // IIIIITTTTT TARTOOOK lehet kéne egy JoinController mert         
+        // IIIIITTTTT TARTOOOK lehet kéne egy JoinController mert.
         
         //AGGREGATE CLAUSE
         
@@ -508,6 +550,9 @@ public class AppControllerChB implements Initializable
     }
     public int getTopValue(){
         return topSpin.getValue();
+    }
+    public HBox getColNameChbContainer() {
+        return colNameChbContainer;
     }    
     public Pane getIncChBContainer() {
         return chbIncContainer;
@@ -537,6 +582,10 @@ public class AppControllerChB implements Initializable
     public boolean isDescSelected(){
        return descChb.isSelected();
     }
+    public List<ComboBox> getOrderBcBList() {
+        return orderByCBList;
+    }
+    
     //GROUP BY
     public ComboBox<String> getGroupByCB() {
         return groupByCB;
@@ -638,6 +687,10 @@ public class AppControllerChB implements Initializable
     public VBox getRoot() {
         return root;
     }
+    public HBox getTableChbContainer() {
+        return tableChbContainer;
+    }
+    
     
     
     

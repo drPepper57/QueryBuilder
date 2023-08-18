@@ -1,14 +1,7 @@
 package com.pepper.SpringFxCheckBox.Model;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.annotation.Transient;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +30,11 @@ public class Model<T>
         String query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE LOWER(TABLE_NAME) = LOWER(?) AND UPPER(COLUMN_NAME) NOT IN ('PARTNER_ID') ORDER BY ORDINAL_POSITION";
         return jdbcTemplate.queryForList(query, new Object[] { tableName }, String.class);
 
+    }
+    public List<String> getTableNames(String database)
+    {
+        String query = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = ?";
+        return jdbcTemplate.queryForList(query, new Object[] { database }, String.class);
     }
     
     public List<String> getTableNames(JdbcTemplate jdbcTemplate, String databaseName) {

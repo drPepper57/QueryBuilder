@@ -15,7 +15,7 @@ public class Database
             dataSource.setUsername("root");
             dataSource.setPassword("3@5QnK7HrgnWex9");
 
-            // Set other properties as needed (e.g., max connections, initial size, etc.)
+            
             dataSource.setMaxTotal(10); // Maximum number of connections in the pool
             dataSource.setInitialSize(5); // Initial number of connections to be created
         }

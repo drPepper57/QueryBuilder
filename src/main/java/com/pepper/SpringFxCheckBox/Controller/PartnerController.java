@@ -4,9 +4,7 @@ import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.TextField;
 import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
-import com.pepper.SpringFxCheckBox.Model.Income;
 import com.pepper.SpringFxCheckBox.Model.Model;
-import com.pepper.SpringFxCheckBox.Model.Partner;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +18,6 @@ import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 
 
 public class PartnerController 

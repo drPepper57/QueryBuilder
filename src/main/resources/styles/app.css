@@ -10,3 +10,11 @@
     -fx-text-fill: blue;
     -fx-font-weight: bold;
 }
+ 
+.hbox {    
+    -fx-pref-height: 33;
+    -fx-spacing: 10;
+    -fx-border-color: darkgrey;
+    -fx-padding: 5 10 5 10;   
+    -fx-vgrow: ALWAYS;
+}

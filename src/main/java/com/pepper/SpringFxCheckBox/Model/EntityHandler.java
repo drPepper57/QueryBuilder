@@ -45,9 +45,7 @@ public class EntityHandler<T>
                         String columnName = metaData.getColumnName(i);
                         String columnAlias = metaData.getColumnLabel(i);
                         Object value = resultSet.getObject(columnAlias);
-                        dto.setValue(columnAlias, value);
-                        
-                        
+                        dto.setValue(columnAlias, value);                        
                     }
                     entityList.add((T) dto);
                 }
@@ -103,8 +101,7 @@ public class EntityHandler<T>
 
                         } else if(selectedColumns.isEmpty() || selectedColumns == null && !field.isAnnotationPresent(Transient.class))
                         {
-                            field.setAccessible(true);
-                            Object value = resultSet.getObject(fieldName);
+                            field.setAccessible(true);                            
 
                             if (field.getType() == String.class ) 
                             {                        

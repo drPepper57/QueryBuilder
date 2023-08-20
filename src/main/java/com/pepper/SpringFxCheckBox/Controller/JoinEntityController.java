@@ -12,61 +12,62 @@ import javafx.scene.Node;
 import javafx.scene.control.TableView;
 
 
-public class JoinController 
+public class JoinEntityController 
 {
     AppControllerChB P;
-    IncomeController incomeController;
-    PartnerController partnerController;
-    Model model;    
+    EntityController EC0;
+    EntityController EC1;
+    Model model;
     private List<String> selectedColumns0, selectedColumns1;
     private List<String> joinColumnNames0, joinColumnNames1;
-    private List<TextField> asTxtListIncome, asTxtListPrt;
+    private List<TextField> asTxtListEC0, asTxtListEC1;
     private String query;
     private String a, b;
     private DynamicTable dynamicTable;
     
-    public JoinController(AppControllerChB parent, IncomeController incomeController, PartnerController partnerController)
+    public JoinEntityController (AppControllerChB parent, EntityController ec0, EntityController ec1)
     {
-        this.incomeController = incomeController; // Assign the passed instances to class variables
-        this.partnerController = partnerController; // Assign the passed instances to class variables
+        this.EC0 = ec0;
+        this.EC1 = ec1;
         
         this.joinColumnNames0 = new ArrayList<>();
-        this.joinColumnNames1=  new ArrayList<>();            
-        this.P = parent;        
+        this.joinColumnNames1 = new ArrayList<>();            
+        this.P = parent;
         
         model = AppCoreChB.getContext().getBean(Model.class);
     }
-    public void setUpQueryData() // 2 tábla kiválasztásakor fut le
-    {       
+    
+    public void setUpQueryData()
+    {
         this.selectedColumns0 = new ArrayList<>();
         this.selectedColumns1 = new ArrayList<>();
         selectedColumns0.clear();
         joinColumnNames0.clear();
         
-        selectedColumns0.addAll(incomeController.getSelectedColumns());        
+        selectedColumns0.addAll(EC0.getSelectedColumns());
         a = P.getJoinAS0();
-        joinColumnNames0.addAll(createJoinNames(selectedColumns0, a)); // lekérjük a neveket a többi controllertől, hozzáadjuk a custom *.táblaNév
+        joinColumnNames0.addAll(createJoinNames(selectedColumns0, a));
         
         selectedColumns1.clear();
         joinColumnNames1.clear();
-        selectedColumns1.addAll(partnerController.getSelectedColumns());
+        selectedColumns1.addAll(EC1.getSelectedColumns());
         b = P.getJoinAS1();
         joinColumnNames1.addAll(createJoinNames(selectedColumns1, b));
         
-        asTxtListIncome = new ArrayList<>();
-        asTxtListPrt = new ArrayList<>();
-        asTxtListIncome.clear();
-        asTxtListPrt.clear();
-        asTxtListIncome = incomeController.getAsTxtList(); 
-        asTxtListPrt = partnerController.getAsTxtList();
+        asTxtListEC0 = new ArrayList<>();
+        asTxtListEC1 = new ArrayList<>();
+        asTxtListEC0.clear();
+        asTxtListEC1.clear();
+        asTxtListEC0.addAll(EC0.getAsTxtList());
+        asTxtListEC1.addAll(EC1.getAsTxtList());
+        
     }
     public List<String> createJoinNames(List<String> list, String alias)
     {
         List<String> aliasDotColNames = new ArrayList<>();
         for(int i = 0; i < list.size(); i++)
         {
-            aliasDotColNames.add(alias + "." +list.get(i));
-            System.out.println(aliasDotColNames.get(i));
+            aliasDotColNames.add(alias + "." +list.get(i));            
         }
         return aliasDotColNames;
     }
@@ -76,7 +77,7 @@ public class JoinController
         
         for(int i = 0; i < joinColumnNames0.size(); i ++) // aliasok hozzáadása columnNevekhez textFieldekbe írt 
         {
-            String alias = asTxtListIncome.get(incomeController.getChbIndex(selectedColumns0.get(i))).getText().trim(); //AS txtField tartalma
+            String alias = asTxtListEC0.get(EC0.getChbIndex(selectedColumns0.get(i))).getText().trim(); //AS txtField tartalma
             if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
             {
                 //queryBuilder.append(joinColumnNames1.get(i)).append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..
@@ -88,8 +89,7 @@ public class JoinController
                 else
                 {
                     queryBuilder.append(joinColumnNames0.get(i)).append(" AS ").append("`").append(alias).append("`"); // ..ColName AS alias..
-                }
-                
+                }                
             }
             else if(P.getAggregateMap().containsKey(selectedColumns0.get(i))) //AGGREGATE CLAUSE
             {   // SUM, AVG, etc
@@ -108,7 +108,7 @@ public class JoinController
         {
             System.out.println("Entered joinController's Qbuilder second loop");
             System.out.println(joinColumnNames1.get(i));
-            String alias = asTxtListPrt.get(partnerController.getChbIndex(selectedColumns1.get(i))).getText().trim(); //AS txtField tartalma
+            String alias = asTxtListEC1.get(EC1.getChbIndex(selectedColumns1.get(i))).getText().trim(); //AS txtField tartalma
             if(!alias.isEmpty()) // ha megadtak AliaS-t, asTxtList tartalmazza az AS TextFieldeket
             {
                 if(P.getAggregateMap().containsKey(selectedColumns1.get(i)))
@@ -235,7 +235,7 @@ public class JoinController
     
     public void expectoResult()
     {
-        System.out.println("JOINcontroller expectoResult triggered");
+        System.out.println("JoinEntitycontroller expectoResult triggered");
         deleteTable();
         if(dynamicTable != null && !dynamicTable.getColumns().isEmpty())
         {
@@ -244,7 +244,7 @@ public class JoinController
         }
         String query = P.getQueryTxtArea().getText();
         ExecuteQuery eq = new ExecuteQuery();
-        EntityHandler entHand = new EntityHandler(DynamicDTO.class); // ez csak azért kell, hogy egy EH példány létezzen a flowban
+        EntityHandler entHand = new EntityHandler(DynamicDTO.class);
         
         List<String> selectedColumns = new ArrayList<>();
         selectedColumns.addAll(selectedColumns0);
@@ -252,12 +252,7 @@ public class JoinController
         
         List<DynamicDTO> list = eq.executeQuery(query, DynamicDTO.class, selectedColumns, entHand);
         dynamicTable = new DynamicTable<>(P.getRoot(), DynamicDTO.class, selectedColumns, entHand);
-        dynamicTable.setItems(list);
-        for(int i = 0; i < dynamicTable.getColumns().size(); i++)
-        {
-            System.out.println("dynamicTable.getColumns().get(i):  "+dynamicTable.getColumns().get(i));
-        }
-        
+        dynamicTable.setItems(list);        
     }
     public void deleteTable()
     {
@@ -278,11 +273,11 @@ public class JoinController
         List<String> allColNames = new ArrayList<>();
         
         List<String> firstColNames = new ArrayList<>();
-        firstColNames.addAll(model.getColumnNames("db__income"));
+        firstColNames.addAll(model.getColumnNames(EC0.getTableName()));
         firstColNames = createJoinNames(firstColNames, a);
         
         List<String> secColNames = new ArrayList<>();
-        secColNames.addAll(model.getColumnNames("db_partners"));
+        secColNames.addAll(model.getColumnNames(EC1.getTableName()));
         secColNames = createJoinNames(secColNames, b);
         
         allColNames.addAll(firstColNames);

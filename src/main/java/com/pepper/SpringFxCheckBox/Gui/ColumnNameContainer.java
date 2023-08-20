@@ -20,6 +20,7 @@ public class ColumnNameContainer extends AnchorPane
         colNameChbContainer.getStyleClass().add("hbox");
         asTFcontainer = new HBox();
         asTFcontainer.getStyleClass().add("hbox");
+        
         actualContainer.getChildren().add(colNameChbContainer);
         actualContainer.getChildren().add(asTFcontainer);
         this.getChildren().add(actualContainer);

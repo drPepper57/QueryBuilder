@@ -1,6 +1,7 @@
 package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
+import com.pepper.SpringFxCheckBox.Gui.MessageBox;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import java.net.URL;
 import java.util.ArrayList;
@@ -31,12 +32,13 @@ import javafx.util.Duration;
 public class AppControllerChB implements Initializable 
 { // !!!! HIBA: ha nincs hozzáadva TEXTFIELDHEZ WHERE, ORDERBY, GROUP BY colName akkor is bekerül a querybe "WHERE" "ORDER BY".. colName nélkül
     AppCoreChB appCore;
-    IncomeController incomeController;
-    PartnerController partnerController;
-    JoinController joinController;
-    private List<EntityController> entityList;
-    Model model;
-    PauseTransition triggerDel;
+    private IncomeController incomeController;
+    private PartnerController partnerController;
+    private JoinController joinController;
+    private List<EntityController> entityControllerList;
+    private List<CheckBox> tblChbList;
+    private Model model;
+    private PauseTransition triggerDel;
     private Scene scene;
     @FXML
     private Pane chbIncContainer, PrtChbContainer, asInc, asPrt;
@@ -56,7 +58,9 @@ public class AppControllerChB implements Initializable
     private ComboBox<String> orderByCB, orderByCB1, whereCB, whereJoinCB, groupByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1, aggregateCB, aggName;
     @FXML
     private TextField andOrTF, andOrTF1, thanTF, thanTF1, joinAS0, joinAS1, orderByTF, groupTF;
-    private List<String> selectedAggrFunct, selectedAggrNameList;
+    @FXML
+    TextField userTF, databaseTF;
+    private List<String> selectedAggrFunct, selectedAggrNameList, tableNames;
     private Map<String, String> aggregateMap = new HashMap<>();
     public String aggregateFunction = new String();
     public String selectedAggName = new String();
@@ -79,29 +83,44 @@ public class AppControllerChB implements Initializable
         joinController = new JoinController(this, incomeController, partnerController); // Pass the existing instances here
         model = AppCoreChB.getContext().getBean(Model.class);
         orderByCBList = new ArrayList<>();
-        entityList = new ArrayList<>();
+        entityControllerList = new ArrayList<>();
         
         //orderByCBList.add(orderByCB);
         //orderByCBList.add(orderByCB1);
-        
-        setUpUI();
-        createTableChbs();
+        createTableChbs("financial_management");
+        setUpUI();        
+    }
+    public void loadTables()
+    {
+        if(!databaseTF.getText().isEmpty()){
+            createTableChbs(databaseTF.getText());            
+        } else {
+            System.out.println("TextField empty");
+        }
     }
     
-    public void createTableChbs()
+    public void createTableChbs(String databaseName) //Table checkBoxok + onAction
     {                                                 //ezt majd textFieldből 
-        List<String> tableNames = model.getTableNames("financial_management");
-        List<CheckBox> tbChbList = new ArrayList<>();
+        tableNames = model.getTableNames("financial_management");
+        tblChbList = new ArrayList<>();
+        Map<Integer, Boolean> selectedTable = new HashMap<>();
+        //minden tableCheckboxhoz tartozik egy selectedTable instance.
+        //az Integer az entitás lekérdezésére kell a tbChbList-ből
+        //kezdetben mindegyik false: nincs kiválasztva
+        //onActionbe tenni: hogy ha kiválasztanak egy táblát false->true
+        //majd ..        
+        //vaagy szükségem van a ...checkbox indexére amit használhatok EntityControllert választani az entityList-ből
         
         for(int i = 0; i < tableNames.size(); i++){
-            tbChbList.add(new CheckBox(tableNames.get(i))); // checkbox létrehozása tábla névvel
-            Text txt = new Text( tbChbList.get(i).getText());
-            Double width = txt.getLayoutBounds().getWidth();            
-            tbChbList.get(i).setMinWidth(width * 1.4);            
-            tableChbContainer.getChildren().add(tbChbList.get(i)); // checkbox konténerhez adása
+            tblChbList.add(new CheckBox(tableNames.get(i))); // checkbox létrehozása tábla névvel + szélesség beállítása
+            Text txt = new Text( tblChbList.get(i).getText());
+            Double width = txt.getLayoutBounds().getWidth();
+            tblChbList.get(i).setMinWidth(width * 1.4);            
+            
+            tableChbContainer.getChildren().add(tblChbList.get(i)); // checkbox konténerhez adása
             
             EntityController entity = new EntityController(this, colNameChbContainer);//új entity
-            entityList.add(entity); 
+            entityControllerList.add(entity); 
             
             ComboBox<String> comboBox = new ComboBox<>(); // orderBy comboboxok létrehozása
             comboBox.getItems().add("Új kombobox");
@@ -111,20 +130,20 @@ public class AppControllerChB implements Initializable
         for(int i =0; i < tableNames.size(); i++) //táblaNév checkboxokhoz onAction hozzáadása
         {
             final int index = i;
-            tbChbList.get(i).setOnAction(event ->{
-                if(tbChbList.get(index).isSelected())
+            tblChbList.get(i).setOnAction(event ->{
+                if(tblChbList.get(index).isSelected())
                 {
-                    entityList.get(index).createColumnChb( tableNames.get(index), index);
+                    entityControllerList.get(index).createColumnChb( tableNames.get(index), index);
                     queryTxtArea.setText("SELECT ");
                 }
                 else
                 {
-                    entityList.get(index).clearCheckBoxes();
+                    entityControllerList.get(index).clearCheckBoxes();
                 }
             });
         }            
     }
-    /*
+    //EZ KÉSZ
     public void setColNames() //1.tábla kiválasztása
     {
         if(incTableChB.isSelected())
@@ -136,8 +155,7 @@ public class AppControllerChB implements Initializable
             asInc.getChildren().clear();
             queryTxtArea.clear();
         }  
-    }
-    
+    }    
     public void setColNames1()  //2.tábla kiválasztása
     {
         if(prtTableChB.isSelected())
@@ -152,9 +170,16 @@ public class AppControllerChB implements Initializable
             queryTxtArea.clear();
         }  
     }
-    */
+    // KÖVETKEZŐ 
     public void setQueryToTxtArea()
     {
+        for(int i = 0; i < entityControllerList.size(); i++)
+        {
+            if(tblChbList.get(i).isSelected() ) // ez egy tábla kiválasztásakor oké de joinhoz kevés + kell egy JoinEntityController
+            {
+                entityControllerList.get(i).buildQuery(tableNames.get(i));
+            }
+        }
         if(incTableChB.isSelected() && prtTableChB.isSelected())
         {
             System.out.println("join query");
@@ -183,12 +208,10 @@ public class AppControllerChB implements Initializable
         else if(prtTableChB.isSelected()){
             partnerController.expectoResult();
         }
-        
-        
-       
-        
-        
     }
+    
+    
+    //
     //JOIN
     public void inflateJoinWhereCB()
     {

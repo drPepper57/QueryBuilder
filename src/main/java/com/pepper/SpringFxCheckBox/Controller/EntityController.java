@@ -26,7 +26,8 @@ import javafx.scene.layout.Pane;
 public class EntityController 
 {
     private AppControllerChB P;
-    private Model model;    
+    private Model model;
+    private String tableName;
     private List<String> colNames;
     private final List<String> selectedColumns;    
     private List<TextField> asTxtList;
@@ -52,10 +53,11 @@ public class EntityController
     public void createColumnChb( String tableName, int index)
     {
         System.out.println("EntityController createColumn checkboxes");
-        colNames = model.getColumnNames(tableName);
+        this.tableName = tableName;
+        colNames = model.getColumnNames(tableName); //oszlop nevek lekérdezése
         checkBoxes = new ArrayList<>();
         
-        colNContainer = new ColumnNameContainer(container);        
+        colNContainer = new ColumnNameContainer(container); //checkboxokat tartalmazó konténer létrehozása
         AScontainer = colNContainer.getAsTFcontainer();        
         nameChbCont = colNContainer.getColNameChbContainer();        
         
@@ -135,17 +137,18 @@ public class EntityController
     public void clearCheckBoxes()
     {
         System.out.println("clearCheckBoxes() is triggered");
-        container.getChildren().clear();
-        nameChbCont.getChildren().clear();
-        AScontainer.getChildren().clear();
+        colNContainer.getChildren().clear();
+        //nameChbCont.getChildren().clear();
+        //AScontainer.getChildren().clear();
         selectedColumns.clear();
     }
     
-    public int getChbIndex(String chbTxt)
+    
+    public int getChbIndex(String checkBoxTxt)
     {
         int index = -1;
         for(int i = 0; i < checkBoxes.size(); i++){
-            if(checkBoxes.get(i).getText().equals(chbTxt)){
+            if(checkBoxes.get(i).getText().equals(checkBoxTxt)){
                 index = i;
                 break;
             }
@@ -153,7 +156,7 @@ public class EntityController
         return index; //végigmegyünk a checkbox list szövegein, ahol equals selectedColumn, annak az indexét adja vissza és az alapján kérjük le az aliasTF szövegét
     }
     
-    public void buildQuery(String tableName) // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
+    public void buildQuery(String tableName) // ez egy queryBuilder o.o
     {
         queryBuilder = new StringBuilder("SELECT ");        
         for(int i = 0; i < selectedColumns.size(); i++) // oszlop nevek hozzáadása
@@ -308,6 +311,9 @@ public class EntityController
         }
     }
     
+    public String getTableName(){
+        return tableName;
+    }
     public List<String> getColNames() {
        return colNames;
     }

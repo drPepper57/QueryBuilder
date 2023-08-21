@@ -35,6 +35,7 @@ public class JoinEntityController
         this.P = parent;
         
         model = AppCoreChB.getContext().getBean(Model.class);
+        setUpQueryData();
     }
     
     public void setUpQueryData()

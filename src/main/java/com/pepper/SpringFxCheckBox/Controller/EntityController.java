@@ -8,6 +8,7 @@ import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class EntityController
     private DynamicTable dynamicTable;
     private ColumnNameContainer colNContainer;    
     private HBox AScontainer, nameChbCont, container;
+    private int tableIndex;
     
     
     public EntityController(AppControllerChB parent, Pane container)
@@ -54,6 +56,7 @@ public class EntityController
     {
         System.out.println("EntityController createColumn checkboxes");
         this.tableName = tableName;
+        tableIndex = index;
         colNames = model.getColumnNames(tableName); //oszlop nevek lekérdezése
         checkBoxes = new ArrayList<>();
         
@@ -85,7 +88,8 @@ public class EntityController
     }
     private void addSelectedColumnOnAction(List<CheckBox> chb) 
     {
-        final Map<Integer, AtomicBoolean> booleans = new HashMap<>();        
+        final Map<Integer, AtomicBoolean> booleans = new HashMap<>();
+        List<Integer> selectedIndices = new ArrayList<>();
         for(int i = 0; i < chb.size(); i++) // AtomicBoolean dinamikus létrehozása
         {
             AtomicBoolean atcBoolean = new AtomicBoolean(false);
@@ -98,20 +102,21 @@ public class EntityController
             {//
                 if(chb.get(index).isSelected() && !booleans.get(index).get()) 
                 {
-                    if(index < selectedColumns.size())
-                    {
-                        selectedColumns.add(index,colNames.get(index));// ha kiválaszt egy oszlopot hozzáadja egy List<String>-hez
-                        booleans.get(index).set(true);
-                    } else {
-                        selectedColumns.add(colNames.get(index));
-                        booleans.get(index).set(true);
+                    if (!selectedIndices.contains(index)) {
+                        selectedIndices.add(index);
                     }
-                } else //
+                } else// ha megszünt a kijelölést törli
                 {
-                    selectedColumns.remove(colNames.get(index));
-                    booleans.get(index).set(false); 
-                    
-                } // ha megszünt a kijelölést törli
+                    selectedIndices.remove(Integer.valueOf(index));
+                    booleans.get(index).set(false);                    
+                }
+                Collections.sort(selectedIndices);
+                selectedColumns.clear();
+                for (Integer x : selectedIndices) {
+                if (x < colNames.size()) {
+                    selectedColumns.add(colNames.get(x));
+                }
+}
             });
         }
     } 
@@ -188,7 +193,7 @@ public class EntityController
         if( selectedColumns.size() <= 0){ // ha nincs oszlop kijelölve 
             queryBuilder.append(" * FROM " + tableName);
         } else {
-            queryBuilder.append(" * FROM " + tableName);
+            queryBuilder.append(" FROM " + tableName);
         }        
         
         // WHERE *** IS NULL
@@ -313,6 +318,9 @@ public class EntityController
     
     public String getTableName(){
         return tableName;
+    }
+    public int getTableIndex(){
+        return tableIndex;
     }
     public List<String> getColNames() {
        return colNames;

@@ -36,6 +36,7 @@ public class AppControllerChB implements Initializable
     private PartnerController partnerController;
     private JoinController joinController;
     private List<EntityController> entityControllerList;
+    private JoinEntityController joCo;
     private List<CheckBox> tblChbList;
     private Model model;
     private PauseTransition triggerDel;
@@ -172,33 +173,66 @@ public class AppControllerChB implements Initializable
     }
     // KÖVETKEZŐ 
     public void setQueryToTxtArea()
-    {
-        for(int i = 0; i < entityControllerList.size(); i++)
-        {
-            if(tblChbList.get(i).isSelected() ) // ez egy tábla kiválasztásakor oké de joinhoz kevés + kell egy JoinEntityController
+    {   /*tudnom kell: 1. Van-e kiválasztva entityController chb.
+                       2. Melyik van kiválasztva.
+                       3. Egy vagy két tábla van kiválasztva ?
+        Tábla chb-ok listája: tblChbList
+        */
+        List<Integer> selectedTables = new ArrayList<>();
+        for(int i = 0; i < entityControllerList.size(); i++) // kiderül 1 vagy több és melyik tábla van kiválasztva(egyelőre 2 tábla kiválasztása van csak megoldva
+        {            
+            if(tblChbList.get(i).isSelected() && !selectedTables.contains(i)) 
             {
-                entityControllerList.get(i).buildQuery(tableNames.get(i));
+                selectedTables.add(i);
             }
         }
-        if(incTableChB.isSelected() && prtTableChB.isSelected())
+        int selectedTblCount = selectedTables.size();
+        
+        if(selectedTblCount > 1) //JOIN query build
         {
-            System.out.println("join query");
-            joinController.setUpQueryData();
-            joinController.buildQuery();
+            System.out.println("Join query building");
+            int index0 = selectedTables.get(0);
+            int index1 = selectedTables.get(1);
+            joCo = new JoinEntityController(this, entityControllerList.get(index0), entityControllerList.get(index1));            
+            joCo.buildQuery();
         }
-        else if(incTableChB.isSelected() )
+        else if(selectedTblCount <= 1) //solo table query build
         {
-            System.out.println("income query");
-            incomeController.buildQuery();
-        }
-        else if(prtTableChB.isSelected())
-        {
-            System.out.println("partner query");
-            partnerController.buildQuery();
-        }       
+            System.out.println("solo table query building");
+            for(int i = 0; i < entityControllerList.size(); i++)
+            {
+                if(tblChbList.get(i).isSelected() ) {
+                    entityControllerList.get(i).buildQuery(tableNames.get(i));// ez egy tábla kiválasztásakor oké de joinhoz kevés + kell egy JoinEntityController:kész 
+                }                
+            }
+        }      
     }
     public void expectoQuery()
     {
+        List<Integer> selectedTables = new ArrayList<>();
+        for(int i = 0; i < entityControllerList.size(); i++) // kiderül 1 vagy több és melyik tábla van kiválasztva(egyelőre 2 tábla kiválasztása van csak megoldva
+        {            
+            if(tblChbList.get(i).isSelected() ) 
+            {
+                selectedTables.add(i);
+            }
+        }
+        int selectedTblCount = selectedTables.size();
+        
+        if(selectedTblCount > 1)
+        {
+            joCo.expectoResult();
+        }
+        else 
+        {
+            for(int i = 0; i < entityControllerList.size(); i++)
+            {
+                if(tblChbList.get(i).isSelected() ) {
+                    entityControllerList.get(i).expectoResult();
+                }                
+            }
+        }
+        
         if(incTableChB.isSelected() && prtTableChB.isSelected()){
             joinController.expectoResult();
         } 

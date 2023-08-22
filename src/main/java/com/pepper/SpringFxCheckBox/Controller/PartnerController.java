@@ -43,7 +43,7 @@ public class PartnerController
         whereAdded = orderAdded = groupAdded = false;
     }
     
-    public void createPrtCheckBoxes()
+    /*public void createPrtCheckBoxes()
     {
         prtColNames = model.getColumnNames("db__partners");
         checkBoxes = new ArrayList<>();
@@ -96,7 +96,7 @@ public class PartnerController
     public void clearCheckBoxes() // ez kell
     {        
         P.getPrtChbContainer().getChildren().clear();
-    }
+    }*/
     
     private void createSelectColumnOnAction(List<CheckBox> chb) 
     {
@@ -142,7 +142,7 @@ public class PartnerController
         return index;
     }
     
-    public void buildQuery() // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
+ /*   public void buildQuery() // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
     {
         queryBuilder = new StringBuilder("SELECT ");
         for(int i = 0; i < selectedColumns.size(); i++) //kiválasztott oszlopok közé vesszőt szór
@@ -249,7 +249,7 @@ public class PartnerController
         queryBuilder.append(";");
         query = queryBuilder.toString();
         P.getQueryTxtArea().setText(query);
-    }
+    }*/
     
     public void expectoResult()
     {

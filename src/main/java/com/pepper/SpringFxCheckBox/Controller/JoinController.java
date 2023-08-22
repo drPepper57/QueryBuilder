@@ -70,7 +70,7 @@ public class JoinController
         }
         return aliasDotColNames;
     }
-    public void buildQuery()
+    /*public void buildQuery()
     {
         StringBuilder queryBuilder = new StringBuilder("SELECT ");
         
@@ -231,7 +231,7 @@ public class JoinController
         queryBuilder.append(";");
         query = queryBuilder.toString();
         P.getQueryTxtArea().setText(query);
-    }
+    }*/
     
     public void expectoResult()
     {

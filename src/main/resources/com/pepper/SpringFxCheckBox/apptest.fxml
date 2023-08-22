@@ -5,10 +5,10 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -17,25 +17,33 @@
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="30.0" prefWidth="200.0" spacing="5.0">
          <children>
+            <Label text="URL: ">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+            <TextField fx:id="urlTF" text="jdbc:mysql://localhost:3306" />
             <Label text="Database: ">
                <font>
                   <Font size="13.0" />
                </font>
             </Label>
-            <TextField fx:id="dbNameTF" />
+            <TextField fx:id="databaseTF" text="financial_management" />
             <Label text="Username">
                <font>
                   <Font size="13.0" />
                </font>
             </Label>
-            <TextField />
+            <TextField fx:id="userTF" text="root" />
             <Label text="Password">
                <font>
                   <Font size="13.0" />
                </font>
             </Label>
-            <TextField />
+            <PasswordField fx:id="passwordTF" />
+            <Button mnemonicParsing="false" onAction="#connectToDatabase" text="Connect database" />
             <Button fx:id="loadtablesBtn" mnemonicParsing="false" onAction="#loadTables" text="Load Tables" />
+            <PasswordField fx:id="passwordTF1" layoutX="705.0" layoutY="13.0" />
          </children>
          <padding>
             <Insets left="10.0" />
@@ -50,18 +58,6 @@
          </children>
       </VBox>
       <HBox fx:id="tableChbContainer" prefHeight="30.0" prefWidth="600.0" spacing="10.0">
-         <children>
-            <CheckBox fx:id="incTableChB" mnemonicParsing="false" onAction="#setColNames" text="Income">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin>
-            </CheckBox>
-            <CheckBox fx:id="prtTableChB" mnemonicParsing="false" onAction="#setColNames1" text="Partner">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin>
-            </CheckBox>
-         </children>
          <VBox.margin>
             <Insets top="5.0" />
          </VBox.margin>
@@ -89,46 +85,7 @@
             <Insets top="5.0" />
          </VBox.margin>
       </HBox>
-      <HBox fx:id="colNameChbContainer" alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="66.0">
-         <children>
-            <AnchorPane prefHeight="66.0">
-               <children>
-                  <VBox prefHeight="66.0">
-                     <children>
-                        <HBox fx:id="chbIncContainer" maxHeight="33.0" prefHeight="33.0" spacing="10.0" style="-fx-border-color: darkgrey;" VBox.vgrow="ALWAYS">
-                           <padding>
-                              <Insets left="10.0" right="10.0" top="5.0" />
-                           </padding>
-                        </HBox>
-                        <HBox fx:id="asInc" maxHeight="33.0" prefHeight="33.0" spacing="10.0" style="-fx-border-color: darkgrey;" VBox.vgrow="ALWAYS">
-                           <padding>
-                              <Insets left="10.0" right="10.0" top="5.0" />
-                           </padding>
-                        </HBox>
-                     </children>
-                  </VBox>
-               </children>
-            </AnchorPane>
-            <AnchorPane prefHeight="66.0">
-               <children>
-                  <VBox prefHeight="66.0">
-                     <children>
-                        <HBox fx:id="PrtChbContainer" maxHeight="33.0" prefHeight="33.0" spacing="10.0" style="-fx-border-color: darkgrey;" VBox.vgrow="ALWAYS">
-                           <padding>
-                              <Insets left="10.0" right="10.0" top="5.0" />
-                           </padding>
-                        </HBox>
-                        <HBox fx:id="asPrt" maxHeight="33.0" prefHeight="33.0" spacing="10.0" style="-fx-border-color: darkgrey;" VBox.vgrow="ALWAYS">
-                           <padding>
-                              <Insets left="10.0" right="10.0" top="5.0" />
-                           </padding>
-                        </HBox>
-                     </children>
-                  </VBox>
-               </children>
-            </AnchorPane>
-         </children>
-      </HBox>
+      <HBox fx:id="colNameChbContainer" alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="66.0" />
       <VBox alignment="CENTER" prefHeight="20.0" prefWidth="100.0" style="-fx-background-color: lightgrey;">
          <children>
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="300.0" text="SQL query " textAlignment="CENTER">

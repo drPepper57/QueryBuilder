@@ -18,3 +18,9 @@
     -fx-padding: 5 10 5 10;   
     -fx-vgrow: ALWAYS;
 }
+
+.popBox {
+    -fx-border-color: rgb(150, 150, 150);
+    -fx-pref-height: 33;
+    -fx-alignment: center;
+}

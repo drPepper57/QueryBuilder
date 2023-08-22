@@ -2,14 +2,19 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.MessageBox;
+import com.pepper.SpringFxCheckBox.Gui.PopUpMessage;
+import com.pepper.SpringFxCheckBox.Model.Database;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -18,16 +23,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import javax.swing.JPasswordField;
 
 public class AppControllerChB implements Initializable 
 { // !!!! HIBA: ha nincs hozzáadva TEXTFIELDHEZ WHERE, ORDERBY, GROUP BY colName akkor is bekerül a querybe "WHERE" "ORDER BY".. colName nélkül
@@ -39,12 +45,10 @@ public class AppControllerChB implements Initializable
     private JoinEntityController joCo;
     private List<CheckBox> tblChbList;
     private Model model;
+    private Database database;
+    private static Connection connection;
     private PauseTransition triggerDel;
-    private Scene scene;
-    @FXML
-    private Pane chbIncContainer, PrtChbContainer, asInc, asPrt;
-    @FXML
-    private CheckBox incTableChB, prtTableChB;
+    private Scene scene;    
     @FXML
     private Button delBtn1, delBtn, loadBtn;
     @FXML
@@ -56,11 +60,13 @@ public class AppControllerChB implements Initializable
     @FXML
     private CheckBox disableTopSpin, descChb, isNullChB, isNullChB1, notNullChB1, notNullChB;
     @FXML
-    private ComboBox<String> orderByCB, orderByCB1, whereCB, whereJoinCB, groupByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1, aggregateCB, aggName;
+    private ComboBox<String> whereCB, whereJoinCB, groupByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1, aggregateCB, aggName;
     @FXML
     private TextField andOrTF, andOrTF1, thanTF, thanTF1, joinAS0, joinAS1, orderByTF, groupTF;
     @FXML
-    TextField userTF, databaseTF;
+    TextField urlTF, databaseTF, userTF;
+    @FXML
+    PasswordField passwordTF;
     private List<String> selectedAggrFunct, selectedAggrNameList, tableNames;
     private Map<String, String> aggregateMap = new HashMap<>();
     public String aggregateFunction = new String();
@@ -75,36 +81,62 @@ public class AppControllerChB implements Initializable
     
     @Override
     public void initialize(URL url, ResourceBundle rb) 
-    {
-        
+    {        
         appCore = new AppCoreChB();
         scene = appCore.getScene();
         incomeController = new IncomeController(this);
         partnerController = new PartnerController(this);
         joinController = new JoinController(this, incomeController, partnerController); // Pass the existing instances here
         model = AppCoreChB.getContext().getBean(Model.class);
+        database = new Database();
         orderByCBList = new ArrayList<>();
-        entityControllerList = new ArrayList<>();
+        entityControllerList = new ArrayList<>();        
         
-        //orderByCBList.add(orderByCB);
-        //orderByCBList.add(orderByCB1);
-        createTableChbs("financial_management");
+        //createTableChbs("financial_management");
         setUpUI();        
+    }
+    public static Connection getConnection()
+    {
+        return connection;
+    }
+    public void connectToDatabase()
+    {
+        System.out.println("connectToDatabase triggered");
+        if(!urlTF.getText().isEmpty() && !databaseTF.getText().isEmpty() && !userTF.getText().isEmpty() && !passwordTF.getText().isEmpty())
+        {
+            try{
+                connection = Database.getConnection(urlTF.getText(), userTF.getText(), passwordTF.getText(), databaseTF.getText());
+                model.setConnection(connection);
+                if(connection != null){
+                     PopUpMessage msg = new PopUpMessage("Database connected", root);
+                }
+                    
+            }
+            catch (SQLException e){
+                MessageBox.Show("Error", e.getMessage());
+            } 
+        } else {
+            System.out.println("valamelyik Textfield empty");
+        }
     }
     public void loadTables()
     {
-        if(!databaseTF.getText().isEmpty()){
-            createTableChbs(databaseTF.getText());            
+        if(connection != null){
+        createTableChbs(databaseTF.getText());            
         } else {
-            System.out.println("TextField empty");
+            MessageBox.Show("Error", "connection is null");
         }
     }
     
     public void createTableChbs(String databaseName) //Table checkBoxok + onAction
-    {                                                 //ezt majd textFieldből 
-        tableNames = model.getTableNames("financial_management");
+    {   try
+        {
+            tableNames = model.getTableNamesNew(databaseName);
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
+        }
         tblChbList = new ArrayList<>();
-        Map<Integer, Boolean> selectedTable = new HashMap<>();
         //minden tableCheckboxhoz tartozik egy selectedTable instance.
         //az Integer az entitás lekérdezésére kell a tbChbList-ből
         //kezdetben mindegyik false: nincs kiválasztva
@@ -124,7 +156,8 @@ public class AppControllerChB implements Initializable
             entityControllerList.add(entity); 
             
             ComboBox<String> comboBox = new ComboBox<>(); // orderBy comboboxok létrehozása
-            comboBox.getItems().add("Új kombobox");
+            comboBox.setMinWidth(116);
+            comboBox.getItems().add(null);
             orderByCBList.add(comboBox);
             orderBcontainer.getChildren().add(orderByCBList.get(i));
         }
@@ -143,33 +176,6 @@ public class AppControllerChB implements Initializable
                 }
             });
         }            
-    }
-    //EZ KÉSZ
-    public void setColNames() //1.tábla kiválasztása
-    {
-        if(incTableChB.isSelected())
-        {
-            incomeController.createIncCheckBoxes();
-            queryTxtArea.setText("SELECT ");
-        } else {
-            incomeController.clearCheckBoxes();
-            asInc.getChildren().clear();
-            queryTxtArea.clear();
-        }  
-    }    
-    public void setColNames1()  //2.tábla kiválasztása
-    {
-        if(prtTableChB.isSelected())
-        {
-            partnerController.createPrtCheckBoxes();
-            queryTxtArea.setText("SELECT ");      
-        } 
-        else 
-        {            
-            partnerController.clearCheckBoxes();
-            asPrt.getChildren().clear();
-            queryTxtArea.clear();
-        }  
     }
     // KÖVETKEZŐ 
     public void setQueryToTxtArea()
@@ -219,41 +225,29 @@ public class AppControllerChB implements Initializable
         }
         int selectedTblCount = selectedTables.size();
         
-        if(selectedTblCount > 1)
+        if(selectedTblCount > 1) //JOIN QUERY
         {
             joCo.expectoResult();
         }
         else 
         {
-            for(int i = 0; i < entityControllerList.size(); i++)
+            for(int i = 0; i < entityControllerList.size(); i++) // SOLO TABLE QUERY
             {
                 if(tblChbList.get(i).isSelected() ) {
                     entityControllerList.get(i).expectoResult();
                 }                
             }
-        }
-        
-        if(incTableChB.isSelected() && prtTableChB.isSelected()){
-            joinController.expectoResult();
         } 
-        else if(incTableChB.isSelected()){
-            incomeController.expectoResult();
-        }
-        else if(prtTableChB.isSelected()){
-            partnerController.expectoResult();
-        }
     }
     
-    
-    //
     //JOIN
     public void inflateJoinWhereCB()
     {
         String a = joinAS0.getText();
         String b = joinAS1.getText();
-        if(!a.isEmpty() && !b.isEmpty())
+        if(!a.isEmpty() && !b.isEmpty() && joCo != null)
         {
-            joinController.inflateWhereCb(a, b);
+            joCo.inflateWhereCb(a, b);
         }
     }
     public void andWhereClause1()
@@ -348,7 +342,7 @@ public class AppControllerChB implements Initializable
                 andOrTF.appendText(whereCB.getValue() + " " + whereOpCB.getValue() + " " +  thanTF.getText());
             }
         }
-    } //paraméterben kéne megadni melyik gombbal melyik TFt törölje
+    } //paraméterben kéne megadni melyik gombbal melyik TFt törölje, még nincs belőve
     public void delTF(Button source, TextField tf)
     {
         if(tf.getText().length() > 1){
@@ -375,30 +369,26 @@ public class AppControllerChB implements Initializable
         {
             int lastSpaceIndex = txt.lastIndexOf(" ") + 1;
             if(lastSpaceIndex > 0){
-                groupTF.setText(txt.substring(0, lastSpaceIndex));
-                System.out.println(lastSpaceIndex + "last SpaceIndex");
+                groupTF.setText(txt.substring(0, lastSpaceIndex));                
+            } else {
+                groupTF.clear();
             }
         }
     }
     //ORDER BY 
     public void addOrderByClause()
     {
-        if(orderByCB.getValue() != null)
+        for(int i = 0; i < orderByCBList.size(); i++)
         {
-            if(descChb.isSelected()){
-                orderByTF.appendText(orderByCB.getValue() + " DESC, ");
-            } else {
-                orderByTF.appendText(orderByCB.getValue() + " ASC, ");
+            if(orderByCBList.get(i).getValue() != null)
+            {
+                if(descChb.isSelected()){
+                    orderByTF.appendText(orderByCBList.get(i).getValue() + " DESC, ");
+                } else {
+                    orderByTF.appendText(orderByCBList.get(i).getValue() + " ASC, ");
+                }
             }
-        }
-        if(orderByCB1.getValue() != null)
-        {
-            if(descChb.isSelected()){
-                orderByTF.appendText(orderByCB1.getValue() + " DESC, ");
-            } else {
-                orderByTF.appendText(orderByCB1.getValue() + " ASC, ");
-            }
-        }
+        }       
     }
     //TÖRLÉS GOMB
     public void delLastOrderByClause()
@@ -410,6 +400,9 @@ public class AppControllerChB implements Initializable
             int lastSpaceIndex = txt.lastIndexOf(" ") + 1;
             if(lastSpaceIndex > 0){
                 orderByTF.setText(txt.substring(0, lastSpaceIndex));
+            }
+            else {
+                orderByTF.clear();
             }
         }
     }
@@ -482,30 +475,23 @@ public class AppControllerChB implements Initializable
         
         
         
-        //ORDER BY
-        AtomicBoolean orderByCBChanged = new AtomicBoolean(false);
-        AtomicBoolean orderByCB1Changed = new AtomicBoolean(false);
-        orderByCB.valueProperty().addListener((observable, oldValue, newValue) -> 
-        {
-            if (newValue != null && !orderByCBChanged.get()) 
+        //ORDER BY        
+        for(int i = 0; i < orderByCBList.size(); i++)
+        {   
+            int index = i;
+            orderByCBList.get(i).valueProperty().addListener((observable, oldValue, newValue) -> // TEEEEEEEEEEEEEST
             {
-                orderByCB1.getSelectionModel().select(0);  
-                orderByTF.clear();
-            }
-            orderByCBChanged.set(true);
-            orderByCB1Changed.set(false);
-            
-        });
-        orderByCB1.valueProperty().addListener((observable, oldValue, newValue) -> 
-        {
-            if (newValue != null && !orderByCB1Changed.get()) 
-            {
-                orderByCB.getSelectionModel().select(0);   
-                orderByTF.clear();
-            }
-            orderByCBChanged.set(false);
-            orderByCB1Changed.set(true);
-        });
+                if(orderByCBList.get(index).getValue() != null){
+                        for(int j = 0; j < orderByCBList.size(); j++)
+                        {
+                            if(j != index){
+                                orderByCBList.get(j).getSelectionModel().select(0);
+                            }
+                            
+                        }
+                    }
+            });
+        }
         
         //JOIN
         andOrTF1.setText(null);
@@ -584,9 +570,7 @@ public class AppControllerChB implements Initializable
         setwhereOpCB();
         joinCB.getItems().add(0, null);
         onCB0.getItems().add(0, null);
-        onCB1.getItems().add(0, null);
-        orderByCB.getItems().add(0, null);
-        orderByCB1.getItems().add(0, null);
+        onCB1.getItems().add(0, null);        
         whereCB.getItems().add(0, null);
         whereJoinCB.getItems().add(0, null);
         groupByCB.getItems().add(0, null);
@@ -610,29 +594,14 @@ public class AppControllerChB implements Initializable
     }
     public HBox getColNameChbContainer() {
         return colNameChbContainer;
-    }    
-    public Pane getIncChBContainer() {
-        return chbIncContainer;
-    }
-    public Pane getPrtChbContainer() {
-        return PrtChbContainer;
-    }    
+    } 
     public TextArea getQueryTxtArea() {
         return queryTxtArea;
     }
     public boolean descIsSelected() {
         return descChb.isSelected();
     }
-    //ORDER BY
-    public ComboBox<String> getOrderByCB() {
-        return orderByCB;
-    }
-    public String getOrderBy(){
-        return orderByCB.getValue();
-    }
-    public ComboBox<String> getOrderByCB1() {
-        return orderByCB1;
-    }
+    //ORDER BY    
     public TextField getOrderByTF() {
         return orderByTF;
     }
@@ -696,12 +665,7 @@ public class AppControllerChB implements Initializable
     public Scene getScene() {
         return scene;
     }    
-    public Pane getAsInc() {
-        return asInc;
-    }
-    public Pane getAsPrt() {
-        return asPrt;
-    }
+    
     //JOIN
     public ComboBox<String> getWhereJoinCB() {
         return whereJoinCB;

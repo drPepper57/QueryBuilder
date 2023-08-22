@@ -16,12 +16,13 @@ public class AppCoreChB extends Application
     @Override
     public void start(Stage primaryStage) throws Exception 
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("app.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("apptest.fxml"));
         scene = new Scene(loader.load(), 1024, 768);        
         
         primaryStage.setMaximized(true);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("DataBase query builder");
+        
+        primaryStage.setTitle("SQL query builder");
         primaryStage.show();
         
         

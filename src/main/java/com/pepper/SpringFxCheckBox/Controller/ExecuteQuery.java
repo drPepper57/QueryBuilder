@@ -2,7 +2,6 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 
 import com.pepper.SpringFxCheckBox.Gui.MessageBox;
-import com.pepper.SpringFxCheckBox.Model.Database;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,11 +13,13 @@ import java.util.List;
 
 public class ExecuteQuery<T>
 {
+    
     // meg kell kapja a selectedColumns-t parameterben
     public <T> List<T> executeQuery(String query, Class<T> entityClass, List<String> selectedColumns, EntityHandler<T> entityHandler) 
     {
         List<T> entityList = new ArrayList<>();
-        try (Connection connection = Database.getDataSource().getConnection();
+        
+        try (Connection connection = AppControllerChB.getConnection();
              PreparedStatement statement = connection.prepareStatement(query);
              ResultSet resultSet = statement.executeQuery())
         {

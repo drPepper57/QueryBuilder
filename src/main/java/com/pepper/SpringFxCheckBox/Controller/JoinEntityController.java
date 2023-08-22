@@ -24,6 +24,8 @@ public class JoinEntityController
     private String query;
     private String a, b;
     private DynamicTable dynamicTable;
+    private int tableIndex; // orderBy comboBoxok azonosításához kell, még nincs belőve
+    private int tableIndex1;
     
     public JoinEntityController (AppControllerChB parent, EntityController ec0, EntityController ec1)
     {
@@ -196,7 +198,7 @@ public class JoinEntityController
         }
         
         // ORDER BY
-        if(P.getOrderByCB1().getValue() != null)
+        if(P.getOrderBcBList().get(tableIndex).getValue() != null)
         {
             
             if(!P.getOrderByTF().getText().isEmpty())
@@ -205,24 +207,7 @@ public class JoinEntityController
                 int length = orderBy.length();
                 String orderByReady = orderBy.substring(0, length - 2); //", "
                 queryBuilder.append(" ORDER BY ").append(orderByReady);
-            } else {
-                queryBuilder.append(" ORDER BY ").append(P.getOrderByCB1().getValue());
-            }
-            
-        }
-        if(P.getOrderBy() != null)
-        {
-            
-            if(!P.getOrderByTF().getText().isEmpty())
-            {
-                String orderBy = P.getOrderByTF().getText();
-                int length = orderBy.length();
-                String orderByReady = orderBy.substring(0, length - 2); //", "
-                queryBuilder.append(" ORDER BY ").append(orderByReady);
-            } else {
-                queryBuilder.append(" ORDER BY ").append(P.getOrderByCB().getValue());
-            }
-            
+            }            
         }        
         //LIMIT
         if(!P.isLimitSelected()){

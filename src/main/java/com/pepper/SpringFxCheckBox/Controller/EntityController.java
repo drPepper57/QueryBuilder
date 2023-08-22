@@ -7,6 +7,7 @@ import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +16,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
@@ -57,7 +60,13 @@ public class EntityController
         System.out.println("EntityController createColumn checkboxes");
         this.tableName = tableName;
         tableIndex = index;
-        colNames = model.getColumnNames(tableName); //oszlop nevek lekérdezése
+        try
+        {
+            colNames = model.getColumnNamesNew(tableName); //oszlop nevek lekérdezése
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(EntityController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         checkBoxes = new ArrayList<>();
         
         colNContainer = new ColumnNameContainer(container); //checkboxokat tartalmazó konténer létrehozása
@@ -246,7 +255,7 @@ public class EntityController
             }            
         }
         // ORDER BY
-        if(P.getOrderBy() != null)
+        if(P.getOrderBcBList().get(tableIndex).getValue() != null)
         {
             
             if(!P.getOrderByTF().getText().isEmpty())
@@ -255,15 +264,7 @@ public class EntityController
                 int length = orderBy.length();
                 String orderByReady = orderBy.substring(0, length - 2); //", "
                 queryBuilder.append(" ORDER BY ").append(orderByReady);
-            }
-            else
-            {
-                if(P.descIsSelected()){
-                    queryBuilder.append(" ORDER BY ").append(P.getOrderByCB().getValue()).append(" DESC");
-                } else{
-                    queryBuilder.append(" ORDER BY ").append(P.getOrderByCB().getValue());
-                }
-            }
+            }            
         }    
         //LIMIT
         if(!P.isLimitSelected()){

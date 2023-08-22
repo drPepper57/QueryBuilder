@@ -44,7 +44,7 @@ public class IncomeController
     }  
     
     
-    public void createIncCheckBoxes() // checkboxok dinamikus létrehozása hozzáadása szöveggel parenthez, onAction nélkül
+   /* public void createIncCheckBoxes() // checkboxok dinamikus létrehozása hozzáadása szöveggel parenthez, onAction nélkül
     {
         inColNames = model.getColumnNames("db__income");
         
@@ -103,7 +103,7 @@ public class IncomeController
         System.out.println("clearCheckBoxes() is triggered");
         P.getIncChBContainer().getChildren().clear();
         selectedColumns.clear();
-    }    
+    }    */
     
     public void addSelectedColumnOnAction(List<CheckBox> chb) // onAction hozzáadása checkboxokhoz
     {
@@ -150,7 +150,7 @@ public class IncomeController
         return index; //végigmegyünk a checkbox list szövegein, ahol equals selectedColumn, annak az indexét adja vissza és az alapján kérjük le az aliasTF szövegét
     }
    
-    public void buildQuery() // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
+   /* public void buildQuery() // ez egy queryBuilder o.o TO FIX: ha semmit nem jelölnek ki akkor is lefut 
     {
         queryBuilder = new StringBuilder("SELECT ");        
         for(int i = 0; i < selectedColumns.size(); i++) // oszlop nevek hozzáadása
@@ -262,7 +262,7 @@ public class IncomeController
         queryBuilder.append(";");
         query = queryBuilder.toString();
         P.getQueryTxtArea().setText(query);
-    }
+    }*/
     //TABLE
     public void expectoResult()
     {

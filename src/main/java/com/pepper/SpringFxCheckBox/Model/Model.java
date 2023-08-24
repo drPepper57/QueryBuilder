@@ -28,17 +28,21 @@ public class Model<T>
     }
     public List<String> getColumnNamesNew(String tableName) throws SQLException {
         List<String> columnNames = new ArrayList<>();
+        AppControllerChB.getConnection();
         DatabaseMetaData metaData = connection.getMetaData();
         try (ResultSet columns = metaData.getColumns(null, null, tableName, null)) {
             while (columns.next()) {
-                columnNames.add(columns.getString("COLUMN_NAME"));
+                if(!columnNames.contains(columns.getString("COLUMN_NAME").trim())){
+                    columnNames.add(columns.getString("COLUMN_NAME"));
+                }
             }
         }
-        
         return columnNames;
     }
     public List<String> getTableNamesNew(String database) throws SQLException {
         List<String> tableNames = new ArrayList<>();
+        AppControllerChB.getConnection();
+        
         DatabaseMetaData metaData = connection.getMetaData();
         try (ResultSet tables = metaData.getTables(database, null, null, new String[]{"TABLE"})) {
             while (tables.next()) {

@@ -2,25 +2,111 @@
 
 }
 
+.checkbox {
+    -fx-text-fill: white;
+}
+
+
 .nfo {
     fx-text-fill: black;
 }
 
 .label.hover {
-    -fx-text-fill: blue;
+    -fx-text-fill: rgb(70, 70, 90);
     -fx-font-weight: bold;
 }
  
 .hbox {    
     -fx-pref-height: 33;
     -fx-spacing: 10;
-    -fx-border-color: rgb(150, 150, 150);
+    -fx-border-color: rgb(70, 70, 90);
     -fx-padding: 5 10 5 10;   
     -fx-vgrow: ALWAYS;
 }
 
-.popBox {
-    -fx-border-color: rgb(150, 150, 150);
+#vbox {
+    -fx-border-color: rgb(36, 35, 70);
     -fx-pref-height: 33;
     -fx-alignment: center;
+}
+
+.vbox{
+    -fx-border-color: rgb(70, 70, 90);
+    -fx-border-width: 1;
+    -fx-border-style: hidden solid hidden solid;    
+}
+#build{
+    -fx-border-color: rgb(70, 70, 90);
+    -fx-border-width: 1;
+    -fx-border-style: solid hidden hidden hidden;  
+}
+#CLAUSES{
+    -fx-border-color: rgb(70, 70, 90);
+    -fx-border-width: 1;
+    -fx-border-style: solid hidden hidden hidden;  
+}
+
+.check-box {
+    opacity: 0;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.check-box.fade-in {
+    animation: fadeIn 2s ease-in-out;
+}
+
+.button {
+    -fx-padding: 5;
+    -fx-background-insets: 1.5;
+    -fx-background-color:  rgb(90, 90, 105);
+    -fx-background-radius: 3;
+    -fx-text-fill: rgb(250, 250, 250);
+    -fx-border-color:  rgb(70, 70, 90);
+    -fx-border-radius: 3;
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.3) , 10, 0.2 , 2 , 2 );
+}
+.button:hover {
+    -fx-background-color:  rgb(120, 120, 135);
+}
+.button:pressed {
+    -fx-background-color:  rgb(80, 80, 95);
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.3) , 2, 0.2 , 1 , 1 );
+}
+.combo-box {    
+    -fx-text-fill: white;
+    -fx-pref-height: 20;
+    -fx-background-color: rgb(90, 90, 105);
+    -fx-background-insets: 1.5;
+    -fx-background-radius: 3;
+    -fx-text-fill: rgb(250, 250, 250);
+    -fx-border-color: rgb(70, 70, 90);
+    -fx-border-radius: 3;
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.3) , 5, 0.2 , 2 , 2 );
+}
+
+.combo-box-base .text{
+    -fx-fill: rgb(250, 250, 250);
+}
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgb(120, 120, 135);
+}
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected {
+    -fx-background: -fx-selection-bar-non-focused;
+    -fx-background-color:rgb(90, 90, 105);
+}
+.combo-box .list-cell {
+    -fx-background-color: rgb(90, 90, 105);
+}
+.combo-box:hover{
+    -fx-background-color:  rgb(120, 120, 135);
+}
+
+.text-field {
+    -fx-prompt-text-fill: rgba(0, 0, 30, 0.8); 
 }

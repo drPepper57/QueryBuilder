@@ -2,6 +2,7 @@ package com.pepper.SpringFxCheckBox.Gui;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -10,9 +11,11 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 
 public class PopUpMessage extends Popup
@@ -22,21 +25,30 @@ public class PopUpMessage extends Popup
     public PopUpMessage(String message, Pane parent)
     {
         Label msg = new Label(message);
-        msg.getStyleClass().add("popUp");
+        msg.setStyle("-fx-background-color: transparent; -fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill:  rgb(90, 90, 105);");
         
-        VBox vBox = new VBox();
-        vBox.setAlignment(Pos.CENTER);
+        VBox vbox = new VBox();
+        vbox.setStyle("-fx-background-color: transparent; -fx-border-color: rgb(150, 150, 165); -fx-pref-height: 33; -fx-alignment: center;");
+        vbox.getChildren().add(msg);
         
-        vBox.getChildren().add(msg);
-        
-        Scene popupScene = new Scene(vBox, 200, 50);        
-        Stage popupStage = new Stage();        
+        Scene popupScene = new Scene(vbox, 200, 50);     
+        popupScene.fillProperty();
+        Stage popupStage = new Stage();
         
         
         popupStage.initStyle(StageStyle.UNDECORATED);
-        popupStage.setScene(popupScene);
-        
+        popupStage.initStyle(StageStyle.TRANSPARENT);
+        popupStage.setScene(popupScene);        
         popupStage.show();
+        
+        FadeTransition fadeOut = new FadeTransition(Duration.seconds(2.8), vbox);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished(event -> {
+            popupStage.close();
+            popupScene.setFill(Color.TRANSPARENT); // Set the root's opacity to 0
+        });
+        fadeOut.play();
         
         timer = new Timer();
         timer.schedule(new TimerTask() 

@@ -25,6 +25,7 @@ public class ExecuteQuery<T>
         {
             // Process the result set
             entityList = entityHandler.processResultSet(resultSet, selectedColumns);
+            connection.close();
            
         } catch (SQLSyntaxErrorException e) {
             e.printStackTrace();

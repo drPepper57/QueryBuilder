@@ -1,9 +1,11 @@
 package com.pepper.SpringFxCheckBox.Gui;
 
+import javafx.scene.effect.InnerShadow;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import static javafx.scene.paint.Color.rgb;
 
 
 public class ColumnNameContainer extends AnchorPane
@@ -19,7 +21,8 @@ public class ColumnNameContainer extends AnchorPane
         colNameChbContainer = new HBox();
         colNameChbContainer.getStyleClass().add("hbox");
         asTFcontainer = new HBox();
-        asTFcontainer.getStyleClass().add("hbox");
+        asTFcontainer.getStyleClass().add("hbox");     
+        
         
         actualContainer.getChildren().add(colNameChbContainer);
         actualContainer.getChildren().add(asTFcontainer);

@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -29,8 +30,13 @@ import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.effect.InnerShadow;
+import javafx.scene.effect.MotionBlur;
+import javafx.scene.effect.Reflection;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import static javafx.scene.paint.Color.rgb;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import javax.swing.JPasswordField;
@@ -67,6 +73,7 @@ public class AppControllerChB implements Initializable
     TextField urlTF, databaseTF, userTF;
     @FXML
     PasswordField passwordTF;
+    private static String url, databaseName, user, password;
     private List<String> selectedAggrFunct, selectedAggrNameList, tableNames;
     private Map<String, String> aggregateMap = new HashMap<>();
     public String aggregateFunction = new String();
@@ -74,9 +81,9 @@ public class AppControllerChB implements Initializable
     private List<ComboBox> orderByCBList;
     // Table
     @FXML
-    private VBox root;
+    private VBox root, select, select2;
     @FXML                         //oszlop név checkBoxok
-    private HBox tableChbContainer, colNameChbContainer, orderBcontainer;
+    private HBox tableChbContainer, colNameChbContainer, orderBcontainer, select1, clauses, build;
     
     
     @Override
@@ -97,15 +104,35 @@ public class AppControllerChB implements Initializable
     }
     public static Connection getConnection()
     {
+        try
+        {
+            if(connection == null || connection.isClosed()){
+                connection = Database.getConnection(url, user, password, databaseName);
+            }
+            if(connection != null){
+                System.out.println("AppController, getConnection triggered, connection NOT NULL ");
+            }
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return connection;
     }
-    public void connectToDatabase()
+    public void connectToDatabase() throws SQLException
     {
         System.out.println("connectToDatabase triggered");
+        if(connection != null){
+           Database.closeConnection();
+        }
         if(!urlTF.getText().isEmpty() && !databaseTF.getText().isEmpty() && !userTF.getText().isEmpty() && !passwordTF.getText().isEmpty())
         {
+            //url, databaseName, user, password;
+            url = urlTF.getText();
+            databaseName = databaseTF.getText();
+            user = userTF.getText();
+            password = passwordTF.getText();
             try{
-                connection = Database.getConnection(urlTF.getText(), userTF.getText(), passwordTF.getText(), databaseTF.getText());
+                connection = Database.getConnection(url, user, password, databaseName);
                 model.setConnection(connection);
                 if(connection != null){
                      PopUpMessage msg = new PopUpMessage("Database connected", root);
@@ -126,10 +153,13 @@ public class AppControllerChB implements Initializable
         } else {
             MessageBox.Show("Error", "connection is null");
         }
+        
     }
     
     public void createTableChbs(String databaseName) //Table checkBoxok + onAction
-    {   try
+    { 
+        
+        try
         {
             tableNames = model.getTableNamesNew(databaseName);
         } catch (SQLException ex)
@@ -137,24 +167,31 @@ public class AppControllerChB implements Initializable
             Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
         }
         tblChbList = new ArrayList<>();
-        //minden tableCheckboxhoz tartozik egy selectedTable instance.
-        //az Integer az entitás lekérdezésére kell a tbChbList-ből
-        //kezdetben mindegyik false: nincs kiválasztva
-        //onActionbe tenni: hogy ha kiválasztanak egy táblát false->true
-        //majd ..        
-        //vaagy szükségem van a ...checkbox indexére amit használhatok EntityControllert választani az entityList-ből
-        
-        for(int i = 0; i < tableNames.size(); i++){
+
+        //szükségem van a ...checkbox indexére amit használhatok EntityControllert választani az entityList-ből
+        tblChbList.clear();
+        orderByCBList.clear();
+        entityControllerList.clear();
+        tableChbContainer.getChildren().clear();
+        orderBcontainer.getChildren().clear();
+        colNameChbContainer.getChildren().clear();
+        // ki kell törölni a columnNames listákat is 
+        for(int i = 0; i < tableNames.size(); i++)
+        {
             tblChbList.add(new CheckBox(tableNames.get(i))); // checkbox létrehozása tábla névvel + szélesség beállítása
+            tblChbList.get(i).getStyleClass().add("checkbox");
             Text txt = new Text( tblChbList.get(i).getText());
             Double width = txt.getLayoutBounds().getWidth();
             tblChbList.get(i).setMinWidth(width * 1.4);            
-            
+
             tableChbContainer.getChildren().add(tblChbList.get(i)); // checkbox konténerhez adása
-            
-            EntityController entity = new EntityController(this, colNameChbContainer);//új entity
+            applyFadeInAnimation(tblChbList.get(i));
+
+            List<String> columnNames = new ArrayList<>();
+            columnNames = model.getColumnNames(tableNames.get(i));
+            EntityController entity = new EntityController(this, colNameChbContainer, columnNames);//új entity
             entityControllerList.add(entity); 
-            
+
             ComboBox<String> comboBox = new ComboBox<>(); // orderBy comboboxok létrehozása
             comboBox.setMinWidth(116);
             comboBox.getItems().add(null);
@@ -175,7 +212,8 @@ public class AppControllerChB implements Initializable
                     entityControllerList.get(index).clearCheckBoxes();
                 }
             });
-        }            
+        }
+        
     }
     // KÖVETKEZŐ 
     public void setQueryToTxtArea()
@@ -364,9 +402,10 @@ public class AppControllerChB implements Initializable
     public void delLastGroupByClause()
     {
         String txt = groupTF.getText().trim();
-        txt = txt.substring(0, txt.length()-2); // utolsó szóköz és vessző törlése
+        
         if (!txt.isEmpty())
         {
+            txt = txt.substring(0, txt.length()-2); // utolsó szóköz és vessző törlése
             int lastSpaceIndex = txt.lastIndexOf(" ") + 1;
             if(lastSpaceIndex > 0){
                 groupTF.setText(txt.substring(0, lastSpaceIndex));                
@@ -394,9 +433,10 @@ public class AppControllerChB implements Initializable
     public void delLastOrderByClause()
     {
         String txt = orderByTF.getText().trim();
-        txt = txt.substring(0, txt.length()-2);        
+        
         if (!txt.isEmpty())
         {
+            txt = txt.substring(0, txt.length()-2);
             int lastSpaceIndex = txt.lastIndexOf(" ") + 1;
             if(lastSpaceIndex > 0){
                 orderByTF.setText(txt.substring(0, lastSpaceIndex));
@@ -408,7 +448,18 @@ public class AppControllerChB implements Initializable
     }
     
     public void setUpUI()
-    {   //INFO MSG
+    {
+        InnerShadow innerShadow = new InnerShadow();
+        innerShadow.setColor( rgb(90, 90, 105));
+        innerShadow.setRadius(10);
+        select.setEffect(innerShadow);
+        select1.setEffect(innerShadow);
+        select2.setEffect(innerShadow);
+        clauses.setEffect(innerShadow);
+        build.setEffect(innerShadow);
+        queryTxtArea.setEffect(innerShadow);
+        joinCB.setStyle("-fx-prompt-text-fill: rgba(255, 255, 255, 0.7)");
+        //INFO MSG
         selectedAggrFunct = new ArrayList<>();
         selectedAggrNameList = new ArrayList<>();
         Tooltip tooltip = new Tooltip("Unselect all to SELECT * ");
@@ -563,8 +614,7 @@ public class AppControllerChB implements Initializable
             source = null; // Reset triggerSource when button is released
             triggerPause.stop();
         });
-        */
-        
+        */        
         
         setAggregateCB();
         setwhereOpCB();
@@ -578,13 +628,6 @@ public class AppControllerChB implements Initializable
         whereOpCB1.getItems().add(0, null);
         aggregateCB.getItems().add(0,null);
     }
-    
-    /*
-    SELECT i.id, i.amount, i.created, i.approved, p.name AS partner_name, p.contact AS partner_contact
-    FROM db__income i
-    JOIN db__partners p ON i.partner = p.id;
-    */
-    
     
     public boolean isLimitSelected(){
         return disableTopSpin.isSelected();
@@ -711,11 +754,12 @@ public class AppControllerChB implements Initializable
     public HBox getTableChbContainer() {
         return tableChbContainer;
     }
-    
-    
-    
-    
-    
+    private void applyFadeInAnimation(CheckBox checkBox) {
+        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.7), checkBox);
+        fadeTransition.setFromValue(0);
+        fadeTransition.setToValue(1);
+        fadeTransition.play();
+    }
     private void setAggregateCB(){
         List<String> aggregateFunctionsList = new ArrayList<>();        
         aggregateFunctionsList.add("SUM");

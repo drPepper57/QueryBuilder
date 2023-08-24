@@ -18,6 +18,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
@@ -25,6 +26,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.util.Duration;
 
 
 public class EntityController 
@@ -34,7 +36,7 @@ public class EntityController
     private String tableName;
     private List<String> colNames;
     private final List<String> selectedColumns;    
-    private List<TextField> asTxtList;
+    private List<TextField> asTxTFList;
     private List<CheckBox> checkBoxes;
     private StringBuilder queryBuilder, originalQ;
     private String query;
@@ -45,9 +47,9 @@ public class EntityController
     private int tableIndex;
     
     
-    public EntityController(AppControllerChB parent, Pane container)
+    public EntityController(AppControllerChB parent, Pane container, List<String> colNames)
     {
-        this.colNames = new ArrayList<>();
+        this.colNames = colNames;
         this.selectedColumns = new ArrayList<>();
         this.P = parent;        
         model = AppCoreChB.getContext().getBean(Model.class);
@@ -58,25 +60,21 @@ public class EntityController
     public void createColumnChb( String tableName, int index)
     {
         System.out.println("EntityController createColumn checkboxes");
+        AppControllerChB.getConnection();
         this.tableName = tableName;
         tableIndex = index;
-        try
-        {
-            colNames = model.getColumnNamesNew(tableName); //oszlop nevek lekérdezése
-        } catch (SQLException ex)
-        {
-            Logger.getLogger(EntityController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
         checkBoxes = new ArrayList<>();
         
         colNContainer = new ColumnNameContainer(container); //checkboxokat tartalmazó konténer létrehozása
+        applyFadeInAnimation(colNContainer);
         AScontainer = colNContainer.getAsTFcontainer();        
         nameChbCont = colNContainer.getColNameChbContainer();        
         
         for(int i = 0; i < colNames.size(); i++)
         {
             checkBoxes.add(new CheckBox(colNames.get(i)));
-            
+            checkBoxes.get(i).getStyleClass().add("checkbox");
             nameChbCont.getChildren().add(checkBoxes.get(i)); //
         }
         
@@ -93,7 +91,7 @@ public class EntityController
                     createAStxtField();
                 });
             }
-        }, 100);
+        }, 50);
     }
     private void addSelectedColumnOnAction(List<CheckBox> chb) 
     {
@@ -121,24 +119,23 @@ public class EntityController
                 }
                 Collections.sort(selectedIndices);
                 selectedColumns.clear();
-                for (Integer x : selectedIndices) {
-                if (x < colNames.size()) {
-                    selectedColumns.add(colNames.get(x));
+                for (Integer x : selectedIndices) 
+                {
+                    if (x < colNames.size()) {
+                        selectedColumns.add(colNames.get(x));
+                    }
                 }
-}
             });
         }
     } 
     public void createAStxtField()
-    {
-        
-        asTxtList = new ArrayList<>(); //AS txtFieldek
-        
+    {        
+        asTxTFList = new ArrayList<>(); //AS txtFieldek        
             for(int i = 0; i < colNames.size(); i++)
             {   //checkBoxes.get(i).getWidth() + 
                 double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();                
                 TextField asTxt = new TextField(AScontainer, chbWidth);
-                asTxtList.add(asTxt);
+                asTxTFList.add(asTxt);
             }
         stopTimer();
     }
@@ -150,10 +147,8 @@ public class EntityController
     }
     public void clearCheckBoxes()
     {
-        System.out.println("clearCheckBoxes() is triggered");
-        colNContainer.getChildren().clear();
-        //nameChbCont.getChildren().clear();
-        //AScontainer.getChildren().clear();
+        applyFadeOutAnimation(colNContainer);
+        //colNContainer.getChildren().clear();
         selectedColumns.clear();
     }
     
@@ -175,7 +170,7 @@ public class EntityController
         queryBuilder = new StringBuilder("SELECT ");        
         for(int i = 0; i < selectedColumns.size(); i++) // oszlop nevek hozzáadása
         {                            //lekérjük a checkbox indexét 
-            String alias = asTxtList.get(getChbIndex(selectedColumns.get(i))).getText().trim(); //AS txtField tartalma
+            String alias = asTxTFList.get(getChbIndex(selectedColumns.get(i))).getText().trim(); //AS txtField tartalma
             if(!alias.isEmpty()) // HA megadtak ALIAS-t, asTxtList tartalmazza az AS TextFieldeket
             {
                 if(P.getAggregateMap().containsKey(selectedColumns.get(i))) //SUM,AVG, etc
@@ -206,13 +201,14 @@ public class EntityController
         }        
         
         // WHERE *** IS NULL
-        if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null && P.getAndOrTF().getText() == null)
+        /*if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null && P.getAndOrTF().getText() == null)
         {
             queryBuilder.append(" WHERE ").append(P.getWhereCB().getValue()).append(" IS NULL");
         }
+        
         // WHERE kisebb nagyobb mint 
         if(P.getWhereCB().getValue() != null && P.getThanTxt().getText() != null && P.getwhereOpCB().getValue() != null && P.getAndOrTF().getText() == null)
-        {
+        {/*
             String whereColName = P.getWhereCB().getValue();            
             String operator = P.getwhereOpCB().getSelectionModel().getSelectedItem();            
             // Check if the user entered a numeric value
@@ -236,7 +232,7 @@ public class EntityController
                 // Handle the case where the user entered a non-numeric value in the textfield
                 // Show an error message to the user, or handle it based on your application's requirements
             }
-        }
+        }*/
         if(P.getAndOrTF().getText() != null)
         {
             queryBuilder.append( " WHERE ").append(P.getAndOrTF().getText());
@@ -309,6 +305,28 @@ public class EntityController
             }
         }
     }
+    /*private void applyFadeInAnimation(CheckBox checkBox) {
+        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), checkBox);
+        fadeTransition.setFromValue(0);
+        fadeTransition.setToValue(1);
+        fadeTransition.play();
+    }*/
+    private void applyFadeOutAnimation(ColumnNameContainer container) {
+        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), container);
+        fadeTransition.setFromValue(1);
+        fadeTransition.setToValue(0);
+        fadeTransition.setOnFinished(event -> {
+        colNContainer.getChildren().clear(); // Clear the container after the fade-out animation
+        // You can also add the checkboxes back here if needed
+        });
+        fadeTransition.play();
+    } //ColumnNameContainer
+    private void applyFadeInAnimation(ColumnNameContainer container) {
+        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), container);
+        fadeTransition.setFromValue(0);
+        fadeTransition.setToValue(1);
+        fadeTransition.play();
+    }
     
     private void inflateCombobox(ComboBox<String> cb, List<String> nameList)
     {
@@ -338,6 +356,6 @@ public class EntityController
         return checkBoxes;
     }
     public List<TextField> getAsTxtList() {
-        return asTxtList;
+        return asTxTFList;
     }
 }

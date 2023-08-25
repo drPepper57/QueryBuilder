@@ -110,3 +110,72 @@
 .text-field {
     -fx-prompt-text-fill: rgba(0, 0, 30, 0.8); 
 }
+
+.table-view {
+    -fx-background-color: rgb(90, 90, 105);
+}
+.table-view .column-header { /* az elválasztó vonalból fullos háttér lett */
+    -fx-background-color: transparent;
+    
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 20, 0.2 , 2 , 5 );
+}
+.table-view .column-header-background .filler{
+    -fx-background-color: rgb(90, 90, 105);
+    
+}
+.table-view .corner {
+    -fx-background-color: transparent;
+}
+.table-view .column-header-background{/* header és cellákat elválasztó vonal */
+    -fx-background-color: linear-gradient(to bottom, rgb(70, 70, 90), rgb(120, 120, 135));
+    -fx-background-radius: 7px 7px 0px 0px;
+    -fx-background-insets: 0 11px 0 0;
+    -fx-padding: 0 0 5px 0;
+}
+.table-view .table-cell{ 
+    -fx-border-color: transparent;/* függőleges keret */
+    -fx-padding: 2 0 2 10px;
+}
+.table-row-cell{
+    -fx-text-fill: white; /* ez nem csinál semmit, de a table-cell meg felülírja a table-row-cell-hovert*/
+}
+.table-cell{
+    -fx-text-fill: white;
+}
+.table-row-cell:hover { 
+    -fx-background-color: green; /* ezt én nem látom .. */
+    -fx-text-background-color: rgb(170, 170, 185)/* cell szöveg hover */
+}
+.table-row-cell:odd{ /* páratlan sorok */
+    -fx-background-color: rgb(120, 120, 135);
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em;
+}
+.table-row-cell:even{ /* páros sorok, ezeket csak együtt lehet változtatni*/
+    -fx-background-color: rgb(90, 90, 105);
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em;
+}
+.table-view .virtual-flow .scroll-bar:vertical,
+.table-view .virtual-flow .scroll-bar:vertical .track,
+.table-view .virtual-flow .scroll-bar:vertical .track-background,
+.table-view .virtual-flow .scroll-bar:horizontal,
+.table-view .virtual-flow .scroll-bar:horizontal .track,
+.table-view .virtual-flow .scroll-bar:horizontal .track-background {
+    -fx-background-color: transparent;
+}
+.table-view .virtual-flow .scroll-bar .increment-button,
+.table-view .virtual-flow .scroll-bar .decrement-button {
+    -fx-opacity: 0;
+    -fx-padding: 2;
+}
+.table-view .virtual-flow .scroll-bar:vertical .thumb{ /* görgő sáv "gomb" háttér szín átmenet */
+    -fx-background-color:  linear-gradient(to bottom, rgb(50, 50, 75), rgb(190, 190, 205));
+}
+.table-view .virtual-flow .scroll-bar:horizontal .thumb {
+    -fx-background-color:  linear-gradient(to right,  rgb(10, 10, 25), rgb(190, 190, 205));
+}
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}

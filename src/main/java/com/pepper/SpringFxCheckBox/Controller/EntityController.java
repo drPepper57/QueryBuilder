@@ -290,6 +290,7 @@ public class EntityController
 
         dynamicTable = new DynamicTable<>(P.getRoot(), DynamicDTO.class, selectedColumns, entHand);
         dynamicTable.setItems(list);
+        applyFadeInAnimation(dynamicTable);
     }
     public void deleteTable()
     {
@@ -324,6 +325,12 @@ public class EntityController
     private void applyFadeInAnimation(ColumnNameContainer container) {
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), container);
         fadeTransition.setFromValue(0);
+        fadeTransition.setToValue(1);
+        fadeTransition.play();
+    }
+    private void applyFadeInAnimation(Node node) {
+        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), node);
+        fadeTransition.setFromValue(0.5);
         fadeTransition.setToValue(1);
         fadeTransition.play();
     }

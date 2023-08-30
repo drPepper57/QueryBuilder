@@ -1,7 +1,12 @@
-.mainFxmlClass {
-
+#root{
+    
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
 }
-
+#queryTxtArea{
+    -fx-border-color: rgba(30, 30, 45, 0.2);
+    -fx-border-width: 2;
+}
 .checkbox {
     -fx-text-fill: white;
 }
@@ -14,6 +19,10 @@
 .label.hover {
     -fx-text-fill: rgb(70, 70, 90);
     -fx-font-weight: bold;
+}
+
+.label{
+    
 }
  
 .hbox {    
@@ -31,14 +40,14 @@
 }
 
 .vbox{
-    -fx-border-color: rgb(70, 70, 90);
+    -fx-border-color: rgba(70, 70, 90, 0.8);
     -fx-border-width: 1;
     -fx-border-style: hidden solid hidden solid;    
 }
 #build{
     -fx-border-color: rgb(70, 70, 90);
     -fx-border-width: 1;
-    -fx-border-style: solid hidden hidden hidden;  
+    -fx-border-style: solid hidden solid hidden;  
 }
 #CLAUSES{
     -fx-border-color: rgb(70, 70, 90);
@@ -61,10 +70,11 @@
     animation: fadeIn 2s ease-in-out;
 }
 
-.button {
+.button {/*linear-gradient(rgb(90, 90, 105), rgb(120, 120, 135));*/
+    -fx-font-weight: bold;    
     -fx-padding: 5;
-    -fx-background-insets: 1.5;
-    -fx-background-color:  rgb(90, 90, 105);
+    -fx-background-color:  linear-gradient(rgb(90, 90, 105), rgb(120, 120, 135));
+    -fx-background-insets: 1.5;    
     -fx-background-radius: 3;
     -fx-text-fill: rgb(250, 250, 250);
     -fx-border-color:  rgb(70, 70, 90);
@@ -72,7 +82,7 @@
     -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.3) , 10, 0.2 , 2 , 2 );
 }
 .button:hover {
-    -fx-background-color:  rgb(120, 120, 135);
+    -fx-background-color:  linear-gradient(rgb(120, 120, 135), rgb(90, 90, 105) );
 }
 .button:pressed {
     -fx-background-color:  rgb(80, 80, 95);
@@ -106,16 +116,25 @@
 .combo-box:hover{
     -fx-background-color:  rgb(120, 120, 135);
 }
+.combo-box:pressed{
+    -fx-background-color:  rgb(80, 80, 95);
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.3) , 2, 0.2 , 1 , 1 );
+}
 
 .text-field {
     -fx-prompt-text-fill: rgba(0, 0, 30, 0.8); 
+    -fx-background-radius: 3px;
+    -fx-font-family: Arial, sans-serif;
+    -fx-border-color: rgb(150, 150, 175);
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
 }
 
 .table-view {
     -fx-background-color: rgb(90, 90, 105);
 }
-.table-view .column-header { /* az elválasztó vonalból fullos háttér lett */
-    -fx-background-color: transparent;
+.table-view .column-header { 
+    -fx-background-color: transparent;/* az elválasztó vonalból fullos háttér lett */
     
     -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.4) , 20, 0.2 , 2 , 5 );
 }
@@ -178,4 +197,14 @@
 .table-view .column-header .label {
     -fx-text-fill: white;
     -fx-font-weight: bold;
+}
+.border_right{
+    -fx-border-color: rgba(70, 70, 90, 0.2);
+    -fx-border-width: 3;
+    -fx-border-style: hidden solid hidden hidden;    
+}
+.border_left{
+    -fx-border-color: rgba(70, 70, 90, 0.2);
+    -fx-border-width: 3;
+    -fx-border-style: hidden hidden hidden solid;    
 }

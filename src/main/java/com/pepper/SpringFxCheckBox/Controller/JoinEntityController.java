@@ -1,13 +1,16 @@
 package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
-import com.pepper.SpringFxCheckBox.Gui.TextField;
+import com.pepper.SpringFxCheckBox.View.TextField;
 import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.Node;
 import javafx.scene.control.TableView;
 
@@ -64,16 +67,7 @@ public class JoinEntityController
         asTxtListEC0.addAll(EC0.getAsTxtList());
         asTxtListEC1.addAll(EC1.getAsTxtList());
         
-    }
-    public List<String> createJoinNames(List<String> list, String alias)
-    {
-        List<String> aliasDotColNames = new ArrayList<>();
-        for(int i = 0; i < list.size(); i++)
-        {
-            aliasDotColNames.add(alias + "." +list.get(i));            
-        }
-        return aliasDotColNames;
-    }
+    }    
     public void buildQuery()
     {
         StringBuilder queryBuilder = new StringBuilder("SELECT ");
@@ -198,17 +192,13 @@ public class JoinEntityController
         }
         
         // ORDER BY
-        if(P.getOrderBcBList().get(tableIndex).getValue() != null)
+        if(!P.getOrderByTF().getText().isEmpty())
         {
-            
-            if(!P.getOrderByTF().getText().isEmpty())
-            {
-                String orderBy = P.getOrderByTF().getText();
-                int length = orderBy.length();
-                String orderByReady = orderBy.substring(0, length - 2); //", "
-                queryBuilder.append(" ORDER BY ").append(orderByReady);
-            }            
-        }        
+            String orderBy = P.getOrderByTF().getText();
+            int length = orderBy.length();
+            String orderByReady = orderBy.substring(0, length - 2); //", "
+            queryBuilder.append(" ORDER BY ").append(orderByReady);
+        }
         //LIMIT
         if(!P.isLimitSelected()){
             queryBuilder.append(" LIMIT ").append(P.getTopValue());
@@ -253,22 +243,36 @@ public class JoinEntityController
             }
         }
     }
-    
-    public void inflateWhereCb(String a, String b)
+    public List<String> createJoinNames(List<String> list, String alias)
     {
-        List<String> allColNames = new ArrayList<>();
-        
-        List<String> firstColNames = new ArrayList<>();
-        firstColNames.addAll(model.getColumnNames(EC0.getTableName()));
-        firstColNames = createJoinNames(firstColNames, a);
-        
-        List<String> secColNames = new ArrayList<>();
-        secColNames.addAll(model.getColumnNames(EC1.getTableName()));
-        secColNames = createJoinNames(secColNames, b);
-        
-        allColNames.addAll(firstColNames);
-        allColNames.addAll(secColNames);
-        
-        P.getWhereJoinCB().getItems().addAll(allColNames);
+        List<String> aliasDotColNames = new ArrayList<>();
+        for(int i = 0; i < list.size(); i++)
+        {
+            aliasDotColNames.add(alias + "." +list.get(i));            
+        }
+        return aliasDotColNames;
+    }
+    public void inflateWhereCb(String a, String b) // NEM TÖLTI BE debuggolni !!!!!!!!!!!!!!!!!!!!!!!
+    {
+        try
+        {
+            List<String> allColNames = new ArrayList<>();
+            
+            List<String> firstColNames = new ArrayList<>();
+            firstColNames.addAll(model.getColumnNamesNew(EC0.getTableName()));
+            firstColNames = createJoinNames(firstColNames, a);
+            
+            List<String> secColNames = new ArrayList<>();
+            secColNames.addAll(model.getColumnNamesNew(EC1.getTableName()));
+            secColNames = createJoinNames(secColNames, b);
+            
+            allColNames.addAll(firstColNames);
+            allColNames.addAll(secColNames);
+            
+            P.getWhereJoinCB().getItems().addAll(allColNames);
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(JoinEntityController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

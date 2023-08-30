@@ -48,9 +48,19 @@
                         <groupId>org.apache.commons</groupId>
                         <artifactId>commons-dbcp2</artifactId>
                         <version>2.9.0</version>
+                </dependency>                
+                <dependency>
+                    <groupId>org.testfx</groupId>
+                    <artifactId>testfx-core</artifactId>
+                    <version>4.0.16-alpha</version>
+                    <scope>test</scope>
                 </dependency>
-
-                
+                <dependency>
+                    <groupId>org.testfx</groupId>
+                    <artifactId>testfx-junit5</artifactId>
+                    <version>4.0.16-alpha</version>
+                    <scope>test</scope>
+                </dependency>
 	</dependencies>
 
 	<build>
@@ -59,6 +69,19 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+                        <plugin>  
+			<!-- Build an executable JAR -->  
+			<groupId>org.apache.maven.plugins</groupId>  
+			<artifactId>maven-jar-plugin</artifactId>  
+			<version>3.3.0</version>  
+			<configuration>  
+				<archive>  
+					<manifest>  
+						<mainClass>com.dd.bedcalcplot.MainFrame</mainClass>  
+					</manifest>  
+				</archive>  
+			</configuration>  
+		</plugin> 
 		</plugins>
 	</build>
 

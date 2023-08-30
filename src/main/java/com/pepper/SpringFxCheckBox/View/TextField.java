@@ -1,4 +1,4 @@
-package com.pepper.SpringFxCheckBox.Gui;
+package com.pepper.SpringFxCheckBox.View;
 
 import javafx.scene.layout.Pane;
 

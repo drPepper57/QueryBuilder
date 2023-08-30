@@ -2,7 +2,7 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.ColumnNameContainer;
-import com.pepper.SpringFxCheckBox.Gui.TextField;
+import com.pepper.SpringFxCheckBox.View.TextField;
 import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.Model.Model;
@@ -79,7 +79,7 @@ public class EntityController
         }
         
         addSelectedColumnOnAction(checkBoxes);
-        inflateCombobox(P.getOrderBcBList().get(index), colNames);
+        inflateCombobox(P.getOrderByCB(), colNames);
         
         timer = new Timer();
         timer.schedule(new TimerTask() 
@@ -251,17 +251,13 @@ public class EntityController
             }            
         }
         // ORDER BY
-        if(P.getOrderBcBList().get(tableIndex).getValue() != null)
+        if(!P.getOrderByTF().getText().isEmpty())
         {
-            
-            if(!P.getOrderByTF().getText().isEmpty())
-            {
-                String orderBy = P.getOrderByTF().getText();
-                int length = orderBy.length();
-                String orderByReady = orderBy.substring(0, length - 2); //", "
-                queryBuilder.append(" ORDER BY ").append(orderByReady);
-            }            
-        }    
+            String orderBy = P.getOrderByTF().getText();
+            int length = orderBy.length();
+            String orderByReady = orderBy.substring(0, length - 2); //", "
+            queryBuilder.append(" ORDER BY ").append(orderByReady);
+        }
         //LIMIT
         if(!P.isLimitSelected()){
             queryBuilder.append(" LIMIT ").append(P.getTopValue());

@@ -1,4 +1,4 @@
-package com.pepper.SpringFxCheckBox.Model;
+package com.pepper.SpringFxCheckBox;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,14 +9,11 @@ public class Database
 {
     private static BasicDataSource dataSource;
     
-    public Database(){
-        
-    }    
     public static BasicDataSource createDataSource(String url, String username, String password, String database) throws SQLException
     {
        dataSource = new BasicDataSource();       
        String fullUrl = url + "/" + database;
-       //dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+       dataSource.setDriverClassName("com.mysql.jdbc.Driver");
        dataSource.setUrl(fullUrl);
        dataSource.setUsername(username);
        dataSource.setPassword(password);
@@ -31,9 +28,5 @@ public class Database
      public static Connection getConnection(String url, String username, String password, String database) throws SQLException {
         return createDataSource(url, username, password, database).getConnection();
     }
-    
-    public static void closeConnection() throws SQLException
-    {
-        dataSource.close();
-    }
+
 }

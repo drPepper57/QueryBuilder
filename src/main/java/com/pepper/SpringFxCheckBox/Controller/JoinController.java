@@ -1,7 +1,7 @@
 package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
-import com.pepper.SpringFxCheckBox.Gui.TextField;
+import com.pepper.SpringFxCheckBox.View.TextField;
 import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.Model.Model;

@@ -17,6 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -31,30 +33,35 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.InnerShadow;
-import javafx.scene.effect.MotionBlur;
-import javafx.scene.effect.Reflection;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import static javafx.scene.paint.Color.rgb;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import javax.swing.JPasswordField;
 
 public class AppControllerChB implements Initializable 
-{ // !!!! HIBA: ha nincs hozzáadva TEXTFIELDHEZ WHERE, ORDERBY, GROUP BY colName akkor is bekerül a querybe "WHERE" "ORDER BY".. colName nélkül
-    AppCoreChB appCore;
+{
     private IncomeController incomeController;
     private PartnerController partnerController;
     private JoinController joinController;
-    private List<EntityController> entityControllerList;
-    private JoinEntityController joCo;
-    private List<CheckBox> tblChbList;
+    
+    private AppCoreChB appCore;
+    private JoinEntityController joinEntCont;    
     private Model model;
     private Database database;
     private static Connection connection;
+    public static String url, databaseName, user, password;
     private PauseTransition triggerDel;
     private Scene scene;    
+    private List<EntityController> entityControllerList;
+    private List<String> selectedAggrFunct, selectedAggrNameList, tableNames;
+    private List<Integer> selectedTables;   
+    private List<CheckBox> tblChbList;
+    private List<List<String>> colNameListList;
+    private Map<String, String> aggregateMap = new HashMap<>();
+    public String aggregateFunction = new String();
+    public String selectedAggName = new String();
+    
     @FXML
     private Button delBtn1, delBtn, loadBtn;
     @FXML
@@ -66,19 +73,13 @@ public class AppControllerChB implements Initializable
     @FXML
     private CheckBox disableTopSpin, descChb, isNullChB, isNullChB1, notNullChB1, notNullChB;
     @FXML
-    private ComboBox<String> whereCB, whereJoinCB, groupByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1, aggregateCB, aggName;
+    private ComboBox<String> whereCB, whereJoinCB, groupByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1, aggregateCB, aggName, orderByCB;
     @FXML
     private TextField andOrTF, andOrTF1, thanTF, thanTF1, joinAS0, joinAS1, orderByTF, groupTF;
     @FXML
-    TextField urlTF, databaseTF, userTF;
+    private TextField urlTF, databaseTF, userTF;
     @FXML
-    PasswordField passwordTF;
-    private static String url, databaseName, user, password;
-    private List<String> selectedAggrFunct, selectedAggrNameList, tableNames;
-    private Map<String, String> aggregateMap = new HashMap<>();
-    public String aggregateFunction = new String();
-    public String selectedAggName = new String();
-    private List<ComboBox> orderByCBList;
+    private PasswordField passwordTF;    
     // Table
     @FXML
     private VBox root, select, select2;
@@ -93,14 +94,13 @@ public class AppControllerChB implements Initializable
         scene = appCore.getScene();
         incomeController = new IncomeController(this);
         partnerController = new PartnerController(this);
-        joinController = new JoinController(this, incomeController, partnerController); // Pass the existing instances here
+        joinController = new JoinController(this, incomeController, partnerController);
         model = AppCoreChB.getContext().getBean(Model.class);
-        database = new Database();
-        orderByCBList = new ArrayList<>();
-        entityControllerList = new ArrayList<>();        
-        
-        //createTableChbs("financial_management");
-        setUpUI();        
+        database = new Database();        
+        entityControllerList = new ArrayList<>();
+        selectedTables = new ArrayList<>();
+        colNameListList = new ArrayList<>();
+        setupUI();        
     }
     public static Connection getConnection()
     {
@@ -136,14 +136,13 @@ public class AppControllerChB implements Initializable
                 model.setConnection(connection);
                 if(connection != null){
                      PopUpMessage msg = new PopUpMessage("Database connected", root);
-                }
-                    
+                }                    
             }
             catch (SQLException e){
                 MessageBox.Show("Error", e.getMessage());
             } 
         } else {
-            System.out.println("valamelyik Textfield empty");
+            System.out.println("valamelyik Textfield üres");
         }
     }
     public void loadTables()
@@ -157,11 +156,13 @@ public class AppControllerChB implements Initializable
     }
     
     public void createTableChbs(String databaseName) //Table checkBoxok + onAction
-    { 
-        
+    {
         try
         {
             tableNames = model.getTableNamesNew(databaseName);
+            joinCB.getItems().clear();
+            joinCB.getItems().add(0, null);
+            joinCB.getItems().addAll(tableNames);
         } catch (SQLException ex)
         {
             Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
@@ -169,34 +170,36 @@ public class AppControllerChB implements Initializable
         tblChbList = new ArrayList<>();
 
         //szükségem van a ...checkbox indexére amit használhatok EntityControllert választani az entityList-ből
-        tblChbList.clear();
-        orderByCBList.clear();
+        tblChbList.clear();        
         entityControllerList.clear();
         tableChbContainer.getChildren().clear();
-        orderBcontainer.getChildren().clear();
+        queryTxtArea.clear();
         colNameChbContainer.getChildren().clear();
+        orderByCB.getItems().clear();
         // ki kell törölni a columnNames listákat is 
+        List<String> columnNames = new ArrayList<>();
         for(int i = 0; i < tableNames.size(); i++)
         {
             tblChbList.add(new CheckBox(tableNames.get(i))); // checkbox létrehozása tábla névvel + szélesség beállítása
             tblChbList.get(i).getStyleClass().add("checkbox");
             Text txt = new Text( tblChbList.get(i).getText());
             Double width = txt.getLayoutBounds().getWidth();
-            tblChbList.get(i).setMinWidth(width * 1.4);            
+            tblChbList.get(i).setMinWidth(width * 1.4); 
 
             tableChbContainer.getChildren().add(tblChbList.get(i)); // checkbox konténerhez adása
             applyFadeInAnimation(tblChbList.get(i));
-
-            List<String> columnNames = new ArrayList<>();
-            columnNames = model.getColumnNames(tableNames.get(i));
+            try
+            {
+                columnNames = model.getColumnNamesNew(tableNames.get(i));
+                colNameListList.add(i, columnNames);
+               // orderByCB.getItems().addAll(columnNames); // ÁÁTRAKNI
+                
+            } catch (SQLException ex)
+            {
+                Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
+            }
             EntityController entity = new EntityController(this, colNameChbContainer, columnNames);//új entity
-            entityControllerList.add(entity); 
-
-            ComboBox<String> comboBox = new ComboBox<>(); // orderBy comboboxok létrehozása
-            comboBox.setMinWidth(116);
-            comboBox.getItems().add(null);
-            orderByCBList.add(comboBox);
-            orderBcontainer.getChildren().add(orderByCBList.get(i));
+            entityControllerList.add(entity);
         }
         for(int i =0; i < tableNames.size(); i++) //táblaNév checkboxokhoz onAction hozzáadása
         {
@@ -205,15 +208,89 @@ public class AppControllerChB implements Initializable
                 if(tblChbList.get(index).isSelected())
                 {
                     entityControllerList.get(index).createColumnChb( tableNames.get(index), index);
+                    updateCBs(index);
                     queryTxtArea.setText("SELECT ");
                 }
                 else
                 {
                     entityControllerList.get(index).clearCheckBoxes();
+                    clearChb();
+                }
+            });
+            tblChbList.get(i).selectedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) ->
+            {
+                if(newValue)
+                {
+                    updateJoinComboBoxs();
                 }
             });
         }
-        
+    }
+    private void updateJoinComboBoxs()
+    {
+        List<Integer> selectedtbl = new ArrayList<>();
+                
+        for (int i = 0; i < tblChbList.size(); i ++) {
+            if (tblChbList.get(i).isSelected()) {
+                selectedtbl.add(i);
+            }
+        }
+        if(selectedtbl.size() == 2)
+        {            
+            joinCB.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> 
+            {
+                if (newValue != null)
+                {
+                    try
+                    {
+                        onCB0.getItems().clear();
+                        onCB0.getItems().add(0, null);
+                        onCB0.getItems().addAll(model.getColumnNamesNew(joinCB.getValue()));
+                    } catch (SQLException ex)
+                    {}
+                }
+            });              
+                
+            onCB0.getSelectionModel().selectedItemProperty().addListener((ObservableValue, oldValue, newValue)->
+            {
+                if(newValue != null){
+                    try
+                    {
+                        if(tblChbList.get(selectedtbl.get(1)).getText().equals(joinCB.getValue())){
+                            onCB1.getItems().clear();
+                            onCB1.getItems().add(0, null);
+                            onCB1.getItems().addAll(model.getColumnNamesNew(tblChbList.get(selectedtbl.get(0)).getText()));
+                        } else {
+                            onCB1.getItems().clear();
+                            onCB1.getItems().add(0, null);
+                            onCB1.getItems().addAll(model.getColumnNamesNew(tblChbList.get(selectedtbl.get(1)).getText()));
+                        }
+                    } catch (SQLException ex)
+                    {
+                        Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+        } 
+    }
+    private void updateCBs(int index)
+    {
+        updateCb(index, whereCB);
+        updateCb(index, groupByCB);
+        updateCb(index, orderByCB);
+        updateCb(index, aggName);           
+    }
+    private void updateCb(int index, ComboBox comboBox)
+    {        
+        comboBox.getItems().setAll(colNameListList.get(index));
+        comboBox.getItems().set(0, null);
+    }
+    private void clearChb()
+    {
+        whereCB.getItems().clear();
+        groupByCB.getItems().clear();
+        orderByCB.getItems().clear();
+        aggName.getItems().clear();
     }
     // KÖVETKEZŐ 
     public void setQueryToTxtArea()
@@ -222,7 +299,7 @@ public class AppControllerChB implements Initializable
                        3. Egy vagy két tábla van kiválasztva ?
         Tábla chb-ok listája: tblChbList
         */
-        List<Integer> selectedTables = new ArrayList<>();
+        
         for(int i = 0; i < entityControllerList.size(); i++) // kiderül 1 vagy több és melyik tábla van kiválasztva(egyelőre 2 tábla kiválasztása van csak megoldva
         {            
             if(tblChbList.get(i).isSelected() && !selectedTables.contains(i)) 
@@ -237,8 +314,8 @@ public class AppControllerChB implements Initializable
             System.out.println("Join query building");
             int index0 = selectedTables.get(0);
             int index1 = selectedTables.get(1);
-            joCo = new JoinEntityController(this, entityControllerList.get(index0), entityControllerList.get(index1));            
-            joCo.buildQuery();
+            joinEntCont = new JoinEntityController(this, entityControllerList.get(index0), entityControllerList.get(index1));// HAMARABB LÉTRE KELL HOZNI
+            joinEntCont.buildQuery();
         }
         else if(selectedTblCount <= 1) //solo table query build
         {
@@ -265,7 +342,7 @@ public class AppControllerChB implements Initializable
         
         if(selectedTblCount > 1) //JOIN QUERY
         {
-            joCo.expectoResult();
+            joinEntCont.expectoResult();
         }
         else 
         {
@@ -279,14 +356,32 @@ public class AppControllerChB implements Initializable
     }
     
     //JOIN
-    public void inflateJoinWhereCB()
-    {
+    
+    public void updateJoinWhereCB() // NEM TÖLTI BE debuggolni !!!!!!!!!!!!!!!!!!!!!!!
+    {//ehhez kell tudni melyik táblákat választották ki, lekérni az oszlopneveket és elküldeni a createJoinNames-nek
         String a = joinAS0.getText();
         String b = joinAS1.getText();
-        if(!a.isEmpty() && !b.isEmpty() && joCo != null)
+        ObservableList<String> observableList0 = onCB0.getItems();
+        ObservableList<String> observableList1 = onCB1.getItems();
+        List<String> nameList0 = new ArrayList<>(observableList0);
+        List<String> nameList1 = new ArrayList<>(observableList1);
+        List<String> aliasDotColNames = new ArrayList<>();
+        if(!a.isEmpty() && !b.isEmpty())
         {
-            joCo.inflateWhereCb(a, b);
-        }
+            for(int i = 0; i < nameList0.size(); i++)
+            {
+                if(nameList0.get(i)!=null){                    
+                    aliasDotColNames.add(a + "." + nameList0.get(i));  
+                }
+            }
+            for(int i = 0; i < nameList1.size(); i++)
+            {
+                if(nameList1.get(i) != null){                    
+                    aliasDotColNames.add(b + "." + nameList1.get(i));
+                }                
+            }            
+            whereJoinCB.getItems().addAll(aliasDotColNames);
+        }        
     }
     public void andWhereClause1()
     {
@@ -300,8 +395,7 @@ public class AppControllerChB implements Initializable
             }
             if(whereOpCB1.getValue() != null && thanTF1.getText() != null){
                 andOrTF1.appendText(whereJoinCB.getValue() + whereOpCB1.getValue() + " " +  thanTF1.getText() + " AND ");
-            }
-            
+            }            
         }
     }
     public void orWhereClause1()
@@ -316,8 +410,7 @@ public class AppControllerChB implements Initializable
             }
             if(whereOpCB1.getValue() != null && thanTF1.getText() != null){
                 andOrTF1.appendText(whereJoinCB.getValue() + whereOpCB1.getValue() + " " +  thanTF1.getText() + " OR ");
-            }
-            
+            }            
         }
     }
     public void addWhereClause1()
@@ -388,8 +481,7 @@ public class AppControllerChB implements Initializable
         } else {
             tf.clear();
         }
-    }
-    
+    }    
     
     //GROUP BY
     public void addGroupByClause()
@@ -417,17 +509,15 @@ public class AppControllerChB implements Initializable
     //ORDER BY 
     public void addOrderByClause()
     {
-        for(int i = 0; i < orderByCBList.size(); i++)
+        
+        if(orderByCB.getValue() != null)
         {
-            if(orderByCBList.get(i).getValue() != null)
-            {
-                if(descChb.isSelected()){
-                    orderByTF.appendText(orderByCBList.get(i).getValue() + " DESC, ");
-                } else {
-                    orderByTF.appendText(orderByCBList.get(i).getValue() + " ASC, ");
-                }
+            if(descChb.isSelected()){
+                orderByTF.appendText(orderByCB.getValue() + " DESC, ");
+            } else {
+                orderByTF.appendText(orderByCB.getValue() + " ASC, ");
             }
-        }       
+        }             
     }
     //TÖRLÉS GOMB
     public void delLastOrderByClause()
@@ -447,10 +537,10 @@ public class AppControllerChB implements Initializable
         }
     }
     
-    public void setUpUI()
+    public void setupUI()
     {
         InnerShadow innerShadow = new InnerShadow();
-        innerShadow.setColor( rgb(90, 90, 105));
+        innerShadow.setColor( rgb(50, 50, 65));
         innerShadow.setRadius(10);
         select.setEffect(innerShadow);
         select1.setEffect(innerShadow);
@@ -458,7 +548,10 @@ public class AppControllerChB implements Initializable
         clauses.setEffect(innerShadow);
         build.setEffect(innerShadow);
         queryTxtArea.setEffect(innerShadow);
+        root.setEffect(innerShadow);
         joinCB.setStyle("-fx-prompt-text-fill: rgba(255, 255, 255, 0.7)");
+        
+        
         //INFO MSG
         selectedAggrFunct = new ArrayList<>();
         selectedAggrNameList = new ArrayList<>();
@@ -523,54 +616,20 @@ public class AppControllerChB implements Initializable
                 isNullChB.setSelected(false);
             }
         });
-        
-        
-        
-        //ORDER BY        
-        for(int i = 0; i < orderByCBList.size(); i++)
-        {   
-            int index = i;
-            orderByCBList.get(i).valueProperty().addListener((observable, oldValue, newValue) -> // TEEEEEEEEEEEEEST
-            {
-                if(orderByCBList.get(index).getValue() != null){
-                        for(int j = 0; j < orderByCBList.size(); j++)
-                        {
-                            if(j != index){
-                                orderByCBList.get(j).getSelectionModel().select(0);
-                            }
-                            
-                        }
-                    }
-            });
-        }
-        
         //JOIN
-        andOrTF1.setText(null);
-        List<String> tableNames = model.getTableNames(model.getJdbcTemplate(), "financial_management");
-        joinCB.getItems().addAll(tableNames);
+        
+        andOrTF1.setText(null);        
         joinAS0.textProperty().addListener((observable, oldValue, newValue) ->
         {
-            inflateJoinWhereCB();
+            updateJoinWhereCB();
         });
         joinAS1.textProperty().addListener((observable, oldValue, newValue) ->
         {
-            inflateJoinWhereCB();
+            updateJoinWhereCB();
         });
-        
-        //ON átírni dinamikusra
-        onCB0.getItems().addAll(model.getColumnNames("db__income"));
-        onCB1.getItems().addAll(model.getColumnNames("db__partners"));
-        aggName.getItems().addAll(model.getColumnNames("db__income"));
-        aggName.getItems().addAll(model.getColumnNames("db__partners"));
-        groupByCB.getItems().addAll(model.getColumnNames("db__income"));
-        groupByCB.getItems().addAll(model.getColumnNames("db__partners"));
-        whereCB.getItems().addAll(model.getColumnNames("db__income"));
-        whereCB.getItems().addAll(model.getColumnNames("db__partners"));
-        
         // IIIIITTTTT TARTOOOK lehet kéne egy JoinController mert.
         
-        //AGGREGATE CLAUSE
-        
+        //AGGREGATE
         aggregateCB.valueProperty().addListener((observable, oldValue, newValue) ->
         {        
             if(aggName.getValue() != null)
@@ -620,15 +679,42 @@ public class AppControllerChB implements Initializable
         setwhereOpCB();
         joinCB.getItems().add(0, null);
         onCB0.getItems().add(0, null);
-        onCB1.getItems().add(0, null);        
-        whereCB.getItems().add(0, null);
+        onCB1.getItems().add(0, null);   
         whereJoinCB.getItems().add(0, null);
-        groupByCB.getItems().add(0, null);
         whereOpCB.getItems().add(0, null);
         whereOpCB1.getItems().add(0, null);
-        aggregateCB.getItems().add(0,null);
+        aggregateCB.getItems().add(0,null);        
+    }
+  
+    private void applyFadeInAnimation(CheckBox checkBox) {
+        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.7), checkBox);
+        fadeTransition.setFromValue(0);
+        fadeTransition.setToValue(1);
+        fadeTransition.play();
+    }
+    private void setAggregateCB(){
+        List<String> aggregateFunctionsList = new ArrayList<>();        
+        aggregateFunctionsList.add("SUM");
+        aggregateFunctionsList.add("AVG");
+        aggregateFunctionsList.add("COUNT");
+        aggregateFunctionsList.add("MAX");
+        aggregateFunctionsList.add("MIN");
+        aggregateFunctionsList.add("GROUP_CONCAT");
+        aggregateFunctionsList.add("STDDEV");
+        aggregateFunctionsList.add("VARIANCE");
+       aggregateCB.getItems().addAll(aggregateFunctionsList);
     }
     
+    private void setwhereOpCB() {
+        List<String> operators = new ArrayList<>();
+        operators.add("<");
+        operators.add(">");
+        operators.add("=");
+        operators.add("<=");
+        operators.add(">=");
+       whereOpCB.getItems().addAll(operators);
+       whereOpCB1.getItems().addAll(operators);
+    }
     public boolean isLimitSelected(){
         return disableTopSpin.isSelected();
     }
@@ -651,9 +737,9 @@ public class AppControllerChB implements Initializable
     public boolean isDescSelected(){
        return descChb.isSelected();
     }
-    public List<ComboBox> getOrderBcBList() {
-        return orderByCBList;
-    }
+    public ComboBox<String> getOrderByCB() {
+        return orderByCB;
+    }    
     
     //GROUP BY
     public ComboBox<String> getGroupByCB() {
@@ -754,35 +840,4 @@ public class AppControllerChB implements Initializable
     public HBox getTableChbContainer() {
         return tableChbContainer;
     }
-    private void applyFadeInAnimation(CheckBox checkBox) {
-        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.7), checkBox);
-        fadeTransition.setFromValue(0);
-        fadeTransition.setToValue(1);
-        fadeTransition.play();
-    }
-    private void setAggregateCB(){
-        List<String> aggregateFunctionsList = new ArrayList<>();        
-        aggregateFunctionsList.add("SUM");
-        aggregateFunctionsList.add("AVG");
-        aggregateFunctionsList.add("COUNT");
-        aggregateFunctionsList.add("MAX");
-        aggregateFunctionsList.add("MIN");
-        aggregateFunctionsList.add("GROUP_CONCAT");
-        aggregateFunctionsList.add("STDDEV");
-        aggregateFunctionsList.add("VARIANCE");
-       aggregateCB.getItems().addAll(aggregateFunctionsList);
-    }
-    
-    private void setwhereOpCB() {
-        List<String> operators = new ArrayList<>();
-        operators.add("<");
-        operators.add(">");
-        operators.add("=");
-        operators.add("<=");
-        operators.add(">=");
-       whereOpCB.getItems().addAll(operators);
-       whereOpCB1.getItems().addAll(operators);
-    }
-    
-    
 }

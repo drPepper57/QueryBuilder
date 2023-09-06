@@ -4,7 +4,6 @@ import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Model.Income;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.Model.Partner;
-import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -21,11 +21,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -37,11 +35,14 @@ public class AppControllerChB implements Initializable
     PartnerController partnerController;
     JoinController joinController;
     Model model;
+    PauseTransition triggerDel;
     private Scene scene;
     @FXML
     private Pane chbIncContainer, PrtChbContainer, asInc, asPrt;
     @FXML
     private CheckBox incTableChB, prtTableChB;
+    @FXML
+    private Button delBtn1, delBtn;
     @FXML
     private TextArea queryTxtArea;
     @FXML
@@ -49,7 +50,7 @@ public class AppControllerChB implements Initializable
     @FXML
     private Spinner<Integer> topSpin; 
     @FXML
-    private CheckBox disableTopSpin, descChb, isNullChB, isNullChB1;
+    private CheckBox disableTopSpin, descChb, isNullChB, isNullChB1, notNullChB1, notNullChB;
     @FXML
     private ComboBox<String> orderByCB, orderByCB1, whereCB, whereJoinCB, groupByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1, aggregateCB, aggName;
     @FXML
@@ -126,12 +127,15 @@ public class AppControllerChB implements Initializable
     }
     public void expectoQuery()
     {
-        if(incTableChB.isSelected()){
+        if(incTableChB.isSelected() && prtTableChB.isSelected()){
+            joinController.expectoResult();
+        } 
+        else if(incTableChB.isSelected()){
             incomeController.expectoResult();
-        } 
-        if(prtTableChB.isSelected()){
+        }
+        else if(prtTableChB.isSelected()){
             partnerController.expectoResult();
-        } 
+        }
         
         
        
@@ -155,6 +159,8 @@ public class AppControllerChB implements Initializable
             if(isNullChB1.isSelected()){
                 
                 andOrTF1.appendText(whereJoinCB.getValue() + " IS NULL AND ");
+            }else if(notNullChB1.isSelected()){
+                andOrTF1.appendText(whereJoinCB.getValue() + " IS NOT NULL AND ");
             }
             if(whereOpCB1.getValue() != null && thanTF1.getText() != null){
                 andOrTF1.appendText(whereJoinCB.getValue() + whereOpCB1.getValue() + " " +  thanTF1.getText() + " AND ");
@@ -169,6 +175,8 @@ public class AppControllerChB implements Initializable
             if(isNullChB.isSelected()){
                 
                 andOrTF1.appendText(whereJoinCB.getValue() + " IS NULL OR");
+            }else if(notNullChB1.isSelected()){
+                andOrTF1.appendText(whereJoinCB.getValue() + " IS NOT NULL OR ");
             }
             if(whereOpCB1.getValue() != null && thanTF1.getText() != null){
                 andOrTF1.appendText(whereJoinCB.getValue() + whereOpCB1.getValue() + " " +  thanTF1.getText() + " OR ");
@@ -180,11 +188,12 @@ public class AppControllerChB implements Initializable
     {
         if(whereJoinCB.getValue() != null)
         {
-            if(isNullChB.isSelected()){
-                
+            if(isNullChB1.isSelected()){                
                 andOrTF1.appendText(whereJoinCB.getValue() + " IS NULL");
+            }else if(notNullChB1.isSelected()){
+                andOrTF1.appendText(whereJoinCB.getValue() + " IS NOT NULL ");
             }
-            if(whereOpCB1.getValue() != null && thanTF1.getText() != null){
+            else if(whereOpCB1.getValue() != null && thanTF1.getText() != null){
                 andOrTF1.appendText(whereJoinCB.getValue() + " " + whereOpCB1.getValue() + " " +  thanTF1.getText());
             }
         }
@@ -198,11 +207,12 @@ public class AppControllerChB implements Initializable
             if(isNullChB.isSelected()){
                 
                 andOrTF.appendText(whereCB.getValue() + " IS NULL AND ");
+            } else if(notNullChB.isSelected()){
+                andOrTF.appendText(whereCB.getValue() + " IS NOT NULL AND ");
             }
             if(whereOpCB.getValue() != null && thanTF.getText() != null){
                 andOrTF.appendText(whereCB.getValue() + whereOpCB.getValue() + " " +  thanTF.getText() + " AND ");
             }
-            
         }
     }
     public void orWhereClause()
@@ -211,12 +221,13 @@ public class AppControllerChB implements Initializable
         {
             if(isNullChB.isSelected()){
                 
-                andOrTF.appendText(whereCB.getValue() + " IS NULL OR");
+                andOrTF.appendText(whereCB.getValue() + " IS NULL OR ");
+            }else if(notNullChB.isSelected()){
+                andOrTF.appendText(whereCB.getValue() + " IS NOT NULL OR ");
             }
             if(whereOpCB.getValue() != null && thanTF.getText() != null){
                 andOrTF.appendText(whereCB.getValue() + whereOpCB.getValue() + " " +  thanTF.getText() + " OR ");
             }
-            
         }
     }
     public void addWhereClause()
@@ -225,14 +236,24 @@ public class AppControllerChB implements Initializable
         {
             if(isNullChB.isSelected()){
                 
-                andOrTF.appendText(whereCB.getValue() + " IS NULL");
+                andOrTF.appendText(whereCB.getValue() + " IS NULL ");
+            }else if(notNullChB.isSelected()){
+                andOrTF.appendText(whereCB.getValue() + " IS NOT NULL ");
             }
             if(whereOpCB.getValue() != null && thanTF.getText() != null){
                 andOrTF.appendText(whereCB.getValue() + " " + whereOpCB.getValue() + " " +  thanTF.getText());
             }
         }
+    } //paraméterben kéne megadni melyik gombbal melyik TFt törölje
+    public void delTF(Button source, TextField tf)
+    {
+        if(tf.getText().length() > 1){
+          tf.setText(tf.getText().trim().substring(0, tf.getText().length()-1));  
+        } else {
+            tf.clear();
+        }
     }
-    //Kell delete()
+    
     
     //GROUP BY
     public void addGroupByClause()
@@ -253,7 +274,6 @@ public class AppControllerChB implements Initializable
                 groupTF.setText(txt.substring(0, lastSpaceIndex));
                 System.out.println(lastSpaceIndex + "last SpaceIndex");
             }
-            
         }
     }
     //ORDER BY 
@@ -276,6 +296,7 @@ public class AppControllerChB implements Initializable
             }
         }
     }
+    //TÖRLÉS GOMB
     public void delLastOrderByClause()
     {
         String txt = orderByTF.getText().trim();
@@ -312,33 +333,49 @@ public class AppControllerChB implements Initializable
         });
         //WHERE
         andOrTF.setText(null);
+        isNullChB1.setOnAction(event -> // null<->operátor egymást inaktiválja
+        { 
+            isNullChB1.setSelected(true); //bal oldali where
+            notNullChB1.setSelected(false);
+            thanTF1.clear();
+            whereOpCB1.getSelectionModel().select(0);
+        });
         isNullChB.setOnAction(event -> // null<->operátor egymást inaktiválja
         { 
-            isNullChB.setSelected(true);
+            isNullChB.setSelected(true); //jobb oldali where
+            notNullChB.setSelected(false);
             thanTF.clear();
             whereOpCB.getSelectionModel().select(0);
         });
-        isNullChB1.setOnAction(event -> // null<->operátor egymást inaktiválja
-        { 
-            isNullChB1.setSelected(true);
+        notNullChB1.setOnAction(event ->{
+            isNullChB1.setSelected(false); //bal oldali where
+            notNullChB1.setSelected(true);
             thanTF1.clear();
             whereOpCB1.getSelectionModel().select(0);
-        });        
-        whereOpCB.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> 
-        {
-            if (newValue != null) 
-            {
-                isNullChB.setSelected(false);
-            }
-        }
-        );
+        });
+        notNullChB.setOnAction(event -> {
+            isNullChB.setSelected(false); //jobb oldali where
+            notNullChB.setSelected(true);
+            thanTF.clear();
+            whereOpCB.getSelectionModel().select(0);
+        });
         whereOpCB1.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> 
         {
-            if (newValue != null) 
+            if (newValue != null)
             {
+                notNullChB1.setSelected(false);
                 isNullChB1.setSelected(false);
             }
         });
+        whereOpCB.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> 
+        {
+            if (newValue != null)
+            {
+                notNullChB.setSelected(false);
+                isNullChB.setSelected(false);
+            }
+        });
+        
         
         
         //ORDER BY
@@ -367,7 +404,7 @@ public class AppControllerChB implements Initializable
         });
         
         //JOIN
-        
+        andOrTF1.setText(null);
         List<String> tableNames = model.getTableNames(model.getJdbcTemplate(), "financial_management");
         joinCB.getItems().addAll(tableNames);
         joinAS0.textProperty().addListener((observable, oldValue, newValue) ->
@@ -411,7 +448,32 @@ public class AppControllerChB implements Initializable
                 System.out.println("Selected Column for " + selectedAggregate + ": " + newValue);
             }
         });
+        /*Button source;
+        triggerDel = new PauseTransition(Duration.millis(100));
+        triggerDel.setOnFinished(event ->
+        {
+            
+        });
         
+        triggerPause = new PauseTransition(Duration.millis(100));
+        triggerPause.setOnFinished(event -> {
+            if (source == delBtn1) {
+                handleButtonAction(delBtn1, andOrTF1);
+            } else if (triggerSource == delBtn) {
+                handleButtonAction(delBtn, andOrTF);
+            }
+            triggerPause.playFromStart(); // Restart the PauseTransition
+        });
+
+        delBtn1.setOnMousePressed(event -> {
+            source = delBtn1; // Set triggerSource when button is pressed
+            triggerPause.play();
+        });
+        delBtn1.setOnMouseReleased(event -> {
+            source = null; // Reset triggerSource when button is released
+            triggerPause.stop();
+        });
+        */
         
         
         setAggregateCB();
@@ -483,6 +545,12 @@ public class AppControllerChB implements Initializable
     }
     public boolean  isNull1(){
         return isNullChB1.isSelected();
+    }
+    public boolean  notNull(){
+        return notNullChB1.isSelected();
+    }
+    public boolean  notNul2(){
+        return notNullChB.isSelected();
     }
     public ComboBox<String> getWhereCB() {
         return whereCB;

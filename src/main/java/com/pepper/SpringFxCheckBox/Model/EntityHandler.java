@@ -12,7 +12,7 @@ import org.springframework.data.annotation.Transient;
 public class EntityHandler<T> 
 {
     private final Class<T> entityClass;
-    private List<T> queryResult = new ArrayList<>();
+    private List<T> entityList = new ArrayList<>();
     private List<String> columnLabel = new ArrayList<>();
     
     public EntityHandler(Class<T> entityClass) {
@@ -28,6 +28,7 @@ public class EntityHandler<T>
             String columnName = metaData.getColumnName(i); // eredeti column name
             String columnAlias = metaData.getColumnLabel(i); // Alias, ha van, ha nincs = columnName
             columnLabel.add(columnAlias);
+            System.out.println(columnName +  " NAME");
             System.out.println(columnAlias +  " ALIAS");
         }
         
@@ -35,88 +36,105 @@ public class EntityHandler<T>
         {
             while (resultSet.next()) 
             {
-                T entity = entityClass.getDeclaredConstructor().newInstance();
-                
-                Field[] fields = entityClass.getDeclaredFields();
-                int i = 1;
-                for (Field field : fields) 
+                if(entityClass == DynamicDTO.class)
                 {
-                    String fieldName = field.getName();
-                    System.out.println("all fieldNames : " + fieldName );
-                    
-                    
-                    if (selectedColumns.contains(fieldName) && !field.isAnnotationPresent(Transient.class))
+                    System.out.println("DTO CLASS DETECTED ");
+                    DynamicDTO dto = new DynamicDTO();
+                    for(int i = 1; i <= columnCount; i++)
                     {
-                        //Ha tartalmaz alias-t a metaData-> fieldName = alias (=columnLabel)
-                        String columnLabel = metaData.getColumnLabel(i); // Get the column label from metadata
-                        if (!fieldName.equals(columnLabel)) {
-                            System.out.println("IF fieldName != columnLabel " + fieldName + " != " +  columnLabel);
-                            fieldName = columnLabel;
-                            System.out.println(fieldName + " index " + i);
-                            if (i < fields.length) { i++; }
-                        } else {
-                            System.out.println("ELSE fieldName equals columnLabel");
-                            System.out.println(fieldName + " index " + i);
-                            if (i < fields.length) { i++; }
-                        }
-                        field.setAccessible(true);
-                                                               //valamiért azt hitte String és crashelt
-                        if (field.getType() == String.class && !"partnerId".equals(fieldName)) 
-                        {
-                            field.set(entity, resultSet.getString(fieldName));
-                        }
-                        else if (field.getType() == int.class) 
-                        {
-                            System.out.println("4 getType: " + field.getType() + " fieldName " + fieldName);
-                           field.set(entity, resultSet.getInt(fieldName));
-                        }
-                        else if (field.getType() == double.class || field.getType() == Double.class) 
-                        {
-                            field.set(entity, resultSet.getDouble(fieldName));
-                        }
-                        else if (field.getType() == boolean.class || field.getType() == Boolean.class) 
-                        {
-                            field.set(entity, resultSet.getInt(fieldName) == 1);
-                        }
-                        else if(field.getType() == LocalDate.class )
-                        {
-                            field.set(entity, resultSet.getObject(fieldName, LocalDate.class));
-                        }
-                        
-                    } else if(selectedColumns.isEmpty() || selectedColumns == null && !field.isAnnotationPresent(Transient.class))
+                        String columnName = metaData.getColumnName(i);
+                        String columnAlias = metaData.getColumnLabel(i);
+                        Object value = resultSet.getObject(columnAlias);
+                        dto.setValue(columnAlias, value);
+                    }
+                    entityList.add((T) dto);
+                }
+                else
+                {
+                    T entity = entityClass.getDeclaredConstructor().newInstance();
+
+                    Field[] fields = entityClass.getDeclaredFields();
+                    int i = 1;
+                    for (Field field : fields) 
                     {
-                        field.setAccessible(true);
-                        Object value = resultSet.getObject(fieldName);
-                                                               //valamiért azt hitte String és crashelt
-                        if (field.getType() == String.class && !"partnerId".equals(fieldName)) 
-                        {                        
-                            field.set(entity, resultSet.getString(fieldName));
-                        }
-                        else if (field.getType() == int.class) 
+                        String fieldName = field.getName();                    
+                        System.out.println("all fieldNames : " + fieldName );
+
+                        if (selectedColumns.contains(fieldName) && !field.isAnnotationPresent(Transient.class))
                         {
-                           field.set(entity, resultSet.getInt(fieldName));
-                        }
-                        else if (field.getType() == double.class || field.getType() == Double.class) 
+                            //Ha tartalmaz alias-t a metaData-> fieldName = alias (=columnLabel)
+                            String columnLabel = metaData.getColumnLabel(i); // Get columnLabel/alias from metadata
+                            if (!fieldName.equals(columnLabel)) {
+
+                                fieldName = columnLabel; // ha megadom 'partner_id'-t aliasként, így ez jön létre:
+                                                        //JoinEntity(id, partner, amount, project, created, approved, partner_id, name, contact)
+                                                        //és ezért fogja helyesen feltölteni a táblázatot
+                                if (i < fields.length) { i++; }
+                            } else {
+                                System.out.println("ELSE fieldName equals columnLabel");
+                                System.out.println(fieldName + " index " + i);
+                                if (i < fields.length) { i++; }
+                            }
+                            field.setAccessible(true);
+
+                            if (field.getType() == String.class ) 
+                            {
+                                field.set(entity, resultSet.getString(fieldName));
+                            }
+                            else if (field.getType() == int.class) 
+                            {
+                                System.out.println("getType: " + field.getType() + " fieldName " + fieldName);
+
+                               field.set(entity, resultSet.getInt(fieldName));
+                            }
+                            else if (field.getType() == double.class || field.getType() == Double.class) 
+                            {
+                                field.set(entity, resultSet.getDouble(fieldName));
+                            }
+                            else if (field.getType() == boolean.class || field.getType() == Boolean.class) 
+                            {
+                                field.set(entity, resultSet.getInt(fieldName) == 1);
+                            }
+                            else if(field.getType() == LocalDate.class )
+                            {
+                                field.set(entity, resultSet.getObject(fieldName, LocalDate.class));
+                            }
+
+                        } else if(selectedColumns.isEmpty() || selectedColumns == null && !field.isAnnotationPresent(Transient.class))
                         {
-                            field.set(entity, resultSet.getDouble(fieldName));
-                        }
-                        else if (field.getType() == boolean.class || field.getType() == Boolean.class) 
-                        {
-                            field.set(entity, resultSet.getInt(fieldName) == 1);
-                        }
-                        else if(field.getType() == LocalDate.class )
-                        {
-                            field.set(entity, resultSet.getObject(fieldName, LocalDate.class));
+                            field.setAccessible(true);
+                            Object value = resultSet.getObject(fieldName);
+
+                            if (field.getType() == String.class ) 
+                            {                        
+                                field.set(entity, resultSet.getString(fieldName));
+                            }
+                            else if (field.getType() == int.class) 
+                            {
+                               field.set(entity, resultSet.getInt(fieldName));
+                            }
+                            else if (field.getType() == double.class || field.getType() == Double.class) 
+                            {
+                                field.set(entity, resultSet.getDouble(fieldName));
+                            }
+                            else if (field.getType() == boolean.class || field.getType() == Boolean.class) 
+                            {
+                                field.set(entity, resultSet.getInt(fieldName) == 1);
+                            }
+                            else if(field.getType() == LocalDate.class )
+                            {
+                                field.set(entity, resultSet.getObject(fieldName, LocalDate.class));
+                            }
                         }
                     }
+                    entityList.add(entity);
                 }
-                queryResult.add(entity);
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        return queryResult;
+        return entityList;
     }
     public List<String> getColLabel(){
         System.out.println("EntityHandler getColLabel triggered, columnLabel.isEmpty: " + columnLabel.isEmpty());

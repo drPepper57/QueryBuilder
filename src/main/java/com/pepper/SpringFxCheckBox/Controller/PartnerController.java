@@ -255,13 +255,11 @@ public class PartnerController
     
     public void expectoResult()
     {
-        System.out.println("Partner controller expectoAll triggered");
+        System.out.println("Partner controller expectoResult triggered");
         deleteTable();
         if(dynamicTable != null && !dynamicTable.getColumns().isEmpty())
         {
-            System.out.println("hiba 1");
             dynamicTable.getItems().clear();
-            System.out.println("hiba 2");
             dynamicTable.getColumns().clear();
         }
         
@@ -275,7 +273,6 @@ public class PartnerController
     }
     public void deleteTable()
     {
-        System.out.println("hiba 3");
         TableView<?> table = null;
         for(Node node : P.getRoot().getChildren())
         {

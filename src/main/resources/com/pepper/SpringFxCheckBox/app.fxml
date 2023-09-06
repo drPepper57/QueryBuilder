@@ -15,12 +15,40 @@
 
 <VBox fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@../../../styles/app.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pepper.SpringFxCheckBox.Controller.AppControllerChB">
    <children>
-      <VBox alignment="CENTER" prefHeight="17.0" prefWidth="100.0" style="-fx-background-color: lightgrey;">
+      <HBox alignment="CENTER_LEFT" prefHeight="30.0" prefWidth="200.0" spacing="5.0">
          <children>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" text="Select tables" textAlignment="CENTER" />
+            <Label text="Database: ">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+            <TextField />
+            <Label text="Username">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+            <TextField />
+            <Label text="Password">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+            <TextField />
+         </children>
+         <padding>
+            <Insets left="10.0" />
+         </padding>
+      </HBox>
+      <VBox alignment="CENTER" prefHeight="20.0" prefWidth="100.0" style="-fx-background-color: lightgrey;">
+         <children>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" text="Select tables" textAlignment="CENTER">
+               <font>
+                  <Font size="13.0" />
+               </font></Label>
          </children>
       </VBox>
-      <HBox fx:id="tableChbContainer" prefHeight="0.0" prefWidth="600.0">
+      <HBox fx:id="tableChbContainer" prefHeight="30.0" prefWidth="600.0" spacing="10.0">
          <children>
             <CheckBox fx:id="incTableChB" mnemonicParsing="false" onAction="#setColNames" text="Income">
                <HBox.margin>
@@ -36,13 +64,19 @@
          <VBox.margin>
             <Insets top="5.0" />
          </VBox.margin>
+         <padding>
+            <Insets left="10.0" right="10.0" top="5.0" />
+         </padding>
       </HBox>
-      <HBox alignment="CENTER" prefHeight="0.0" prefWidth="900.0" style="-fx-background-color: lightgrey;">
+      <HBox alignment="CENTER" prefHeight="20.0" prefWidth="900.0" style="-fx-background-color: lightgrey;">
          <children>
             <Label alignment="CENTER" contentDisplay="TOP" prefHeight="17.0" prefWidth="92.0" text="Select columns" textAlignment="CENTER">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
+               <font>
+                  <Font size="13.0" />
+               </font>
             </Label>
             <Label fx:id="nfo" alignment="CENTER" contentDisplay="CENTER" text="ⓘnfo" textAlignment="CENTER">
                <font>
@@ -94,9 +128,12 @@
             </AnchorPane>
          </children>
       </HBox>
-      <VBox alignment="CENTER" prefHeight="17.0" prefWidth="100.0" style="-fx-background-color: lightgrey;">
+      <VBox alignment="CENTER" prefHeight="20.0" prefWidth="100.0" style="-fx-background-color: lightgrey;">
          <children>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="300.0" text="SQL query " textAlignment="CENTER" />
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="300.0" text="SQL query " textAlignment="CENTER">
+               <font>
+                  <Font size="13.0" />
+               </font></Label>
          </children>
       </VBox>
       <TextArea fx:id="queryTxtArea" prefHeight="53.0" prefWidth="900.0">
@@ -109,7 +146,7 @@
       </TextArea>
       <HBox fx:id="CLAUSES" prefHeight="135.0" prefWidth="900.0" style="-fx-background-color: lightgrey;">
          <children>
-            <VBox fx:id="join" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="120.0" style="-fx-background-color: darkgrey;">
+            <VBox fx:id="join" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="150.0" style="-fx-background-color: darkgrey;">
                <children>
                   <ComboBox fx:id="joinCB" prefHeight="25.0" prefWidth="116.0" promptText="Table names">
                      <VBox.margin>
@@ -125,7 +162,7 @@
                      </VBox.margin></ComboBox>
                </children>
             </VBox>
-            <VBox fx:id="join1" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="120.0" style="-fx-background-color: darkgrey;">
+            <VBox fx:id="join1" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="150.0" style="-fx-background-color: darkgrey;">
                <children>
                   <Label alignment="TOP_LEFT" contentDisplay="CENTER" text="JOIN">
                      <font>
@@ -148,7 +185,7 @@
                   <Insets bottom="3.0" />
                </padding>
             </VBox>
-            <VBox fx:id="joinWHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="250.0" style="-fx-background-color: darkgrey;">
+            <VBox fx:id="joinWHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="300.0" style="-fx-background-color: darkgrey;">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="WHERE">
                      <font>
@@ -160,11 +197,19 @@
                         <Insets left="2.0" right="2.0" />
                      </VBox.margin>
                   </ComboBox>
-                  <HBox prefHeight="21.0" prefWidth="121.0">
+                  <HBox prefHeight="21.0" prefWidth="120.0">
                      <children>
                         <CheckBox fx:id="isNullChB1" mnemonicParsing="false" text="Null">
                            <HBox.margin>
                               <Insets left="2.0" top="6.0" />
+                           </HBox.margin>
+                        </CheckBox>
+                        <CheckBox fx:id="notNullChB1" mnemonicParsing="false" text="Not null">
+                           <padding>
+                              <Insets left="2.0" />
+                           </padding>
+                           <HBox.margin>
+                              <Insets top="6.0" />
                            </HBox.margin>
                         </CheckBox>
                         <ComboBox fx:id="whereOpCB1" prefHeight="25.0" prefWidth="59.0" promptText="&lt;&gt;">
@@ -172,9 +217,9 @@
                               <Insets left="5.0" top="4.0" />
                            </HBox.margin>
                         </ComboBox>
-                        <TextField fx:id="thanTF1" prefWidth="95.0">
+                        <TextField fx:id="thanTF1" prefWidth="110.0">
                            <HBox.margin>
-                              <Insets top="4.0" />
+                              <Insets left="5.0" top="4.0" />
                            </HBox.margin>
                         </TextField>
                      </children>
@@ -193,7 +238,7 @@
                         </Button>
                         <Button mnemonicParsing="false" onAction="#orWhereClause1" text="OR" />
                         <Button mnemonicParsing="false" onAction="#addWhereClause1" text="Add" />
-                        <Button mnemonicParsing="false" text="⌫" />
+                        <Button fx:id="delBtn1" mnemonicParsing="false" text="⌫" />
                      </children>
                      <padding>
                         <Insets top="3.0" />
@@ -201,7 +246,7 @@
                   </HBox>
                </children>
             </VBox>
-            <VBox fx:id="WHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="250.0" style="-fx-background-color: lightgrey;">
+            <VBox fx:id="WHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="300.0" style="-fx-background-color: lightgrey;">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="WHERE">
                      <font>
@@ -220,12 +265,20 @@
                               <Insets left="2.0" top="6.0" />
                            </HBox.margin>
                         </CheckBox>
+                        <CheckBox fx:id="notNullChB" mnemonicParsing="false" text="Not null">
+                           <HBox.margin>
+                              <Insets top="6.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets left="2.0" />
+                           </padding>
+                        </CheckBox>
                         <ComboBox fx:id="whereOpCB" prefHeight="25.0" prefWidth="59.0" promptText="&lt;&gt;">
                            <HBox.margin>
                               <Insets left="5.0" top="4.0" />
                            </HBox.margin>
                         </ComboBox>
-                        <TextField fx:id="thanTF" prefWidth="95.0">
+                        <TextField fx:id="thanTF" prefWidth="110.0">
                            <HBox.margin>
                               <Insets left="5.0" top="4.0" />
                            </HBox.margin>
@@ -246,7 +299,7 @@
                         </Button>
                         <Button mnemonicParsing="false" onAction="#orWhereClause" text="OR" />
                         <Button mnemonicParsing="false" onAction="#addWhereClause" text="Add" />
-                        <Button mnemonicParsing="false" text="⌫" />
+                        <Button fx:id="delBtn" mnemonicParsing="false" text="⌫" />
                      </children>
                      <padding>
                         <Insets top="3.0" />

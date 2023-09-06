@@ -2,12 +2,19 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.TextField;
+import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
+import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.Model.Income;
+import com.pepper.SpringFxCheckBox.Model.JoinEntity;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.Model.Partner;
+import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 
 
 public class JoinController 
@@ -24,7 +31,7 @@ public class JoinController
     private List<CheckBox> checkBoxes; 
     private String query;
     private String a, b;
-    
+    private DynamicTable dynamicTable;
     
     public JoinController(AppControllerChB parent, IncomeController incomeController, PartnerController partnerController)
     {
@@ -48,20 +55,16 @@ public class JoinController
         this.selectedColumns2 = new ArrayList<>();
         selectedColumns1.clear();
         joinColumnNames1.clear();
-        System.out.println("Begining of setUpQueryMaterial() : " + selectedColumns1.size() + " " + selectedColumns2.size());
+        
         selectedColumns1.addAll(incomeController.getSelectedColumns());        
         a = P.getJoinAS0();
         joinColumnNames1.addAll(createJoinNames(selectedColumns1, a)); // lekérjük a neveket a többi controllertől, hozzáadjuk a custom *.táblaNév
-        for(String name: joinColumnNames1){
-            System.out.println("setUpQueryMaterial() joinColumnNames " + name);
-        }
         
         selectedColumns2.clear();
         joinColumnNames2.clear();
         selectedColumns2.addAll(partnerController.getSelectedColumns());
         b = P.getJoinAS1();
         joinColumnNames2.addAll(createJoinNames(selectedColumns2, b));
-        System.out.println("After geting data: " + selectedColumns1.size() + " " + selectedColumns2.size());
         
         asTxtListIncome = new ArrayList<>();
         asTxtListPrt = new ArrayList<>();
@@ -69,31 +72,17 @@ public class JoinController
         asTxtListPrt.clear();
         asTxtListIncome = incomeController.getAsTxtList(); 
         asTxtListPrt = partnerController.getAsTxtList();
-        System.out.println("TextField Listek mérete setUpQueryMaterial() végén: " + asTxtListIncome.size() + " " + asTxtListPrt.size());
-        
-        
     }
     public List<String> createJoinNames(List<String> list, String alias)
     {
-        System.out.println("createJoinNames triggered in JoinController");
-        
-        
-        if(list.isEmpty()){
-            System.out.println("Nem érkeztek nevek a createJoinNames metódusba");
-        } else {System.out.println("createJoinNames, kapott lista !null");}
-        
         List<String> aliasDotColNames = new ArrayList<>();
         for(int i = 0; i < list.size(); i++)
         {
-            System.out.println("loop entered in createJoinNames");
-            
             aliasDotColNames.add(alias + "." +list.get(i));
             System.out.println(aliasDotColNames.get(i));
         }
         return aliasDotColNames;
     }
-    
-    
     public void buildQuery()
     {
         StringBuilder queryBuilder = new StringBuilder("SELECT ");
@@ -259,6 +248,46 @@ public class JoinController
         P.getQueryTxtArea().setText(query);
     }
     
+    public void expectoResult()
+    {
+        System.out.println("JOINcontroller expectoResult triggered");
+        deleteTable();
+        if(dynamicTable != null && !dynamicTable.getColumns().isEmpty())
+        {
+            dynamicTable.getItems().clear();
+            dynamicTable.getColumns().clear();
+        }
+        String query = P.getQueryTxtArea().getText();
+        ExecuteQuery eq = new ExecuteQuery();
+        EntityHandler entHand = new EntityHandler(DynamicDTO.class); // ez csak azért kell, hogy egy EH példány létezzen a flowban
+        
+        List<String> selectedColumns = new ArrayList<>();
+        selectedColumns.addAll(selectedColumns1);
+        selectedColumns.addAll(selectedColumns2);
+        
+        List<DynamicDTO> list = eq.executeQuery(query, DynamicDTO.class, selectedColumns, entHand);
+        dynamicTable = new DynamicTable<>(P.getRoot(), DynamicDTO.class, selectedColumns, entHand);
+        dynamicTable.setItems(list);
+        for(int i = 0; i < dynamicTable.getColumns().size(); i++)
+        {
+            System.out.println("dynamicTable.getColumns().get(i):  "+dynamicTable.getColumns().get(i));
+        }
+        
+    }
+    public void deleteTable()
+    {
+        TableView<?> table = null;
+        for(Node node : P.getRoot().getChildren())
+        {
+            if(node instanceof TableView<?>)
+            {
+                table = (TableView<?>) node;
+                P.getRoot().getChildren().remove(table);
+                break;
+            }
+        }
+    }
+    
     public void inflateWhereCb(String a, String b)
     {
         List<String> allColNames = new ArrayList<>();
@@ -273,11 +302,7 @@ public class JoinController
         
         allColNames.addAll(firstColNames);
         allColNames.addAll(secColNames);
-        if(allColNames.isEmpty()){
-            System.out.println("allColNames is empty");
-        } else{
-            System.out.println("allColNames not empty");
-        }
+        
         P.getWhereJoinCB().getItems().addAll(allColNames);
     }
 }

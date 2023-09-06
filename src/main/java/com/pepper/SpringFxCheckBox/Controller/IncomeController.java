@@ -88,8 +88,7 @@ public class IncomeController
         
             for(int i = 0; i < inColNames.size(); i++)
             {   //checkBoxes.get(i).getWidth() + 
-                double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();
-                System.out.println(checkBoxes.get(i).getWidth() + " " + checkBoxes.get(i).getLayoutBounds().getWidth());
+                double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();                
                 TextField asTxt = new TextField(P.getAsInc(), chbWidth);
                 asTxtList.add(asTxt);
             }
@@ -123,9 +122,9 @@ public class IncomeController
             {//
                 if(chb.get(index).isSelected() && !booleans.get(index).get()) 
                 {
-                    if(index < selectedColumns.size())
+                    if(index < selectedColumns.size()) // fix sorrend beállítása
                     {
-                        selectedColumns.add(index,inColNames.get(index));// ha kiválaszt egy oszlopot hozzáadja egy List<String>-hez
+                        selectedColumns.add(index,inColNames.get(index));// ha kiválaszt egy oszlopot hozzáadja selectedColumns -hoz
                         booleans.get(index).set(true);
                     } else {
                         selectedColumns.add(inColNames.get(index));
@@ -269,6 +268,7 @@ public class IncomeController
     //TABLE
     public void expectoResult()
     {
+        System.out.println("Income controller expectoResult triggered");
         deleteTable();        
         if(dynamicTable != null &&  !dynamicTable.getColumns().isEmpty())
         {

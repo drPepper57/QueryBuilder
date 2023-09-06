@@ -14,10 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class Model<T>
 {
-    @Autowired
-    private IncomeRepository IncomeRepo;
-    @Autowired
-    private PartnerRepository PartnerRepo;
+    
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private Connection connection;
@@ -66,16 +63,7 @@ public class Model<T>
 
     */
     
-    public void save(Income income)
-    {
-        IncomeRepo.save(income);
-    }
     
-    public List<Income> findTop25()
-    {
-        return IncomeRepo.findTop25ByOrderByCreatedDesc();
-        //SELECT *FROM your_table ORDER BY created DESC LIMIT 25;
-    }
     public List<String> getColumnNames(String tableName) 
     {
         String query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE LOWER(TABLE_NAME) = LOWER(?) AND UPPER(COLUMN_NAME) NOT IN ('PARTNER_ID') ORDER BY ORDINAL_POSITION";

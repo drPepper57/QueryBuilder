@@ -1,11 +1,14 @@
 package com.pepper.SpringFxCheckBox.Controller;
 
+import Security.AccountManager;
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.MessageBox;
 import com.pepper.SpringFxCheckBox.Gui.PopUpMessage;
+import com.pepper.SpringFxCheckBox.Model.Account;
 import com.pepper.SpringFxCheckBox.Model.Database;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import java.net.URL;
+import java.security.Key;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -41,9 +44,6 @@ import javafx.util.Duration;
 
 public class AppControllerChB implements Initializable 
 {
-    private IncomeController incomeController;
-    private PartnerController partnerController;
-    private JoinController joinController;
     
     private AppCoreChB appCore;
     private JoinEntityController joinEntCont;    
@@ -67,11 +67,11 @@ public class AppControllerChB implements Initializable
     @FXML
     private TextArea queryTxtArea;
     @FXML
-    private Label nfo;
+    private Label nfo, userLabel;
     @FXML
     private Spinner<Integer> topSpin; 
     @FXML
-    private CheckBox disableTopSpin, descChb, isNullChB, isNullChB1, notNullChB1, notNullChB;
+    private CheckBox disableTopSpin, descChb, isNullChB, isNullChB1, notNullChB1, notNullChB, saveAccChb;
     @FXML
     private ComboBox<String> whereCB, whereJoinCB, groupByCB, whereOpCB, whereOpCB1, joinCB, onCB0, onCB1, aggregateCB, aggName, orderByCB;
     @FXML
@@ -91,16 +91,33 @@ public class AppControllerChB implements Initializable
     public void initialize(URL url, ResourceBundle rb) 
     {        
         appCore = new AppCoreChB();
-        scene = appCore.getScene();
-        incomeController = new IncomeController(this);
-        partnerController = new PartnerController(this);
-        joinController = new JoinController(this, incomeController, partnerController);
+        scene = appCore.getScene();        
         model = AppCoreChB.getContext().getBean(Model.class);
         database = new Database();        
         entityControllerList = new ArrayList<>();
         selectedTables = new ArrayList<>();
         colNameListList = new ArrayList<>();
-        setupUI();        
+        setupUI();
+        loadAcc();
+    }
+    private void loadAcc() //megoldani: egy acc Listából kiszűrni ki jelentkezett be
+    {
+        Map<String, Account> accMap = AccountManager.loadDBAccounts();
+        if(accMap.isEmpty()){
+            System.out.println("accMap.isEmpty()");
+        }
+        String key = AppCoreChB.loginAcc.getUserLogin();
+        System.out.println("asd " + key);
+        Account recent = accMap.get(key);
+        
+        if(recent != null){
+            urlTF.setText(recent.getUrl());
+            databaseTF.setText(recent.getDatabase());
+            userTF.setText(recent.getUserDB());
+        } else {
+            System.out.println("betöltött acc(rec) IS NULL");
+        }
+        
     }
     public static Connection getConnection()
     {
@@ -131,6 +148,17 @@ public class AppControllerChB implements Initializable
             databaseName = databaseTF.getText();
             user = userTF.getText();
             password = passwordTF.getText();
+            if(saveAccChb.isSelected()) //account mentése
+            {                
+                String key = AppCoreChB.loginAcc.getUserLogin();
+                Account dbAcc = new Account(url, databaseName, user);
+                Map<String, Account> acc = new HashMap<>();
+                acc.put(key, dbAcc);
+                
+                AccountManager.SaveDBAccount(acc);
+                System.out.println("ACC saved");
+            }
+            
             try{
                 connection = Database.getConnection(url, user, password, databaseName);
                 model.setConnection(connection);
@@ -355,8 +383,7 @@ public class AppControllerChB implements Initializable
         } 
     }
     
-    //JOIN
-    
+    //JOIN    
     public void updateJoinWhereCB() // NEM TÖLTI BE debuggolni !!!!!!!!!!!!!!!!!!!!!!!
     {//ehhez kell tudni melyik táblákat választották ki, lekérni az oszlopneveket és elküldeni a createJoinNames-nek
         String a = joinAS0.getText();
@@ -539,6 +566,8 @@ public class AppControllerChB implements Initializable
     
     public void setupUI()
     {
+        userLabel.setText(AppCoreChB.loginAcc.getUserLogin() +", ");
+        
         InnerShadow innerShadow = new InnerShadow();
         innerShadow.setColor( rgb(50, 50, 65));
         innerShadow.setRadius(10);
@@ -551,11 +580,11 @@ public class AppControllerChB implements Initializable
         root.setEffect(innerShadow);
         joinCB.setStyle("-fx-prompt-text-fill: rgba(255, 255, 255, 0.7)");
         
-        
-        //INFO MSG
         selectedAggrFunct = new ArrayList<>();
         selectedAggrNameList = new ArrayList<>();
+        //INFO MSG
         Tooltip tooltip = new Tooltip("Unselect all to SELECT * ");
+        tooltip.setStyle("-fx-font-size: 13px;");
         tooltip.setShowDelay(Duration.ZERO);
         Tooltip.install(nfo, tooltip);        
         nfo.getStyleClass().add("nfo");
@@ -565,6 +594,10 @@ public class AppControllerChB implements Initializable
         nfo.setOnMouseExited(event -> {
             nfo.getStyleClass().remove("hover");
         });
+        Tooltip tooltip1 = new Tooltip("Password won't be saved");
+        tooltip1.setStyle("-fx-font-size: 13px;");
+        tooltip1.setShowDelay(Duration.ZERO);        
+        tooltip1.install(saveAccChb, tooltip1);
         //LIMIT
         SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 25);
         topSpin.setValueFactory(valueFactory);
@@ -715,6 +748,8 @@ public class AppControllerChB implements Initializable
        whereOpCB.getItems().addAll(operators);
        whereOpCB1.getItems().addAll(operators);
     }
+
+        
     public boolean isLimitSelected(){
         return disableTopSpin.isSelected();
     }
@@ -840,4 +875,9 @@ public class AppControllerChB implements Initializable
     public HBox getTableChbContainer() {
         return tableChbContainer;
     }
+
+    
 }
+/*
+
+*/

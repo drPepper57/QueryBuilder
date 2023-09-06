@@ -7,7 +7,6 @@ import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,8 +15,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -195,9 +192,9 @@ public class EntityController
             }
         }
         if( selectedColumns.size() <= 0){ // ha nincs oszlop kijelölve 
-            queryBuilder.append(" * FROM " + tableName);
+            queryBuilder.append(" * FROM ").append(tableName);
         } else {
-            queryBuilder.append(" FROM " + tableName);
+            queryBuilder.append(" FROM ").append(tableName);
         }        
         
         // WHERE *** IS NULL
@@ -233,8 +230,8 @@ public class EntityController
                 // Show an error message to the user, or handle it based on your application's requirements
             }
         }*/
-        if(P.getAndOrTF().getText() != null)
-        {
+        if(!P.getAndOrTF().getText().isEmpty())
+        {   System.out.println("whereTF not null");
             queryBuilder.append( " WHERE ").append(P.getAndOrTF().getText());
         }
         // GROUP BY
@@ -293,21 +290,15 @@ public class EntityController
         TableView<?> table = null;
         for(Node node : P.getRoot().getChildren()) //Node: elemek gyűjtőneve
         {
-            if(node instanceof TableView<?>)
+            if(node instanceof TableView<?> tableView)
             {
-                table = (TableView<?>) node;
+                table = tableView;
                 P.getRoot().getChildren().remove(table);
                 
                 break;
             }
         }
     }
-    /*private void applyFadeInAnimation(CheckBox checkBox) {
-        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), checkBox);
-        fadeTransition.setFromValue(0);
-        fadeTransition.setToValue(1);
-        fadeTransition.play();
-    }*/
     private void applyFadeOutAnimation(ColumnNameContainer container) {
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), container);
         fadeTransition.setFromValue(1);
@@ -317,13 +308,13 @@ public class EntityController
         // You can also add the checkboxes back here if needed
         });
         fadeTransition.play();
-    } //ColumnNameContainer
-    private void applyFadeInAnimation(ColumnNameContainer container) {
+    }
+    /*private void applyFadeInAnimation(ColumnNameContainer container) {
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), container);
         fadeTransition.setFromValue(0);
         fadeTransition.setToValue(1);
         fadeTransition.play();
-    }
+    }*/
     private void applyFadeInAnimation(Node node) {
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), node);
         fadeTransition.setFromValue(0.5);

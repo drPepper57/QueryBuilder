@@ -1,11 +1,9 @@
 package com.pepper.SpringFxCheckBox.Controller;
 
-import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.ColumnNameContainer;
 import com.pepper.SpringFxCheckBox.View.TextField;
 import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
-import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +27,6 @@ import javafx.util.Duration;
 public class EntityController 
 {
     private AppControllerChB P;
-    private Model model;
     private String tableName;
     private List<String> colNames;
     private final List<String> selectedColumns;    
@@ -48,8 +45,7 @@ public class EntityController
     {
         this.colNames = colNames;
         this.selectedColumns = new ArrayList<>();
-        this.P = parent;        
-        model = AppCoreChB.getContext().getBean(Model.class);
+        this.P = parent;
         this.container = (HBox) container;
         
     }
@@ -63,10 +59,13 @@ public class EntityController
         
         checkBoxes = new ArrayList<>();
         
-        colNContainer = new ColumnNameContainer(container); //checkboxokat tartalmazó konténer létrehozása
-        applyFadeInAnimation(colNContainer);
+        colNContainer = new ColumnNameContainer(container); //checkboxokat tartalmazó konténer létrehozása        
         AScontainer = colNContainer.getAsTFcontainer();        
-        nameChbCont = colNContainer.getColNameChbContainer();        
+        nameChbCont = colNContainer.getColNameChbContainer();   
+        
+        applyFadeInAnimation(colNContainer);
+        applyFadeInAnimation(AScontainer);
+        applyFadeInAnimation(nameChbCont);
         
         for(int i = 0; i < colNames.size(); i++)
         {
@@ -131,8 +130,8 @@ public class EntityController
             for(int i = 0; i < colNames.size(); i++)
             {   //checkBoxes.get(i).getWidth() + 
                 double chbWidth = checkBoxes.get(i).getLayoutBounds().getWidth();                
-                TextField asTxt = new TextField(AScontainer, chbWidth);
-                asTxTFList.add(asTxt);
+                TextField asTxTF = new TextField(AScontainer, chbWidth);
+                asTxTFList.add(asTxTF);
             }
         stopTimer();
     }
@@ -145,6 +144,18 @@ public class EntityController
     public void clearCheckBoxes()
     {
         applyFadeOutAnimation(colNContainer);
+        timer = new Timer();
+        timer.schedule(new TimerTask()
+        {
+            @Override
+            public void run() 
+            {
+                Platform.runLater(() -> {
+                   P.getColNameChbContainer().getChildren().remove(colNContainer);
+                   timer.cancel();
+                });
+            }
+        }, 500);        
         //colNContainer.getChildren().clear();
         selectedColumns.clear();
     }
@@ -230,8 +241,8 @@ public class EntityController
                 // Show an error message to the user, or handle it based on your application's requirements
             }
         }*/
-        if(!P.getAndOrTF().getText().isEmpty())
-        {   System.out.println("whereTF not null");
+        if( P.getAndOrTF().getText() != null && !P.getAndOrTF().getText().isEmpty() )
+        {   
             queryBuilder.append( " WHERE ").append(P.getAndOrTF().getText());
         }
         // GROUP BY
@@ -304,17 +315,10 @@ public class EntityController
         fadeTransition.setFromValue(1);
         fadeTransition.setToValue(0);
         fadeTransition.setOnFinished(event -> {
-        colNContainer.getChildren().clear(); // Clear the container after the fade-out animation
-        // You can also add the checkboxes back here if needed
+        colNContainer.getChildren().clear();        
         });
         fadeTransition.play();
     }
-    /*private void applyFadeInAnimation(ColumnNameContainer container) {
-        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), container);
-        fadeTransition.setFromValue(0);
-        fadeTransition.setToValue(1);
-        fadeTransition.play();
-    }*/
     private void applyFadeInAnimation(Node node) {
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), node);
         fadeTransition.setFromValue(0.5);

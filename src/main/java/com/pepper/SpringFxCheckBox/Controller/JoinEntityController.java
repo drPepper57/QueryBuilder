@@ -39,7 +39,7 @@ public class JoinEntityController
         this.joinColumnNames1 = new ArrayList<>();            
         this.P = parent;
         
-        model = AppCoreChB.getContext().getBean(Model.class);
+        model = new Model(); //AppCoreChB.getContext().getBean(Model.class);
         setUpQueryData();
     }
     
@@ -134,11 +134,11 @@ public class JoinEntityController
         if(joinColumnNames0.size() <= 0 && joinColumnNames1.size() <= 0 )
         {
                               //ezt átírni dinamikusra
-            queryBuilder.append(" * FROM db__income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());         
+            queryBuilder.append(" * FROM ").append(EC0.getTableName()).append(" ").append(P.getJoinAS0()).append(" JOIN ").append(EC1.getTableName()).append(" ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0()).append(".").append(P.getOnCB0()).append(" = ").append(P.getJoinAS1()).append(".").append(P.getOnCB1());         
         }
         else
         {                    //ezt átírni dinamikusra
-            queryBuilder.append(" FROM db__income ").append(P.getJoinAS0()).append(" JOIN db__partners ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0() +"."+ P.getOnCB0()).append(" = ").append(P.getJoinAS1()+ "." + P.getOnCB1());
+            queryBuilder.append(" * FROM ").append(EC0.getTableName()).append(" ").append(P.getJoinAS0()).append(" JOIN ").append(EC1.getTableName()).append(" ").append(P.getJoinAS1()).append(" ON ").append(P.getJoinAS0()).append(".").append(P.getOnCB0()).append(" = ").append(P.getJoinAS1()).append(".").append(P.getOnCB1());
         }
         // WHERE *** IS NULL
         if(P.getWhereCB().getValue() != null && P.isNull() && P.getwhereOpCBValue() == null && P.getAndOrTF1().getText() == null)

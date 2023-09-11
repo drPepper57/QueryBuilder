@@ -4,16 +4,11 @@ import Security.AccountManager;
 import Security.PasswordFactory;
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Model.Account;
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -34,6 +29,11 @@ public class LoginController
     //email, salt
     
     private Timer timer;
+    
+    public void initialize()
+    {
+        
+    }
     
     @FXML
     public void signUp()
@@ -86,7 +86,7 @@ public class LoginController
                     
                     AppCoreChB.loginAcc.setUserLogin(user);
                     loginBtn.getScene().getWindow().hide();
-                    AppCoreChB.setRoot();
+                    AppCoreChB.setRootMain();
                 }//
                 else 
                 {

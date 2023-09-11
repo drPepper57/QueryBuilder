@@ -1,9 +1,8 @@
 package com.pepper.SpringFxCheckBox;
 
 import javafx.application.Application;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class SpringFxCheckBox {
 
 	public static void main(String[] args) {

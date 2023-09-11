@@ -8,7 +8,6 @@ import com.pepper.SpringFxCheckBox.Model.Account;
 import com.pepper.SpringFxCheckBox.Model.Database;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import java.net.URL;
-import java.security.Key;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ import javafx.util.Duration;
 
 public class AppControllerChB implements Initializable 
 {
-    
+    // join comboboxok nem működnek, partner tábla oszlopaiból egyet nem tölt be...
     private AppCoreChB appCore;
     private JoinEntityController joinEntCont;    
     private Model model;
@@ -59,8 +58,10 @@ public class AppControllerChB implements Initializable
     private List<CheckBox> tblChbList;
     private List<List<String>> colNameListList;
     private Map<String, String> aggregateMap = new HashMap<>();
+    private List<Integer> selectedtbl = new ArrayList<>();;
     public String aggregateFunction = new String();
     public String selectedAggName = new String();
+    
     
     @FXML
     private Button delBtn1, delBtn, loadBtn;
@@ -92,7 +93,7 @@ public class AppControllerChB implements Initializable
     {        
         appCore = new AppCoreChB();
         scene = appCore.getScene();        
-        model = AppCoreChB.getContext().getBean(Model.class);
+        model = new Model(); //AppCoreChB.getContext().getBean(Model.class);
         database = new Database();        
         entityControllerList = new ArrayList<>();
         selectedTables = new ArrayList<>();
@@ -219,13 +220,14 @@ public class AppControllerChB implements Initializable
             try
             {
                 columnNames = model.getColumnNamesNew(tableNames.get(i));
-                colNameListList.add(i, columnNames);
-               // orderByCB.getItems().addAll(columnNames); // ÁÁTRAKNI
+                System.out.println("columnNames:  "+columnNames.get(0));
+                colNameListList.add(i, columnNames);              
                 
             } catch (SQLException ex)
             {
                 Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
             }
+            
             EntityController entity = new EntityController(this, colNameChbContainer, columnNames);//új entity
             entityControllerList.add(entity);
         }
@@ -242,64 +244,70 @@ public class AppControllerChB implements Initializable
                 else
                 {
                     entityControllerList.get(index).clearCheckBoxes();
-                    clearChb();
+                    queryTxtArea.clear();
+                    clearCbs();
                 }
             });
             tblChbList.get(i).selectedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) ->
             {
                 if(newValue)
                 {
-                    updateJoinComboBoxs();
+                    selectedTables.add(Integer.valueOf(index));
+                    System.out.println("selectedtbl.size(); " + selectedTables.size()); 
+                    getSelectedTblCount();
+                } else if( oldValue){
+                    selectedTables.remove(Integer.valueOf(index));
+                    System.out.println("selectedtbl.size(); " + selectedTables.size()); 
+                    getSelectedTblCount();
                 }
             });
         }
     }
-    private void updateJoinComboBoxs()
+    public void getSelectedTblCount() // kiderül 1 vagy több és melyik tábla van kiválasztva(egyelőre 2 tábla kiválasztása van csak megoldva
     {
-        List<Integer> selectedtbl = new ArrayList<>();
-                
-        for (int i = 0; i < tblChbList.size(); i ++) {
-            if (tblChbList.get(i).isSelected()) {
-                selectedtbl.add(i);
-            }
+        if(selectedTables.size() == 2){
+            updateJoinComboBoxs(selectedTables);
         }
-        if(selectedtbl.size() == 2)
-        {            
-            joinCB.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> 
+    }
+    private void updateJoinComboBoxs(List<Integer> selectedtbl)
+    {   System.out.println("updateJoinComboBoxs triggered");
+        
+                   
+        joinCB.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> 
+        {
+            if (newValue != null)
             {
-                if (newValue != null)
+                try
                 {
-                    try
-                    {
-                        onCB0.getItems().clear();
-                        onCB0.getItems().add(0, null);
-                        onCB0.getItems().addAll(model.getColumnNamesNew(joinCB.getValue()));
-                    } catch (SQLException ex)
-                    {}
-                }
-            });              
-                
-            onCB0.getSelectionModel().selectedItemProperty().addListener((ObservableValue, oldValue, newValue)->
-            {
-                if(newValue != null){
-                    try
-                    {
-                        if(tblChbList.get(selectedtbl.get(1)).getText().equals(joinCB.getValue())){
-                            onCB1.getItems().clear();
-                            onCB1.getItems().add(0, null);
-                            onCB1.getItems().addAll(model.getColumnNamesNew(tblChbList.get(selectedtbl.get(0)).getText()));
-                        } else {
-                            onCB1.getItems().clear();
-                            onCB1.getItems().add(0, null);
-                            onCB1.getItems().addAll(model.getColumnNamesNew(tblChbList.get(selectedtbl.get(1)).getText()));
-                        }
-                    } catch (SQLException ex)
-                    {
-                        Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
+                    onCB0.getItems().clear();
+                    onCB0.getItems().add(0, null);
+                    onCB0.getItems().addAll(model.getColumnNamesNew(joinCB.getValue()));
+                } catch (SQLException ex)
+                {}
+            }
+        });              
+
+        onCB0.getSelectionModel().selectedItemProperty().addListener((ObservableValue, oldValue, newValue)->
+        {
+            if(newValue != null){
+                try
+                {
+                    if(tblChbList.get(selectedtbl.get(1)).getText().equals(joinCB.getValue())){
+                        onCB1.getItems().clear();
+                        onCB1.getItems().add(0, null);
+                        onCB1.getItems().addAll(model.getColumnNamesNew(tblChbList.get(selectedtbl.get(0)).getText()));
+                    } else {
+                        onCB1.getItems().clear();
+                        onCB1.getItems().add(0, null);
+                        onCB1.getItems().addAll(model.getColumnNamesNew(tblChbList.get(selectedtbl.get(1)).getText()));
                     }
+                } catch (SQLException ex)
+                {
+                    Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            });
-        } 
+            }
+        });
+         
     }
     private void updateCBs(int index)
     {
@@ -311,9 +319,9 @@ public class AppControllerChB implements Initializable
     private void updateCb(int index, ComboBox comboBox)
     {        
         comboBox.getItems().setAll(colNameListList.get(index));
-        comboBox.getItems().set(0, null);
+        comboBox.getItems().add(0, null);
     }
-    private void clearChb()
+    private void clearCbs()
     {
         whereCB.getItems().clear();
         groupByCB.getItems().clear();
@@ -327,30 +335,21 @@ public class AppControllerChB implements Initializable
                        3. Egy vagy két tábla van kiválasztva ?
         Tábla chb-ok listája: tblChbList
         */
-        
-        for(int i = 0; i < entityControllerList.size(); i++) // kiderül 1 vagy több és melyik tábla van kiválasztva(egyelőre 2 tábla kiválasztása van csak megoldva
-        {            
-            if(tblChbList.get(i).isSelected() && !selectedTables.contains(i)) 
-            {
-                selectedTables.add(i);
-            }
-        }
-        int selectedTblCount = selectedTables.size();
-        
-        if(selectedTblCount > 1) //JOIN query build
+        System.out.println("selectedTables.size() at setQueryToTxtArea: " + selectedTables.size());
+        if(selectedTables.size() > 1) //JOIN query build
         {
             System.out.println("Join query building");
             int index0 = selectedTables.get(0);
-            int index1 = selectedTables.get(1);
+            int index1 = selectedTables.get(1); //le kell kérni a tábla neveket és lepasszolni az JoinEntitynek
             joinEntCont = new JoinEntityController(this, entityControllerList.get(index0), entityControllerList.get(index1));// HAMARABB LÉTRE KELL HOZNI
             joinEntCont.buildQuery();
         }
-        else if(selectedTblCount <= 1) //solo table query build
+        else if(selectedTables.size() <= 1) //solo table query build
         {
             System.out.println("solo table query building");
             for(int i = 0; i < entityControllerList.size(); i++)
             {
-                if(tblChbList.get(i).isSelected() ) {
+                if(tblChbList.get(i).isSelected() ) { 
                     entityControllerList.get(i).buildQuery(tableNames.get(i));// ez egy tábla kiválasztásakor oké de joinhoz kevés + kell egy JoinEntityController:kész 
                 }                
             }
@@ -358,17 +357,7 @@ public class AppControllerChB implements Initializable
     }
     public void expectoQuery()
     {
-        List<Integer> selectedTables = new ArrayList<>();
-        for(int i = 0; i < entityControllerList.size(); i++) // kiderül 1 vagy több és melyik tábla van kiválasztva(egyelőre 2 tábla kiválasztása van csak megoldva
-        {            
-            if(tblChbList.get(i).isSelected() ) 
-            {
-                selectedTables.add(i);
-            }
-        }
-        int selectedTblCount = selectedTables.size();
-        
-        if(selectedTblCount > 1) //JOIN QUERY
+        if(selectedTables.size() > 1) //JOIN QUERY
         {
             joinEntCont.expectoResult();
         }
@@ -384,11 +373,11 @@ public class AppControllerChB implements Initializable
     }
     
     //JOIN    
-    public void updateJoinWhereCB() // NEM TÖLTI BE debuggolni !!!!!!!!!!!!!!!!!!!!!!!
+    public void updateJoinWhereCB() // aliasTF.textProperty().addListener-höz kötve
     {//ehhez kell tudni melyik táblákat választották ki, lekérni az oszlopneveket és elküldeni a createJoinNames-nek
         String a = joinAS0.getText();
         String b = joinAS1.getText();
-        ObservableList<String> observableList0 = onCB0.getItems();
+        ObservableList<String> observableList0 = onCB0.getItems(); //először ObsL-be tudom menteni a CB elemeket..
         ObservableList<String> observableList1 = onCB1.getItems();
         List<String> nameList0 = new ArrayList<>(observableList0);
         List<String> nameList1 = new ArrayList<>(observableList1);
@@ -410,6 +399,7 @@ public class AppControllerChB implements Initializable
             whereJoinCB.getItems().addAll(aliasDotColNames);
         }        
     }
+    //gomb onActionök, query részletek előkészítése
     public void andWhereClause1()
     {
         if(whereJoinCB.getValue() != null)
@@ -575,6 +565,7 @@ public class AppControllerChB implements Initializable
         select1.setEffect(innerShadow);
         select2.setEffect(innerShadow);
         clauses.setEffect(innerShadow);
+        
         build.setEffect(innerShadow);
         queryTxtArea.setEffect(innerShadow);
         root.setEffect(innerShadow);
@@ -583,7 +574,7 @@ public class AppControllerChB implements Initializable
         selectedAggrFunct = new ArrayList<>();
         selectedAggrNameList = new ArrayList<>();
         //INFO MSG
-        Tooltip tooltip = new Tooltip("Unselect all to SELECT * ");
+        Tooltip tooltip = new Tooltip("Deselect  all to SELECT * ");
         tooltip.setStyle("-fx-font-size: 13px;");
         tooltip.setShowDelay(Duration.ZERO);
         Tooltip.install(nfo, tooltip);        
@@ -875,7 +866,7 @@ public class AppControllerChB implements Initializable
     public HBox getTableChbContainer() {
         return tableChbContainer;
     }
-
+    
     
 }
 /*

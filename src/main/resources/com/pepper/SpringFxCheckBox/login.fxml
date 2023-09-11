@@ -10,9 +10,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="380.0" style="-fx-background-color: rgb(110,110,125);" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pepper.SpringFxCheckBox.Controller.LoginController">
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="380.0" stylesheets="@../../../styles/login.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pepper.SpringFxCheckBox.Controller.LoginController">
    <children>
-      <VBox layoutY="50.0" prefHeight="150.0" prefWidth="380.0" style="-fx-background-color: rgb(90,90,105);">
+      <VBox fx:id="uiContainer" layoutY="50.0" prefHeight="150.0" prefWidth="380.0">
          <children>
             <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
                <children>
@@ -60,7 +60,7 @@
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="msgL" alignment="CENTER" layoutX="81.0" layoutY="216.0" prefHeight="20.0" prefWidth="219.0" text="Label" textAlignment="CENTER" textFill="#6e6e7d">
+      <Label fx:id="msgL" alignment="CENTER" layoutX="81.0" layoutY="216.0" prefHeight="20.0" prefWidth="219.0" textAlignment="CENTER" textFill="#6e6e7d">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>

@@ -14,10 +14,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -51,7 +49,7 @@ public class AccountManager
             Logger.getLogger(AccountManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    public static Map<String, Account> loadDBAccounts()
+    public static Map<String, Account> loadDBAccounts() //loginAccal összekötött DBaccount
     {
         File file = new File("accounts.csv");
         Map<String, Account> accMap = new HashMap<>();
@@ -128,14 +126,11 @@ public class AccountManager
         try (OutputStream os = new FileOutputStream(fileName);
          DataOutputStream dos = new DataOutputStream(os))
         {
-            // Write the username followed by a newline character
             dos.writeUTF(userName);
-
-            // Write the salt length and then the salt itself
+            
             dos.writeInt(newSalt.length);
             dos.write(newSalt);
-
-            // Write a newline character as a delimiter between entries
+            
             dos.write('\n');
         }
         catch (FileNotFoundException ex)
@@ -162,12 +157,11 @@ public class AccountManager
                 String userName = dis.readUTF();
                 int saltLength = dis.readInt();
                 byte[] salt = new byte[saltLength];
-                dis.readFully(salt);
-                System.out.println("Loaded user: " + userName + " Loaded salt: " + Arrays.toString(salt));
+                dis.readFully(salt);                
                 
                 // Skip the newline character ('\n') as the delimiter
                 dis.skipBytes(1);
-                System.out.println("skipped byte: " + dis.skipBytes(1));
+                
                 usernameSaltMap.put(userName, salt);
             }
         }

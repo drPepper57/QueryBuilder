@@ -2,14 +2,11 @@ package com.pepper.SpringFxCheckBox;
 
 import com.pepper.SpringFxCheckBox.Model.Account;
 import java.io.IOException;
-import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.util.Duration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
 
@@ -37,26 +34,24 @@ public class AppCoreChB extends Application
         loginAcc = new Account("", "");
     }
     
-    
-    public static void setRoot() throws IOException 
-    {
-        mainScene = new Scene(loadFXML(MAIN_FXML));        
-        
-        primaryStage.setScene(mainScene); 
-        primaryStage.setMaximized(true);
-        primaryStage.show();
-        
+    @Override
+    public void init() throws Exception {
+        super.init(); 
+        //context = new SpringApplicationBuilder(SpringFxCheckBox.class).run();
     }
     private static Parent loadFXML(String fxml) throws IOException 
     {
         FXMLLoader fxmlLoader = new FXMLLoader(AppCoreChB.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
     }
-
-    @Override
-    public void init() throws Exception {
-        super.init(); 
-        context = new SpringApplicationBuilder(SpringFxCheckBox.class).run();
+    
+    public static void setRootMain() throws IOException 
+    {
+        mainScene = new Scene(loadFXML(MAIN_FXML));        
+        
+        primaryStage.setScene(mainScene); 
+        primaryStage.setMaximized(true);
+        primaryStage.show();        
     }
     
     public static ConfigurableApplicationContext getContext()
@@ -70,7 +65,7 @@ public class AppCoreChB extends Application
     public void stop() throws Exception 
     {
         // Close the Spring Boot context when the JavaFX application stops
-        context.close();
+        
         // Perform any cleanup or resource release tasks here
 
         // Call the superclass's stop() method to ensure proper shutdown

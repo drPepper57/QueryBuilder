@@ -36,10 +36,10 @@ public class EntityHandler<T>
         {
             while (resultSet.next()) 
             {
-                if(entityClass == DynamicDTO.class)
+                if(entityClass == DTO.class)
                 {
                     System.out.println("DTO CLASS DETECTED ");
-                    DynamicDTO dto = new DynamicDTO();
+                    DTO dto = new DTO();
                     for(int i = 1; i <= columnCount; i++)
                     {
                         String columnName = metaData.getColumnName(i);

@@ -45,7 +45,7 @@ public class AppControllerChB implements Initializable
 {
     // join comboboxok nem működnek, partner tábla oszlopaiból egyet nem tölt be...
     private AppCoreChB appCore;
-    private JoinEntityController joinEntCont;    
+    private JoinEntityController joinEntController;    
     private Model model;
     private Database database;
     private static Connection connection;
@@ -139,6 +139,7 @@ public class AppControllerChB implements Initializable
     public void connectToDatabase() throws SQLException
     {
         System.out.println("connectToDatabase triggered");
+        selectedTables.clear();
         if(connection != null){
            Database.closeConnection();
         }
@@ -165,6 +166,7 @@ public class AppControllerChB implements Initializable
                 model.setConnection(connection);
                 if(connection != null){
                      PopUpMessage msg = new PopUpMessage("Database connected", root);
+                     loadTables();
                 }                    
             }
             catch (SQLException e){
@@ -199,13 +201,8 @@ public class AppControllerChB implements Initializable
         tblChbList = new ArrayList<>();
 
         //szükségem van a ...checkbox indexére amit használhatok EntityControllert választani az entityList-ből
-        tblChbList.clear();        
-        entityControllerList.clear();
-        tableChbContainer.getChildren().clear();
-        queryTxtArea.clear();
-        colNameChbContainer.getChildren().clear();
-        orderByCB.getItems().clear();
-        // ki kell törölni a columnNames listákat is 
+        clearControls(); //inputmezők.clear()
+        
         List<String> columnNames = new ArrayList<>();
         for(int i = 0; i < tableNames.size(); i++)
         {
@@ -252,7 +249,7 @@ public class AppControllerChB implements Initializable
             {
                 if(newValue)
                 {
-                    selectedTables.add(Integer.valueOf(index));
+                    selectedTables.add(index);
                     System.out.println("selectedtbl.size(); " + selectedTables.size()); 
                     getSelectedTblCount();
                 } else if( oldValue){
@@ -267,6 +264,7 @@ public class AppControllerChB implements Initializable
     {
         if(selectedTables.size() == 2){
             updateJoinComboBoxs(selectedTables);
+            System.out.println("getSelectedTblCount() :" + selectedTables.size());
         }
     }
     private void updateJoinComboBoxs(List<Integer> selectedtbl)
@@ -283,13 +281,16 @@ public class AppControllerChB implements Initializable
                     onCB0.getItems().add(0, null);
                     onCB0.getItems().addAll(model.getColumnNamesNew(joinCB.getValue()));
                 } catch (SQLException ex)
-                {}
+                {
+                    System.out.println("AppController: " + ex.getMessage());
+                }
             }
         });              
 
         onCB0.getSelectionModel().selectedItemProperty().addListener((ObservableValue, oldValue, newValue)->
         {
-            if(newValue != null){
+            if(newValue != null)
+            {
                 try
                 {
                     if(tblChbList.get(selectedtbl.get(1)).getText().equals(joinCB.getValue())){
@@ -303,7 +304,7 @@ public class AppControllerChB implements Initializable
                     }
                 } catch (SQLException ex)
                 {
-                    Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                 }
             }
         });
@@ -341,8 +342,8 @@ public class AppControllerChB implements Initializable
             System.out.println("Join query building");
             int index0 = selectedTables.get(0);
             int index1 = selectedTables.get(1); //le kell kérni a tábla neveket és lepasszolni az JoinEntitynek
-            joinEntCont = new JoinEntityController(this, entityControllerList.get(index0), entityControllerList.get(index1));// HAMARABB LÉTRE KELL HOZNI
-            joinEntCont.buildQuery();
+            joinEntController = new JoinEntityController(this, entityControllerList.get(index0), entityControllerList.get(index1));// HAMARABB LÉTRE KELL HOZNI
+            joinEntController.buildQuery();
         }
         else if(selectedTables.size() <= 1) //solo table query build
         {
@@ -359,7 +360,7 @@ public class AppControllerChB implements Initializable
     {
         if(selectedTables.size() > 1) //JOIN QUERY
         {
-            joinEntCont.expectoResult();
+            joinEntController.expectoResult();
         }
         else 
         {
@@ -708,6 +709,22 @@ public class AppControllerChB implements Initializable
         whereOpCB.getItems().add(0, null);
         whereOpCB1.getItems().add(0, null);
         aggregateCB.getItems().add(0,null);        
+    }
+    
+    public void clearControls()
+    {
+        tblChbList.clear();        
+        entityControllerList.clear();
+        tableChbContainer.getChildren().clear();
+        queryTxtArea.clear();
+        colNameChbContainer.getChildren().clear();
+        aggName.getItems().clear();
+        orderByCB.getItems().clear();
+        groupByCB.getItems().clear();
+        whereCB.getItems().clear();
+        whereJoinCB.getItems().clear();        
+        onCB0.getItems().clear();
+        onCB1.getItems().clear();        
     }
   
     private void applyFadeInAnimation(CheckBox checkBox) {

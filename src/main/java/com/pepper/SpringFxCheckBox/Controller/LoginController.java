@@ -81,24 +81,34 @@ public class LoginController
                 System.out.println("Jelenleg beírt hashelt P: "+hashedP + " Fájlból betöltött P: " + userAndHashedP.get(userTF.getText()) );
                 if (MessageDigest.isEqual(hashedP.getBytes(), userAndHashedP.get(userTF.getText()).getBytes())) //az éppen beírt hashelt password == az elmentett hashelt pass-al
                 {
-                    msgL.setStyle("-fx-text-fill: white;");
+                    setLabelColor();
                     msgL.setText("Login successful");
                     
                     AppCoreChB.loginAcc.setUserLogin(user);
                     loginBtn.getScene().getWindow().hide();
                     AppCoreChB.setRootMain();
-                }//
+                }
                 else 
                 {
-                    msgL.setStyle("-fx-text-fill: white;");
+                    setLabelColor();
                     msgL.setText("Wrong password");
                     System.out.println("wrong");
                 }
-            } else {
-                msgL.setStyle("-fx-text-fill: white;");
+            }
+            else {
+                setLabelColor();
                 msgL.setText("Username not found");
             }
         }
+        else{
+            setLabelColor();            
+            msgL.setText("Please enter your credentials");
+        }
+    }
+    
+    public void setLabelColor()
+    {
+        msgL.setStyle("-fx-text-fill: white;");
     }
     
     public void delayMethod(Runnable method, int delay) //nem szereti ha voidot kap

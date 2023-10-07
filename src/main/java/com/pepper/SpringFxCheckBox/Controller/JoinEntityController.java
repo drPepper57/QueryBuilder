@@ -2,7 +2,7 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.View.TextField;
-import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
+import com.pepper.SpringFxCheckBox.Model.DTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
@@ -18,9 +18,9 @@ import javafx.scene.control.TableView;
 public class JoinEntityController 
 {
     AppControllerChB P;
-    EntityController EC0;
-    EntityController EC1;
-    Model model;
+    private EntityController EC0;
+    private EntityController EC1;
+    private Model model;
     private List<String> selectedColumns0, selectedColumns1;
     private List<String> joinColumnNames0, joinColumnNames1;
     private List<TextField> asTxtListEC0, asTxtListEC1;
@@ -168,7 +168,7 @@ public class JoinEntityController
                 }
                 // Handle unsupported operator or show an error message to the user
                             } catch (NumberFormatException e) {
-                System.out.println("number format exception");
+                System.out.println("number format exception" + e.getMessage());
                 // Handle the case where the user entered a non-numeric value in the textfield
                 // Show an error message to the user, or handle it based on your application's requirements
             }
@@ -220,14 +220,14 @@ public class JoinEntityController
         }
         String query = P.getQueryTxtArea().getText();
         ExecuteQuery eq = new ExecuteQuery();
-        EntityHandler entHand = new EntityHandler(DynamicDTO.class);
+        EntityHandler entHand = new EntityHandler(DTO.class);
         
         List<String> selectedColumns = new ArrayList<>();
         selectedColumns.addAll(selectedColumns0);
         selectedColumns.addAll(selectedColumns1);
         
-        List<DynamicDTO> list = eq.executeQuery(query, DynamicDTO.class, selectedColumns, entHand);
-        dynamicTable = new DynamicTable<>(P.getRoot(), DynamicDTO.class, selectedColumns, entHand);
+        List<DTO> list = eq.executeQuery(query, DTO.class, selectedColumns, entHand);
+        dynamicTable = new DynamicTable<>(P.getRoot(), DTO.class, selectedColumns, entHand);
         dynamicTable.setItems(list);        
     }
     public void deleteTable()

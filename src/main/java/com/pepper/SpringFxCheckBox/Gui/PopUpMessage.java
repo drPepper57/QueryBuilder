@@ -25,10 +25,10 @@ public class PopUpMessage extends Popup
     public PopUpMessage(String message, Pane parent)
     {
         Label msg = new Label(message);
-        msg.setStyle("-fx-background-color: transparent; -fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill:  rgb(90, 90, 105);");
+        msg.setStyle("-fx-background-color: transparent; -fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill:  rgb(50, 50, 75);");
         
         VBox vbox = new VBox();
-        vbox.setStyle("-fx-background-color: transparent; -fx-border-color: rgb(150, 150, 165); -fx-pref-height: 33; -fx-alignment: center;");
+        vbox.setStyle("-fx-background-color: transparent; -fx-border-width: 2px; -fx-border-color: rgb(50, 50, 75); -fx-pref-height: 33; -fx-alignment: center;");
         vbox.getChildren().add(msg);
         
         Scene popupScene = new Scene(vbox, 200, 50);     

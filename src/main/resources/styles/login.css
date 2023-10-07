@@ -7,7 +7,7 @@
 }
 
 #uiContainer{
-    -fx-background-color:  linear-gradient(rgb(70, 70, 90), rgb(120, 120, 135));
+    -fx-background-color:  rgb(70, 70, 90);
     -fx-border-color: rgb(70, 70, 90);
     -fx-border-style: solid hidden solid hidden;
     -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.3) , 15, 0.2 , 2 , 2 );
@@ -17,7 +17,7 @@
 .button {/*linear-gradient(rgb(90, 90, 105), rgb(120, 120, 135));*/
     -fx-font-weight: bold;    
     -fx-padding: 5;
-    -fx-background-color:  linear-gradient(rgb(70, 70, 90), rgb(120, 120, 135));
+    -fx-background-color:  linear-gradient(rgb(70, 70, 95), rgb(120, 120, 140));
     -fx-background-insets: 1.5;    
     -fx-background-radius: 3;
     -fx-text-fill: rgb(250, 250, 250);

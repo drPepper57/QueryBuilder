@@ -2,7 +2,7 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 import com.pepper.SpringFxCheckBox.Gui.ColumnNameContainer;
 import com.pepper.SpringFxCheckBox.View.TextField;
-import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
+import com.pepper.SpringFxCheckBox.Model.DTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.util.ArrayList;
@@ -289,10 +289,10 @@ public class EntityController
         
         String query = P.getQueryTxtArea().getText();
         ExecuteQuery eq = new ExecuteQuery();
-        EntityHandler entHand = new EntityHandler(DynamicDTO.class);
-        List<DynamicDTO> list = eq.executeQuery(query, DynamicDTO.class, selectedColumns, entHand);
+        EntityHandler entHand = new EntityHandler(DTO.class);
+        List<DTO> list = eq.executeQuery(query, DTO.class, selectedColumns, entHand);
 
-        dynamicTable = new DynamicTable<>(P.getRoot(), DynamicDTO.class, selectedColumns, entHand);
+        dynamicTable = new DynamicTable<>(P.getRoot(), DTO.class, selectedColumns, entHand);
         dynamicTable.setItems(list);
         applyFadeInAnimation(dynamicTable);
     }

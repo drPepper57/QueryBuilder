@@ -19,8 +19,8 @@
     -fx-font-weight: bold;
 }
 
-.label{
-    
+Label{
+    -fx-font-weight: 700;
 }
  
 .hbox {    
@@ -186,7 +186,7 @@
     -fx-padding: 2;
 }
 .table-view .virtual-flow .scroll-bar:vertical .thumb{ /* görgő sáv "gomb" háttér szín átmenet */
-    -fx-background-color:  linear-gradient(to bottom, rgb(50, 50, 75), rgb(190, 190, 205));
+    -fx-background-color:  linear-gradient(to bottom, rgb(50, 50, 75), rgb(50, 50, 75));
 }
 .table-view .virtual-flow .scroll-bar:horizontal .thumb {
     -fx-background-color:  linear-gradient(to right,  rgb(10, 10, 25), rgb(190, 190, 205));

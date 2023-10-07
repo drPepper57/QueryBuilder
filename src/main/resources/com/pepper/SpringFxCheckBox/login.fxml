@@ -18,7 +18,7 @@
                <children>
                   <Label text="UserID" textFill="WHITE">
                      <font>
-                        <Font size="14.0" />
+                        <Font name="System Bold" size="14.0" />
                      </font>
                      <padding>
                         <Insets right="26.0" />
@@ -31,7 +31,7 @@
                <children>
                   <Label text="Password" textFill="WHITE">
                      <font>
-                        <Font size="14.0" />
+                        <Font name="System Bold" size="14.0" />
                      </font>
                      <padding>
                         <Insets right="10.0" />

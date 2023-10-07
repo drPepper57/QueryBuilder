@@ -11,7 +11,6 @@
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -35,34 +34,33 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label text="URL: " textFill="WHITE">
+            <Label text="URL: " textFill="WHITE" HBox.hgrow="NEVER">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
             <Separator orientation="VERTICAL" prefHeight="200.0" style="-fx-blend-mode: multiply;" />
-            <TextField fx:id="urlTF" minWidth="170.0" text="jdbc:mysql://localhost:3306" />
+            <TextField fx:id="urlTF" minWidth="150.0" prefWidth="170.0" text="jdbc:mysql://localhost:3306" />
             <Label text="Database: " textFill="WHITE">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
-            <TextField fx:id="databaseTF" text="financial_management" />
+            <TextField fx:id="databaseTF" minWidth="150.0" />
             <Label text="Username" textFill="WHITE">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
-            <TextField fx:id="userTF" text="root" />
+            <TextField fx:id="userTF" minWidth="150.0" />
             <Label text="Password" textFill="WHITE">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
-            <PasswordField fx:id="passwordTF" text="3@5QnK7HrgnWex9" />
+            <PasswordField fx:id="passwordTF" minWidth="150.0" text="3@5QnK7HrgnWex9" />
             <CheckBox fx:id="saveAccChb" mnemonicParsing="false" text="Remember me" textFill="WHITE" />
             <Button mnemonicParsing="false" onAction="#connectToDatabase" text="Connect database" />
-            <Button fx:id="loadtablesBtn" mnemonicParsing="false" onAction="#loadTables" text="Load Tables" />
          </children>
          <padding>
             <Insets left="10.0" />
@@ -138,7 +136,7 @@
       </TextArea>
       <HBox fx:id="clauses" maxHeight="156.0" minHeight="156.0" prefHeight="156.0" prefWidth="900.0" style="-fx-background-color: rgb(120, 120, 140);">
          <children>
-            <VBox fx:id="join" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="150.0">
+            <VBox fx:id="join" alignment="TOP_CENTER" minWidth="85.0" prefHeight="59.0" prefWidth="150.0">
                <children>
                   <ComboBox fx:id="joinCB" prefHeight="25.0" prefWidth="116.0" promptText="Table names">
                      <VBox.margin>
@@ -162,7 +160,7 @@
                   <Insets bottom="2.0" />
                </padding>
             </VBox>
-            <VBox fx:id="join1" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="150.0">
+            <VBox fx:id="join1" alignment="TOP_CENTER" minWidth="50.0" prefHeight="59.0" prefWidth="150.0">
                <children>
                   <Label alignment="TOP_LEFT" contentDisplay="CENTER" text="JOIN" textFill="WHITE">
                      <font>
@@ -183,7 +181,7 @@
                   <Insets bottom="3.0" />
                </padding>
             </VBox>
-            <VBox fx:id="joinWHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="300.0">
+            <VBox fx:id="joinWHERE" alignment="TOP_CENTER" minWidth="240.0" prefHeight="59.0" prefWidth="300.0">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="WHERE" textFill="WHITE">
                      <padding>
@@ -197,12 +195,12 @@
                   </ComboBox>
                   <HBox prefHeight="21.0" prefWidth="120.0">
                      <children>
-                        <CheckBox fx:id="isNullChB1" mnemonicParsing="false" text="Null" textFill="WHITE">
+                        <CheckBox fx:id="isNullChB1" minWidth="-Infinity" mnemonicParsing="false" text="Null" textFill="WHITE">
                            <HBox.margin>
                               <Insets left="2.0" top="6.0" />
                            </HBox.margin>
                         </CheckBox>
-                        <CheckBox fx:id="notNullChB1" mnemonicParsing="false" text="Not null" textFill="WHITE">
+                        <CheckBox fx:id="notNullChB1" minWidth="-Infinity" mnemonicParsing="false" text="Not null" textFill="WHITE">
                            <padding>
                               <Insets left="2.0" />
                            </padding>
@@ -210,12 +208,12 @@
                               <Insets top="6.0" />
                            </HBox.margin>
                         </CheckBox>
-                        <ComboBox fx:id="whereOpCB1" prefHeight="25.0" prefWidth="62.0" promptText="&lt;&gt;">
+                        <ComboBox fx:id="whereOpCB1" prefHeight="25.0" prefWidth="61.0" promptText="&lt;&gt;">
                            <HBox.margin>
                               <Insets left="5.0" top="4.0" />
                            </HBox.margin>
                         </ComboBox>
-                        <TextField fx:id="thanTF1" prefWidth="110.0">
+                        <TextField fx:id="thanTF1" minWidth="60.0" prefHeight="25.0" prefWidth="116.0">
                            <HBox.margin>
                               <Insets left="5.0" top="5.0" />
                            </HBox.margin>
@@ -225,7 +223,7 @@
                         <Insets top="2.0" />
                      </VBox.margin>
                   </HBox>
-                  <TextField fx:id="andOrTF1" prefWidth="116.0">
+                  <TextField fx:id="andOrTF1" minWidth="66.0" prefWidth="116.0">
                      <VBox.margin>
                         <Insets left="1.0" right="1.0" top="9.0" />
                      </VBox.margin>
@@ -247,7 +245,7 @@
                   </HBox>
                </children>
             </VBox>
-            <VBox fx:id="WHERE" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="300.0" style="-fx-left-border-color: black;" styleClass="vbox">
+            <VBox fx:id="WHERE" alignment="TOP_CENTER" minWidth="240.0" prefHeight="59.0" prefWidth="300.0" style="-fx-left-border-color: black;" styleClass="vbox">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="WHERE" textFill="WHITE">
                      <font>
@@ -261,12 +259,12 @@
                   </ComboBox>
                   <HBox alignment="CENTER" prefHeight="21.0" prefWidth="120.0">
                      <children>
-                        <CheckBox fx:id="isNullChB" mnemonicParsing="false" text="Null" textFill="WHITE">
+                        <CheckBox fx:id="isNullChB" minWidth="-Infinity" mnemonicParsing="false" text="Null" textFill="WHITE">
                            <HBox.margin>
                               <Insets left="2.0" top="6.0" />
                            </HBox.margin>
                         </CheckBox>
-                        <CheckBox fx:id="notNullChB" mnemonicParsing="false" text="Not null" textFill="WHITE">
+                        <CheckBox fx:id="notNullChB" minWidth="-Infinity" mnemonicParsing="false" text="Not null" textFill="WHITE">
                            <HBox.margin>
                               <Insets top="6.0" />
                            </HBox.margin>
@@ -274,12 +272,12 @@
                               <Insets left="2.0" />
                            </padding>
                         </CheckBox>
-                        <ComboBox fx:id="whereOpCB" prefHeight="25.0" prefWidth="62.0" promptText="&lt;&gt;">
+                        <ComboBox fx:id="whereOpCB" prefHeight="25.0" prefWidth="61.0" promptText="&lt;&gt;">
                            <HBox.margin>
                               <Insets left="5.0" top="4.0" />
                            </HBox.margin>
                         </ComboBox>
-                        <TextField fx:id="thanTF" prefWidth="110.0">
+                        <TextField fx:id="thanTF" minWidth="60.0" prefWidth="111.0">
                            <HBox.margin>
                               <Insets left="5.0" top="4.0" />
                            </HBox.margin>
@@ -289,7 +287,7 @@
                         <Insets top="2.0" />
                      </VBox.margin>
                   </HBox>
-                  <TextField fx:id="andOrTF" prefWidth="116.0">
+                  <TextField fx:id="andOrTF" minWidth="66.0" prefWidth="116.0">
                      <VBox.margin>
                         <Insets left="1.0" right="1.0" top="9.0" />
                      </VBox.margin>
@@ -311,7 +309,7 @@
                   </HBox>
                </children>
             </VBox>
-            <VBox fx:id="groupBy" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="280.0">
+            <VBox fx:id="groupBy" alignment="TOP_CENTER" minWidth="150.0" prefHeight="59.0" prefWidth="250.0">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="GROUP BY" textFill="WHITE">
                      <font>
@@ -346,47 +344,43 @@
                   </TextField>
                </children>
             </VBox>
-            <VBox fx:id="orderBy" prefWidth="280.0">
+            <VBox fx:id="orderBy" minWidth="150.0" prefWidth="250.0" styleClass="vbox">
                <children>
-                  <AnchorPane prefHeight="200.0" prefWidth="280.0" styleClass="vbox">
+                  <VBox fx:id="orderBy" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="280.0">
                      <children>
-                        <VBox fx:id="orderBy" alignment="TOP_CENTER" prefHeight="59.0" prefWidth="280.0">
+                        <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="ORDER BY" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Label>
+                        <HBox fx:id="orderBcontainer" alignment="CENTER" maxHeight="25.0" minHeight="25.0" prefHeight="25.0" prefWidth="200.0">
                            <children>
-                              <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="ORDER BY" textFill="WHITE">
-                                 <font>
-                                    <Font name="System Bold" size="13.0" />
-                                 </font>
-                              </Label>
-                              <HBox fx:id="orderBcontainer" alignment="CENTER" maxHeight="25.0" minHeight="25.0" prefHeight="25.0" prefWidth="200.0">
-                                 <children>
-                                    <ComboBox fx:id="orderByCB" prefHeight="25.0" prefWidth="116.0" />
-                                 </children>
-                              </HBox>
-                              <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0" spacing="5.0">
-                                 <children>
-                                    <CheckBox fx:id="descChb" mnemonicParsing="false" text="DESC" textFill="WHITE" />
-                                    <Button fx:id="addOrdByBtn" mnemonicParsing="false" onAction="#addOrderByClause" text="Add" />
-                                    <Button mnemonicParsing="false" onAction="#delLastOrderByClause" text="⌫" />
-                                 </children>
-                                 <padding>
-                                    <Insets left="2.0" right="2.0" top="5.0" />
-                                 </padding>
-                                 <VBox.margin>
-                                    <Insets top="2.0" />
-                                 </VBox.margin>
-                              </HBox>
-                              <TextField fx:id="orderByTF" prefHeight="25.0">
-                                 <VBox.margin>
-                                    <Insets left="1.0" right="1.0" top="9.0" />
-                                 </VBox.margin>
-                              </TextField>
+                              <ComboBox fx:id="orderByCB" prefHeight="25.0" prefWidth="116.0" />
                            </children>
-                        </VBox>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0" spacing="5.0">
+                           <children>
+                              <CheckBox fx:id="descChb" mnemonicParsing="false" text="DESC" textFill="WHITE" />
+                              <Button fx:id="addOrdByBtn" mnemonicParsing="false" onAction="#addOrderByClause" text="Add" />
+                              <Button mnemonicParsing="false" onAction="#delLastOrderByClause" text="⌫" />
+                           </children>
+                           <padding>
+                              <Insets left="2.0" right="2.0" top="5.0" />
+                           </padding>
+                           <VBox.margin>
+                              <Insets top="2.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <TextField fx:id="orderByTF" prefHeight="25.0" prefWidth="116.0" VBox.vgrow="ALWAYS">
+                           <VBox.margin>
+                              <Insets left="1.0" right="1.0" top="9.0" />
+                           </VBox.margin>
+                        </TextField>
                      </children>
-                  </AnchorPane>
+                  </VBox>
                </children>
             </VBox>
-            <VBox fx:id="top" alignment="TOP_CENTER" minWidth="70.0" prefHeight="200.0" prefWidth="70.0">
+            <VBox fx:id="top" alignment="TOP_CENTER" minWidth="60.0" prefHeight="200.0" prefWidth="70.0">
                <children>
                   <Label text="LIMIT" textFill="WHITE">
                      <font>
@@ -405,7 +399,7 @@
                   </CheckBox>
                </children>
             </VBox>
-            <VBox fx:id="aggFunct" alignment="TOP_CENTER" prefHeight="104.0" prefWidth="135.0" style="-fx-background-color: lghtgrey;" styleClass="vbox">
+            <VBox fx:id="aggFunct" alignment="TOP_CENTER" minWidth="95.0" prefHeight="104.0" prefWidth="135.0" style="-fx-background-color: lghtgrey;" styleClass="vbox">
                <children>
                   <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="Aggregate functions" textFill="WHITE">
                      <font>

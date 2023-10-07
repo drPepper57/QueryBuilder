@@ -1,6 +1,6 @@
 package com.pepper.SpringFxCheckBox.View;
 
-import com.pepper.SpringFxCheckBox.Model.DynamicDTO;
+import com.pepper.SpringFxCheckBox.Model.DTO;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -22,14 +22,14 @@ public class DynamicTable<T> extends TableView<T>
         this.prefHeightProperty().bind(parent.heightProperty());
         colLabel = entityHandler.getColLabel(); //resultSetből kinyert alias vagyis ColumnLabel
         
-        if(entityClass == DynamicDTO.class)
+        if(entityClass == DTO.class)
         {
             for(String col : colLabel)
             {
                 System.out.println("DynamicT with DTO entered");
                 TableColumn<T, String> column = new TableColumn<>(col);
                 column.setCellValueFactory(cellData -> {                    
-                    Object value = ((DynamicDTO) cellData.getValue()).getProperties().get(col);
+                    Object value = ((DTO) cellData.getValue()).getProperties().get(col);
                     return value != null ? new SimpleStringProperty(value.toString()) : new SimpleStringProperty("");
                 });
                 column.setMinWidth(USE_PREF_SIZE);

@@ -5,8 +5,10 @@ import com.pepper.SpringFxCheckBox.AppCoreChB;
 import com.pepper.SpringFxCheckBox.Gui.MessageBox;
 import com.pepper.SpringFxCheckBox.Gui.PopUpMessage;
 import com.pepper.SpringFxCheckBox.Model.Account;
+import com.pepper.SpringFxCheckBox.Model.DTO;
 import com.pepper.SpringFxCheckBox.Model.Database;
 import com.pepper.SpringFxCheckBox.Model.Model;
+import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -31,11 +33,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.InnerShadow;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import static javafx.scene.paint.Color.rgb;
 import javafx.scene.text.Text;
@@ -62,7 +67,8 @@ public class AppControllerChB implements Initializable
     public String aggregateFunction = new String();
     public String selectedAggName = new String();
     
-    
+    @FXML
+    private AnchorPane tblContainer, fkContainer;
     @FXML
     private Button delBtn1, delBtn, loadBtn;
     @FXML
@@ -176,14 +182,27 @@ public class AppControllerChB implements Initializable
             System.out.println("valamelyik Textfield üres");
         }
     }
+    
     public void loadTables()
     {
         if(connection != null){
         createTableChbs(databaseTF.getText());            
         } else {
             MessageBox.Show("Error", "connection is null");
+        }        
+    }
+    public void loadFK()
+    {
+        if(connection != null)
+        {
+            EntityController selectedEntity = entityControllerList.get(0);
+            String tableName = selectedEntity.getTableName();
+            DTO fk = model.getForeignKeys(tableName);
+            DynamicTable table = new DynamicTable(fkContainer, fk);
         }
-        
+        else {
+            MessageBox.Show("Error", "connection is null");
+        } 
     }
     
     public void createTableChbs(String databaseName) //Table checkBoxok + onAction
@@ -199,7 +218,6 @@ public class AppControllerChB implements Initializable
             Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
         }
         tblChbList = new ArrayList<>();
-
         //szükségem van a ...checkbox indexére amit használhatok EntityControllert választani az entityList-ből
         clearControls(); //inputmezők.clear()
         
@@ -251,16 +269,16 @@ public class AppControllerChB implements Initializable
                 {
                     selectedTables.add(index);
                     System.out.println("selectedtbl.size(); " + selectedTables.size()); 
-                    getSelectedTblCount();
+                    addSelectedTBLindex();
                 } else if( oldValue){
                     selectedTables.remove(Integer.valueOf(index));
                     System.out.println("selectedtbl.size(); " + selectedTables.size()); 
-                    getSelectedTblCount();
+                    addSelectedTBLindex();
                 }
             });
         }
     }
-    public void getSelectedTblCount() // kiderül 1 vagy több és melyik tábla van kiválasztva(egyelőre 2 tábla kiválasztása van csak megoldva
+    public void addSelectedTBLindex() // kiderül 1 vagy több és melyik tábla van kiválasztva(egyelőre 2 tábla kiválasztása van csak megoldva JOIN-hoz
     {
         if(selectedTables.size() == 2){
             updateJoinComboBoxs(selectedTables);
@@ -340,9 +358,9 @@ public class AppControllerChB implements Initializable
         if(selectedTables.size() > 1) //JOIN query build
         {
             System.out.println("Join query building");
-            int index0 = selectedTables.get(0);
-            int index1 = selectedTables.get(1); //le kell kérni a tábla neveket és lepasszolni az JoinEntitynek
-            joinEntController = new JoinEntityController(this, entityControllerList.get(index0), entityControllerList.get(index1));// HAMARABB LÉTRE KELL HOZNI
+            int entityContr0 = selectedTables.get(0);
+            int entityContr1 = selectedTables.get(1); //le kell kérni a tábla neveket és lepasszolni az JoinEntitynek
+            joinEntController = new JoinEntityController(this, entityControllerList.get(entityContr0), entityControllerList.get(entityContr1));// HAMARABB LÉTRE KELL HOZNI
             joinEntController.buildQuery();
         }
         else if(selectedTables.size() <= 1) //solo table query build
@@ -883,6 +901,12 @@ public class AppControllerChB implements Initializable
     public HBox getTableChbContainer() {
         return tableChbContainer;
     }
+
+    public AnchorPane getTblContainer() {
+        return tblContainer;
+    }
+    
+    
     
     
 }

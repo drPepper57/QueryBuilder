@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Model<T>
@@ -30,6 +32,7 @@ public class Model<T>
         }
         return columnNames;
     }
+    
     public List<String> getTableNamesNew(String database) throws SQLException {
         List<String> tableNames = new ArrayList<>();
         AppControllerChB.getConnection();
@@ -43,6 +46,41 @@ public class Model<T>
         
         return tableNames;
     }
+    
+    public DTO getForeignKeys(String tableName)
+    {
+        DTO foreignKeysDTO = new DTO();
+        try
+        {
+            
+            DatabaseMetaData metaData = connection.getMetaData();
+            
+            ResultSet resultSet = metaData.getImportedKeys(connection.getCatalog(), null, tableName);
+            while(resultSet.next())
+            {
+                List<String> fk0 = new ArrayList<>();
+                fk0.add(resultSet.getString("FKCOLUMN_NAME"));
+                System.out.println("fk0" + fk0);
+                foreignKeysDTO.setValue(tableName, fk0);
+                /////
+                      
+                List<String> fk1 = new ArrayList<>();
+                fk1.add(resultSet.getString("PKCOLUMN_NAME")); 
+                System.out.println("fk1 : " + fk1);
+                String referencedTabel = resultSet.getString("PKTABLE_NAME");
+                foreignKeysDTO.setValue(referencedTabel, fk1);
+                
+            }
+            connection.close();
+        }
+        catch (SQLException ex)
+        {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return foreignKeysDTO;
+    }
+    
     /*
     CATALOG: sémákat tartalmazó konténer (adatbázis név paraméter helye). Schema: Az adatbázisséma meghatározza, hogy az adatok hogyan vannak rendezve egy relációs adatbázison belül;
     ez magában foglalja a logikai összefüggéseket, például a táblaneveket, a mezőket, az adattípusokat és az ezen entitások közötti kapcsolatokat.

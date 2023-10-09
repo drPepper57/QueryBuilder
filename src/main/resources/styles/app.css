@@ -1,5 +1,5 @@
 #root{
-    -fx-background-color:  linear-gradient(rgb(70, 70, 90), rgb(100, 100, 115));
+    -fx-background-color:  linear-gradient(rgb(70, 70, 95), rgb(100, 100, 115));
 }
 #queryTxtArea{
     -fx-border-color: rgba(30, 30, 45, 0.2);

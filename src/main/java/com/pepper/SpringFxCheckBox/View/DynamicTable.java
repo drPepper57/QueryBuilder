@@ -5,6 +5,7 @@ import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -15,10 +16,45 @@ public class DynamicTable<T> extends TableView<T>
     private List<String> colLabel = new ArrayList<>();
     int width = 100;
       
+    public DynamicTable(Pane parent, DTO dto)
+    {
+        super();
+        parent.getChildren().add(this);
+        this.setPrefWidth(200);
+        this.setMaxWidth(400);
+        this.setPrefHeight(600);
+        this.prefHeightProperty().bind(parent.heightProperty());
+        
+        for(Map.Entry<String, Object> entry: dto.getProperties().entrySet())
+        {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            List<String> foreignKeys = (List<String>) value;
+            
+            TableColumn<T, String> column = new TableColumn<>(key);
+            //idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+            column.setCellValueFactory(cellData -> 
+            {                
+                Object cellValue = dto.getValue(key); 
+
+                if (cellValue != null) {
+                    return new SimpleStringProperty(cellValue.toString());
+                } else {
+                    return new SimpleStringProperty("");
+                }
+            });
+            
+            column.setMinWidth(USE_PREF_SIZE);
+            getColumns().add(column);
+        }
+    }
+    
     public DynamicTable(Pane parent, Class<T> entityClass, List<String> selectedColumns, EntityHandler<T> entityHandler)
     {
         super();
         parent.getChildren().add(this);
+        this.setPrefWidth(1920);
+        this.setPrefHeight(600);
         this.prefHeightProperty().bind(parent.heightProperty());
         colLabel = entityHandler.getColLabel(); //resultSetből kinyert alias vagyis ColumnLabel
         
@@ -35,7 +71,8 @@ public class DynamicTable<T> extends TableView<T>
                 column.setMinWidth(USE_PREF_SIZE);
                 getColumns().add(column);
             }
-        } else 
+        }
+        else //Java reflection
         {
             Field[] fields = entityClass.getDeclaredFields();
 
@@ -58,10 +95,7 @@ public class DynamicTable<T> extends TableView<T>
                         if(i<colLabel.size()){
                         i++;}
                     }
-
                     
-                    
-
                     TableColumn<T, String> column = new TableColumn<>(header);
                     column.setCellValueFactory(cellData ->
                     {
@@ -123,7 +157,7 @@ public class DynamicTable<T> extends TableView<T>
         this.colLabel = columnAlias;
     }
 }
-/*
+/* első verzió
  public DynamicTable(Pane parent, Class<T> entityClass) 
     {
         super();

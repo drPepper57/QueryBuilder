@@ -3,7 +3,6 @@ package com.pepper.SpringFxCheckBox.Model;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class DTO 
 {
     private Map<String, Object> properties = new HashMap<>();
@@ -22,5 +21,6 @@ public class DTO
     {
         return properties;
     }
-
+    // Amikor foreignKey-ket tárolok és ha egy táblának több fk-e is van az Object List<String>lesz
+    //kérdés hogy rakom azt táblázatba... 
 }

@@ -29,6 +29,7 @@ public class EntityController
     private AppControllerChB P;
     private String tableName;
     private List<String> colNames;
+    
     private final List<String> selectedColumns;    
     private List<TextField> asTxTFList;
     private List<CheckBox> checkBoxes;
@@ -292,7 +293,7 @@ public class EntityController
         EntityHandler entHand = new EntityHandler(DTO.class);
         List<DTO> list = eq.executeQuery(query, DTO.class, selectedColumns, entHand);
 
-        dynamicTable = new DynamicTable<>(P.getRoot(), DTO.class, selectedColumns, entHand);
+        dynamicTable = new DynamicTable<>(P.getTblContainer(), DTO.class, selectedColumns, entHand);
         dynamicTable.setItems(list);
         applyFadeInAnimation(dynamicTable);
     }

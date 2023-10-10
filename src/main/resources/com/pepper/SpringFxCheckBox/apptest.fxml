@@ -426,7 +426,8 @@
       </HBox>
       <HBox fx:id="build" alignment="CENTER_RIGHT" prefHeight="32.0" spacing="10.0" style="-fx-background-color: rgb(120, 120, 140);">
          <children>
-            <Button fx:id="buildBtn1" mnemonicParsing="false" prefHeight="25.0" text="Show foreign keys" />
+            <Button fx:id="buildBtn11" mnemonicParsing="false" prefHeight="25.0" text="Export table" />
+            <Button fx:id="buildBtn1" mnemonicParsing="false" onAction="#loadFK" prefHeight="25.0" text="Show foreign keys" />
             <Button fx:id="buildBtn" mnemonicParsing="false" onAction="#setQueryToTxtArea" prefHeight="25.0" prefWidth="87.0" text="Build query">
                <HBox.margin>
                   <Insets />
@@ -447,10 +448,10 @@
             <content>
                   <SplitPane dividerPositions="0.85">
                      <items>
-                    <AnchorPane fx:id="tblContainer" minHeight="309.0" minWidth="600.0" prefHeight="700.0" prefWidth="1920.0" style="-fx-background-color: rgb(120, 120, 140);" />
+                    <AnchorPane fx:id="tblContainer" minHeight="309.0" minWidth="600.0" prefHeight="700.0" prefWidth="1920.0" style="-fx-background-color: rgb(70,70,95);" />
                         <VBox alignment="TOP_CENTER" prefHeight="571.0" prefWidth="200.0" style="-fx-background-color: rgb(70,70,95);">
                            <children>
-                              <Label text="Table conenctions" textFill="WHITE">
+                              <Label text="Table connections" textFill="WHITE">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -460,6 +461,7 @@
                                     <Font size="14.0" />
                                  </font>
                               </Label>
+                              <VBox fx:id="FKcontainer" prefWidth="200.0" />
                            </children>
                         </VBox>
                      </items>

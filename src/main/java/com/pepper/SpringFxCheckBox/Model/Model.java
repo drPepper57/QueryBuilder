@@ -23,7 +23,8 @@ public class Model<T>
         List<String> columnNames = new ArrayList<>();
         AppControllerChB.getConnection();
         DatabaseMetaData metaData = connection.getMetaData();
-        try (ResultSet columns = metaData.getColumns(null, null, tableName, null)) {
+        try (ResultSet columns = metaData.getColumns(null, null, tableName, null))
+        {
             while (columns.next()) {
                 if(!columnNames.contains(columns.getString("COLUMN_NAME").trim())){
                     columnNames.add(columns.getString("COLUMN_NAME"));
@@ -38,7 +39,8 @@ public class Model<T>
         AppControllerChB.getConnection();
         
         DatabaseMetaData metaData = connection.getMetaData();
-        try (ResultSet tables = metaData.getTables(database, null, null, new String[]{"TABLE"})) {
+        try (ResultSet tables = metaData.getTables(database, null, null, new String[]{"TABLE"}))
+        {
             while (tables.next()) {
                 tableNames.add(tables.getString("TABLE_NAME"));
             }
@@ -47,38 +49,31 @@ public class Model<T>
         return tableNames;
     }
     
-    public DTO getForeignKeys(String tableName)
+    public List<String> getForeignKeys(String tableName)
     {
-        DTO foreignKeysDTO = new DTO();
+        List<String> connectionsList = new ArrayList<>();
         try
         {
-            
+            System.out.println("getForeignKeys method is trying ..");
             DatabaseMetaData metaData = connection.getMetaData();
             
             ResultSet resultSet = metaData.getImportedKeys(connection.getCatalog(), null, tableName);
             while(resultSet.next())
             {
-                List<String> fk0 = new ArrayList<>();
-                fk0.add(resultSet.getString("FKCOLUMN_NAME"));
-                System.out.println("fk0" + fk0);
-                foreignKeysDTO.setValue(tableName, fk0);
-                /////
-                      
-                List<String> fk1 = new ArrayList<>();
-                fk1.add(resultSet.getString("PKCOLUMN_NAME")); 
-                System.out.println("fk1 : " + fk1);
-                String referencedTabel = resultSet.getString("PKTABLE_NAME");
-                foreignKeysDTO.setValue(referencedTabel, fk1);
                 
+                        
+                connectionsList.add(resultSet.getString("FKCOLUMN_NAME"));                
+                connectionsList.add(resultSet.getString("PKTABLE_NAME"));
+                connectionsList.add(resultSet.getString("PKCOLUMN_NAME"));
             }
-            connection.close();
+            
         }
         catch (SQLException ex)
         {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return foreignKeysDTO;
+        return connectionsList;
     }
     
     /*

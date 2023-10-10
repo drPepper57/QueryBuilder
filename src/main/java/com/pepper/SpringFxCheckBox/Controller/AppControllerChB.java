@@ -7,6 +7,7 @@ import com.pepper.SpringFxCheckBox.Gui.PopUpMessage;
 import com.pepper.SpringFxCheckBox.Model.Account;
 import com.pepper.SpringFxCheckBox.Model.DTO;
 import com.pepper.SpringFxCheckBox.Model.Database;
+import com.pepper.SpringFxCheckBox.Model.DisplayFK;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.net.URL;
@@ -33,14 +34,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import static javafx.scene.paint.Color.rgb;
 import javafx.scene.text.Text;
@@ -89,7 +88,7 @@ public class AppControllerChB implements Initializable
     private PasswordField passwordTF;    
     // Table
     @FXML
-    private VBox root, select, select2;
+    private VBox root, select, select2, FKcontainer;
     @FXML                         //oszlop név checkBoxok
     private HBox tableChbContainer, colNameChbContainer, orderBcontainer, select1, clauses, build;
     
@@ -191,19 +190,23 @@ public class AppControllerChB implements Initializable
             MessageBox.Show("Error", "connection is null");
         }        
     }
-    public void loadFK()
+    public void loadFK() //esetleg lehetne a gombhoz egy hint: Select only one table
     {
         if(connection != null)
         {
             EntityController selectedEntity = entityControllerList.get(0);
             String tableName = selectedEntity.getTableName();
-            DTO fk = model.getForeignKeys(tableName);
-            DynamicTable table = new DynamicTable(fkContainer, fk);
+            
+            List<String> fk = model.getForeignKeys(tableName);
+            if(!fk.isEmpty()){
+                DisplayFK displayFK = new DisplayFK(FKcontainer, tableName, fk.get(0), fk.get(1), fk.get(2));
+            }            
         }
         else {
             MessageBox.Show("Error", "connection is null");
         } 
     }
+    
     
     public void createTableChbs(String databaseName) //Table checkBoxok + onAction
     {
@@ -363,7 +366,7 @@ public class AppControllerChB implements Initializable
             joinEntController = new JoinEntityController(this, entityControllerList.get(entityContr0), entityControllerList.get(entityContr1));// HAMARABB LÉTRE KELL HOZNI
             joinEntController.buildQuery();
         }
-        else if(selectedTables.size() <= 1) //solo table query build
+        else if(selectedTables.size() == 1) //solo table query build
         {
             System.out.println("solo table query building");
             for(int i = 0; i < entityControllerList.size(); i++)
@@ -904,6 +907,10 @@ public class AppControllerChB implements Initializable
 
     public AnchorPane getTblContainer() {
         return tblContainer;
+    }
+
+    public VBox getFKcontainer() {
+        return FKcontainer;
     }
     
     

@@ -3,6 +3,7 @@ package com.pepper.SpringFxCheckBox.Controller;
 import com.pepper.SpringFxCheckBox.Gui.ColumnNameContainer;
 import com.pepper.SpringFxCheckBox.View.TextField;
 import com.pepper.SpringFxCheckBox.Model.DTO;
+import com.pepper.SpringFxCheckBox.Model.DisplayFK;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.util.ArrayList;
@@ -311,6 +312,13 @@ public class EntityController
             }
         }
     }
+    
+    public void showFKs()
+    {
+        DisplayFK fks = new DisplayFK(P.getFKcontainer(), query, query, query, query);
+        
+    }
+    
     private void applyFadeOutAnimation(ColumnNameContainer container) {
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), container);
         fadeTransition.setFromValue(1);

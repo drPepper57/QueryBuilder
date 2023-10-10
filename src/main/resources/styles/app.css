@@ -21,6 +21,14 @@
 
 Label{
     -fx-font-weight: 700;
+    -fx-font-fill: white;
+    -fx-font-size: 14;
+    
+}
+.fk {
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+    -fx-font-size: 14;
 }
  
 .hbox {    

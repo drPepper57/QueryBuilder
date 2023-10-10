@@ -190,6 +190,7 @@ public class AppControllerChB implements Initializable
             MessageBox.Show("Error", "connection is null");
         }        
     }
+    
     public void loadFK() //esetleg lehetne a gombhoz egy hint: Select only one table
     {
         if(connection != null)

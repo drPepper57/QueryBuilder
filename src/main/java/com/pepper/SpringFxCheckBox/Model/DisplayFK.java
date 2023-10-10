@@ -44,8 +44,7 @@ public class DisplayFK
         
         getColName = new Label(col1);
         getColName.getStyleClass().add("fk");
-        getColName.setPrefWidth(145);
-        
+        getColName.setPrefWidth(145);        
         
         getFK = new Label(fk1);
         getFK.getStyleClass().add("fk");        

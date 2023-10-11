@@ -27,13 +27,13 @@ public class ExecuteQuery<T>
             entityList = entityHandler.processResultSet(resultSet, selectedColumns);
             connection.close();
            
-        } catch (SQLSyntaxErrorException e) {
-            e.printStackTrace();
+        }
+        catch (SQLSyntaxErrorException e) 
+        {
             MessageBox.Show("Error","SQL syntax error",  e.getMessage()+"\nPlease check your query and try again.", 2);
         }
-        catch (SQLException e) {
-            
-            e.printStackTrace();            
+        catch (SQLException e) 
+        {            
             MessageBox.Show("Error", "SQL error", e.getMessage());
         }
         return entityList;

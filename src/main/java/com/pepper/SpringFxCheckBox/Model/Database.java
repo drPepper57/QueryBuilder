@@ -20,9 +20,7 @@ public class Database
        dataSource.setUrl(fullUrl);
        dataSource.setUsername(username);
        dataSource.setPassword(password);
-       //3@5QnK7HrgnWex9
-
-       dataSource.setMaxTotal(10); // Maximum number of connections in the pool
+       dataSource.setMaxTotal(5); // Maximum number of connections in the pool
        dataSource.setInitialSize(5); // Initial number of connections to be created        
 
        return dataSource;
@@ -37,3 +35,4 @@ public class Database
         dataSource.close();
     }
 }
+//3@5QnK7HrgnWex9

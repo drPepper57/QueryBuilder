@@ -30,7 +30,11 @@ public class Model<T>
                     columnNames.add(columns.getString("COLUMN_NAME"));
                 }
             }
+        } catch (SQLException ex) 
+        {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
+        
         return columnNames;
     }
     
@@ -45,16 +49,27 @@ public class Model<T>
                 tableNames.add(tables.getString("TABLE_NAME"));
             }
         }
+        catch (SQLException ex) 
+        {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
         
         return tableNames;
     }
     
     public List<String> getForeignKeys(String tableName)
     {
+        
         List<String> connectionsList = new ArrayList<>();
         try
         {
             System.out.println("getForeignKeys method is trying ..");
+            if (connection == null || connection.isClosed()) 
+            {
+                System.out.println("Connection is NULL at getForeginKeys");
+            return null;
+            }
+            
             DatabaseMetaData metaData = connection.getMetaData();
             
             ResultSet resultSet = metaData.getImportedKeys(connection.getCatalog(), null, tableName);
@@ -65,16 +80,16 @@ public class Model<T>
                 connectionsList.add(resultSet.getString("FKCOLUMN_NAME"));                
                 connectionsList.add(resultSet.getString("PKTABLE_NAME"));
                 connectionsList.add(resultSet.getString("PKCOLUMN_NAME"));
-            }
-            
+            }            
         }
         catch (SQLException ex)
         {
-            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         
         return connectionsList;
     }
+}
     
     /*
     CATALOG: sémákat tartalmazó konténer (adatbázis név paraméter helye). Schema: Az adatbázisséma meghatározza, hogy az adatok hogyan vannak rendezve egy relációs adatbázison belül;
@@ -89,4 +104,3 @@ public class Model<T>
 
 
     */
-}

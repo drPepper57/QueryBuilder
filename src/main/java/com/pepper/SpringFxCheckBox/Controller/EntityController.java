@@ -313,12 +313,6 @@ public class EntityController
         }
     }
     
-    public void showFKs()
-    {
-        DisplayFK fks = new DisplayFK(P.getFKcontainer(), query, query, query, query);
-        
-    }
-    
     private void applyFadeOutAnimation(ColumnNameContainer container) {
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), container);
         fadeTransition.setFromValue(1);

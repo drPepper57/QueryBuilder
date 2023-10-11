@@ -192,22 +192,27 @@ public class AppControllerChB implements Initializable
     }
     
     public void loadFK() //esetleg lehetne a gombhoz egy hint: Select only one table
-    {
-        
-        if(connection != null)
+    {        
+        try
         {
-            
-            EntityController selectedEntity = entityControllerList.get(0);
-            String tableName = selectedEntity.getTableName();
-            
-            List<String> fk = model.getForeignKeys(tableName);
-            if(!fk.isEmpty()){
-                DisplayFK displayFK = new DisplayFK(FKcontainer, tableName, fk.get(0), fk.get(1), fk.get(2));
-            }            
+            if(connection != null || !connection.isClosed())
+            {
+                
+                EntityController selectedEntity = entityControllerList.get(0);
+                String tableName = selectedEntity.getTableName();
+                
+                List<String> fk = model.getForeignKeys(tableName);
+                if(fk != null && !fk.isEmpty()){            
+                    DisplayFK displayFK = new DisplayFK(FKcontainer, tableName, fk.get(0), fk.get(1), fk.get(2));
+                }
+            }
+            else {
+                MessageBox.Show("Error", "connection is null");
+            }
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
         }
-        else {
-            MessageBox.Show("Error", "connection is null");
-        } 
     }
     
     

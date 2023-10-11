@@ -10,14 +10,20 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public class Model<T>
 {
     private Connection connection;
     
-    public void setConnection(Connection connection)
+    public void setConnection() throws SQLException
     {
-        this.connection = connection;
+        try
+        {
+            this.connection = Database.getConnection();
+        }
+        catch (SQLException ex)
+        {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, "set connection went wrong at Model class", ex);
+        }
     }
     public List<String> getColumnNamesNew(String tableName) throws SQLException {
         List<String> columnNames = new ArrayList<>();
@@ -57,29 +63,44 @@ public class Model<T>
         return tableNames;
     }
     
-    public List<String> getForeignKeys(String tableName)
+    public List<FK> getForeignKeys(String tableName)
     {
+        try 
+        {
+            if (connection == null || connection.isClosed())
+            {
+                System.out.println("Connection is NULL at getForeginKeys");
+                
+            }
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        
         
         List<String> connectionsList = new ArrayList<>();
+        List<FK> fkList = new ArrayList<>();
         try
         {
             System.out.println("getForeignKeys method is trying ..");
-            if (connection == null || connection.isClosed()) 
-            {
-                System.out.println("Connection is NULL at getForeginKeys");
-            return null;
-            }
+            
+            
             
             DatabaseMetaData metaData = connection.getMetaData();
             
             ResultSet resultSet = metaData.getImportedKeys(connection.getCatalog(), null, tableName);
             while(resultSet.next())
             {
+                String rtForeignKey = resultSet.getString("FKCOLUMN_NAME");
+                String referencedTable = resultSet.getString("PKTABLE_NAME");
+                String referencedFK = resultSet.getString("PKCOLUMN_NAME");
                 
-                        
                 connectionsList.add(resultSet.getString("FKCOLUMN_NAME"));                
                 connectionsList.add(resultSet.getString("PKTABLE_NAME"));
                 connectionsList.add(resultSet.getString("PKCOLUMN_NAME"));
+                
+                FK fkConnection = new FK(tableName, rtForeignKey, referencedTable, referencedFK);
+                fkList.add(fkConnection);
             }            
         }
         catch (SQLException ex)
@@ -87,7 +108,7 @@ public class Model<T>
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
         
-        return connectionsList;
+        return fkList;
     }
 }
     

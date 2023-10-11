@@ -9,9 +9,8 @@ public class Database
 {
     private static BasicDataSource dataSource;
     
-    public Database(){
-        
-    }    
+    public Database(){}
+    
     public static BasicDataSource createDataSource(String url, String username, String password, String database) throws SQLException
     {
        dataSource = new BasicDataSource();       
@@ -26,8 +25,12 @@ public class Database
        return dataSource;
     }
      
-     public static Connection getConnection(String url, String username, String password, String database) throws SQLException {
+     public static Connection connectDB(String url, String username, String password, String database) throws SQLException {
         return createDataSource(url, username, password, database).getConnection();
+    }
+     
+    public static Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
     
     public static void closeConnection() throws SQLException

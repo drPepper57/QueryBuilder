@@ -313,6 +313,8 @@ public class EntityController
         }
     }
     
+    
+    
     private void applyFadeOutAnimation(ColumnNameContainer container) {
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), container);
         fadeTransition.setFromValue(1);

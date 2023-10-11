@@ -8,6 +8,7 @@ import com.pepper.SpringFxCheckBox.Model.Account;
 import com.pepper.SpringFxCheckBox.Model.DTO;
 import com.pepper.SpringFxCheckBox.Model.Database;
 import com.pepper.SpringFxCheckBox.Model.DisplayFK;
+import com.pepper.SpringFxCheckBox.Model.FK;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.net.URL;
@@ -130,7 +131,7 @@ public class AppControllerChB implements Initializable
         try
         {
             if(connection == null || connection.isClosed()){
-                connection = Database.getConnection(url, user, password, databaseName);
+                connection = Database.connectDB(url, user, password, databaseName);
             }
             if(connection != null){
                 System.out.println("AppController, getConnection triggered, connection NOT NULL ");
@@ -167,12 +168,15 @@ public class AppControllerChB implements Initializable
             }
             
             try{
-                connection = Database.getConnection(url, user, password, databaseName);
-                model.setConnection(connection);
+                Database.createDataSource(url, user, password, databaseName);
+                connection = Database.getConnection();
+                model.setConnection();
                 if(connection != null){
                      PopUpMessage msg = new PopUpMessage("Database connected", root);
                      loadTables();
-                }                    
+                } else {
+                    PopUpMessage msg = new PopUpMessage("Database not connected", root);
+                }                   
             }
             catch (SQLException e){
                 MessageBox.Show("Error", e.getMessage());
@@ -201,9 +205,16 @@ public class AppControllerChB implements Initializable
                 EntityController selectedEntity = entityControllerList.get(0);
                 String tableName = selectedEntity.getTableName();
                 
-                List<String> fk = model.getForeignKeys(tableName);
-                if(fk != null && !fk.isEmpty()){            
-                    DisplayFK displayFK = new DisplayFK(FKcontainer, tableName, fk.get(0), fk.get(1), fk.get(2));
+                List<FK> fkList = model.getForeignKeys(tableName);
+                if(fkList != null && !fkList.isEmpty())
+                {   
+                    FKcontainer.getChildren().clear();
+                    for(FK fk : fkList)
+                    {
+                        
+                        DisplayFK displayFK = new DisplayFK(FKcontainer, fk.getRequestedTable(), fk.getReferencedFK(), fk.getReferencedTable(), fk.getReferencedFK());
+                    }
+                    //DisplayFK displayFK = new DisplayFK(FKcontainer, tableName, fk.get(0), fk.get(1), fk.get(2));
                 }
             }
             else {

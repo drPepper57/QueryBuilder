@@ -226,7 +226,7 @@ public class JoinEntityController
         selectedColumns.addAll(selectedColumns1);
         
         List<DTO> list = eq.executeQuery(query, DTO.class, selectedColumns, entHand);
-        dynamicTable = new DynamicTable<>(P.getRoot(), DTO.class, selectedColumns, entHand);
+        dynamicTable = new DynamicTable<>(P.getTblContainer(), DTO.class, selectedColumns, entHand);
         dynamicTable.setItems(list);        
     }
     public void deleteTable()

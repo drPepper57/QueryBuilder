@@ -193,8 +193,10 @@ public class AppControllerChB implements Initializable
     
     public void loadFK() //esetleg lehetne a gombhoz egy hint: Select only one table
     {
+        
         if(connection != null)
         {
+            
             EntityController selectedEntity = entityControllerList.get(0);
             String tableName = selectedEntity.getTableName();
             

@@ -62,7 +62,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <PasswordField fx:id="passwordTF" minWidth="150.0" text="3@5QnK7HrgnWex9" />
+            <PasswordField fx:id="passwordTF" minWidth="150.0" />
             <CheckBox fx:id="saveAccChb" mnemonicParsing="false" text="Remember me" textFill="WHITE" />
             <Button mnemonicParsing="false" onAction="#connectToDatabase" text="Connect database" />
          </children>
@@ -449,7 +449,7 @@
                   <SplitPane dividerPositions="0.85">
                      <items>
                     <AnchorPane fx:id="tblContainer" minHeight="309.0" minWidth="600.0" prefHeight="700.0" prefWidth="1920.0" style="-fx-background-color: rgb(70,70,95);" />
-                        <VBox alignment="TOP_CENTER" prefHeight="571.0" prefWidth="200.0" style="-fx-background-color: rgb(70,70,95);">
+                        <VBox alignment="TOP_CENTER" minWidth="150.0" prefHeight="571.0" prefWidth="200.0" style="-fx-background-color: rgb(70,70,95);">
                            <children>
                               <Label text="Table connections" textFill="WHITE">
                                  <font>

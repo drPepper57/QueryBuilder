@@ -2,6 +2,7 @@ package com.pepper.SpringFxCheckBox.Controller;
 
 
 import com.pepper.SpringFxCheckBox.Gui.MessageBox;
+import com.pepper.SpringFxCheckBox.Model.Database;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,7 +20,7 @@ public class ExecuteQuery<T>
     {
         List<T> entityList = new ArrayList<>();
         
-        try (Connection connection = AppControllerChB.getConnection();
+        try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(query);
              ResultSet resultSet = statement.executeQuery())
         {

@@ -59,7 +59,8 @@ public class AppControllerChB implements Initializable
     private Scene scene;    
     private List<EntityController> entityControllerList;
     private List<String> selectedAggrFunct, selectedAggrNameList, tableNames;
-    private List<Integer> selectedTables;   
+    private List<Integer> selectedTableIndexs;   
+    private List<String> selectedTableNames;
     private List<CheckBox> tblChbList;
     private List<List<String>> colNameListList;
     private Map<String, String> aggregateMap = new HashMap<>();
@@ -102,7 +103,8 @@ public class AppControllerChB implements Initializable
         model = new Model(); //AppCoreChB.getContext().getBean(Model.class);
         database = new Database();        
         entityControllerList = new ArrayList<>();
-        selectedTables = new ArrayList<>();
+        selectedTableIndexs = new ArrayList<>();
+        selectedTableNames = new ArrayList<>();
         colNameListList = new ArrayList<>();
         setupUI();
         loadAcc();
@@ -126,7 +128,7 @@ public class AppControllerChB implements Initializable
         }
         
     }
-    public static Connection getConnection()
+   /* public static Connection getConnection()
     {
         try
         {
@@ -141,11 +143,11 @@ public class AppControllerChB implements Initializable
             Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
         }
         return connection;
-    }
+    }*/
     public void connectToDatabase() throws SQLException
     {
         System.out.println("connectToDatabase triggered");
-        selectedTables.clear();
+        selectedTableIndexs.clear();
         if(connection != null){
            Database.closeConnection();
         }
@@ -212,9 +214,8 @@ public class AppControllerChB implements Initializable
                     for(FK fk : fkList)
                     {
                         
-                        DisplayFK displayFK = new DisplayFK(FKcontainer, fk.getRequestedTable(), fk.getReferencedFK(), fk.getReferencedTable(), fk.getReferencedFK());
+                        DisplayFK displayFK = new DisplayFK(FKcontainer, fk.getRequestedTable(), fk.getRtForeignKey(), fk.getReferencedTable(), fk.getReferencedFK());
                     }
-                    //DisplayFK displayFK = new DisplayFK(FKcontainer, tableName, fk.get(0), fk.get(1), fk.get(2));
                 }
             }
             else {
@@ -289,12 +290,13 @@ public class AppControllerChB implements Initializable
             {
                 if(newValue)
                 {
-                    selectedTables.add(index);
-                    System.out.println("selectedtbl.size(); " + selectedTables.size()); 
+                    System.out.println("tblChbList.get(i).getText() " );
+                    selectedTableIndexs.add(index);
+                    System.out.println("selectedtbl.size(); " + selectedTableIndexs.size()); 
                     addSelectedTBLindex();
                 } else if( oldValue){
-                    selectedTables.remove(Integer.valueOf(index));
-                    System.out.println("selectedtbl.size(); " + selectedTables.size()); 
+                    selectedTableIndexs.remove(Integer.valueOf(index));
+                    System.out.println("selectedtbl.size(); " + selectedTableIndexs.size()); 
                     addSelectedTBLindex();
                 }
             });
@@ -302,9 +304,9 @@ public class AppControllerChB implements Initializable
     }
     public void addSelectedTBLindex() // kiderül 1 vagy több és melyik tábla van kiválasztva(egyelőre 2 tábla kiválasztása van csak megoldva JOIN-hoz
     {
-        if(selectedTables.size() == 2){
-            updateJoinComboBoxs(selectedTables);
-            System.out.println("getSelectedTblCount() :" + selectedTables.size());
+        if(selectedTableIndexs.size() == 2){
+            updateJoinComboBoxs(selectedTableIndexs);
+            System.out.println("getSelectedTblCount() :" + selectedTableIndexs.size());
         }
     }
     private void updateJoinComboBoxs(List<Integer> selectedtbl)
@@ -376,16 +378,16 @@ public class AppControllerChB implements Initializable
                        3. Egy vagy két tábla van kiválasztva ?
         Tábla chb-ok listája: tblChbList
         */
-        System.out.println("selectedTables.size() at setQueryToTxtArea: " + selectedTables.size());
-        if(selectedTables.size() > 1) //JOIN query build
+        System.out.println("selectedTables.size() at setQueryToTxtArea: " + selectedTableIndexs.size());
+        if(selectedTableIndexs.size() > 1) //JOIN query build
         {
             System.out.println("Join query building");
-            int entityContr0 = selectedTables.get(0);
-            int entityContr1 = selectedTables.get(1); //le kell kérni a tábla neveket és lepasszolni az JoinEntitynek
+            int entityContr0 = selectedTableIndexs.get(0);
+            int entityContr1 = selectedTableIndexs.get(1); //le kell kérni a tábla neveket és lepasszolni az JoinEntitynek
             joinEntController = new JoinEntityController(this, entityControllerList.get(entityContr0), entityControllerList.get(entityContr1));// HAMARABB LÉTRE KELL HOZNI
             joinEntController.buildQuery();
         }
-        else if(selectedTables.size() == 1) //solo table query build
+        else if(selectedTableIndexs.size() == 1) //solo table query build
         {
             System.out.println("solo table query building");
             for(int i = 0; i < entityControllerList.size(); i++)
@@ -398,7 +400,7 @@ public class AppControllerChB implements Initializable
     }
     public void expectoQuery()
     {
-        if(selectedTables.size() > 1) //JOIN QUERY
+        if(selectedTableIndexs.size() > 1) //JOIN QUERY
         {
             joinEntController.expectoResult();
         }

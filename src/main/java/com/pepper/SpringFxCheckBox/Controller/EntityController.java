@@ -55,7 +55,7 @@ public class EntityController
     public void createColumnChb( String tableName, int index)
     {
         System.out.println("EntityController createColumn checkboxes");
-        AppControllerChB.getConnection();
+        //AppControllerChB.getConnection();
         this.tableName = tableName;
         tableIndex = index;
         

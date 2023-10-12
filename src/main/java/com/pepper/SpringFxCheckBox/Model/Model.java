@@ -27,7 +27,7 @@ public class Model<T>
     }
     public List<String> getColumnNamesNew(String tableName) throws SQLException {
         List<String> columnNames = new ArrayList<>();
-        AppControllerChB.getConnection();
+        
         DatabaseMetaData metaData = connection.getMetaData();
         try (ResultSet columns = metaData.getColumns(null, null, tableName, null))
         {
@@ -46,7 +46,7 @@ public class Model<T>
     
     public List<String> getTableNamesNew(String database) throws SQLException {
         List<String> tableNames = new ArrayList<>();
-        AppControllerChB.getConnection();
+        
         
         DatabaseMetaData metaData = connection.getMetaData();
         try (ResultSet tables = metaData.getTables(database, null, null, new String[]{"TABLE"}))
@@ -83,8 +83,6 @@ public class Model<T>
         try
         {
             System.out.println("getForeignKeys method is trying ..");
-            
-            
             
             DatabaseMetaData metaData = connection.getMetaData();
             

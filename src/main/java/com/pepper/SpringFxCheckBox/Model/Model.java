@@ -69,7 +69,7 @@ public class Model<T>
         {
             if (connection == null || connection.isClosed())
             {
-                System.out.println("Connection is NULL at getForeginKeys");
+                System.out.println("Connection IS NULL at getForeginKeys");
                 
             }
         } catch (SQLException ex)
@@ -82,24 +82,30 @@ public class Model<T>
         List<FK> fkList = new ArrayList<>();
         try
         {
-            System.out.println("getForeignKeys method is trying ..");
-            
-            DatabaseMetaData metaData = connection.getMetaData();
-            
-            ResultSet resultSet = metaData.getImportedKeys(connection.getCatalog(), null, tableName);
-            while(resultSet.next())
+            if (connection != null || !connection.isClosed())
             {
-                String rtForeignKey = resultSet.getString("FKCOLUMN_NAME");
-                String referencedTable = resultSet.getString("PKTABLE_NAME");
-                String referencedFK = resultSet.getString("PKCOLUMN_NAME");
                 
-                connectionsList.add(resultSet.getString("FKCOLUMN_NAME"));                
-                connectionsList.add(resultSet.getString("PKTABLE_NAME"));
-                connectionsList.add(resultSet.getString("PKCOLUMN_NAME"));
-                
-                FK fkConnection = new FK(tableName, rtForeignKey, referencedTable, referencedFK);
-                fkList.add(fkConnection);
-            }            
+                System.out.println("getForeignKeys connection not null ..");
+
+                DatabaseMetaData metaData = connection.getMetaData();
+
+                ResultSet resultSet = metaData.getImportedKeys(connection.getCatalog(), null, tableName);
+                while(resultSet.next())
+                {
+                    String rtForeignKey = resultSet.getString("FKCOLUMN_NAME");
+                    String referencedTable = resultSet.getString("PKTABLE_NAME");
+                    String referencedFK = resultSet.getString("PKCOLUMN_NAME");
+
+                    connectionsList.add(resultSet.getString("FKCOLUMN_NAME"));                
+                    connectionsList.add(resultSet.getString("PKTABLE_NAME"));
+                    connectionsList.add(resultSet.getString("PKCOLUMN_NAME"));
+
+                    FK fkConnection = new FK(tableName, rtForeignKey, referencedTable, referencedFK);
+                    fkList.add(fkConnection);
+                }  
+            }
+            
+            
         }
         catch (SQLException ex)
         {

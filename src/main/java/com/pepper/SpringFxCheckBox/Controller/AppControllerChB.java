@@ -203,18 +203,21 @@ public class AppControllerChB implements Initializable
         {
             if(connection != null || !connection.isClosed())
             {
-                
-                EntityController selectedEntity = entityControllerList.get(0);
-                String tableName = selectedEntity.getTableName();
-                
-                List<FK> fkList = model.getForeignKeys(tableName);
-                if(fkList != null && !fkList.isEmpty())
-                {   
-                    FKcontainer.getChildren().clear();
-                    for(FK fk : fkList)
+                for(CheckBox chb: tblChbList)
+                {
+                    if(chb.isSelected())
                     {
-                        
-                        DisplayFK displayFK = new DisplayFK(FKcontainer, fk.getRequestedTable(), fk.getRtForeignKey(), fk.getReferencedTable(), fk.getReferencedFK());
+                        String tblName = chb.getText();
+                        List<FK> fkList = model.getForeignKeys(tblName);
+                        if(fkList != null && !fkList.isEmpty())
+                        {   
+                            FKcontainer.getChildren().clear();
+                            for(FK fk : fkList)
+                            {
+
+                                DisplayFK displayFK = new DisplayFK(FKcontainer, fk.getRequestedTable(), fk.getRtForeignKey(), fk.getReferencedTable(), fk.getReferencedFK());
+                            }
+                        }  
                     }
                 }
             }

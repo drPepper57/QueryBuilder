@@ -1,1 +1,1 @@
-root;jdbc:mysql://localhost:3306;financial_management;root
+root;jdbc:mysql://localhost:3306;database_first;root

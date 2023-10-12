@@ -1,4 +1,4 @@
-package com.pepper.SpringFxCheckBox.Model;
+package com.pepper.SpringFxCheckBox.View;
 
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
@@ -30,14 +30,14 @@ public class DisplayFK
         getBox.setAlignment(Pos.CENTER_LEFT);
         getBox.setStyle("-fx-border-color: rgb(140,140,155);");
         getBox.setPrefWidth(145);
-        getBox.setMaxWidth(Region.USE_COMPUTED_SIZE);
+        getBox.setMaxWidth(Region.BASELINE_OFFSET_SAME_AS_HEIGHT);
         
         
         gotBox = new VBox();        
         gotBox.setAlignment(Pos.CENTER_RIGHT);
         gotBox.setStyle("-fx-border-color: rgb(140,140,155); -fx-border-style: solid solid solid hidden;");
         gotBox.setPrefWidth(145);
-        gotBox.setMaxWidth(Region.USE_COMPUTED_SIZE);
+        gotBox.setMaxWidth(Region.BASELINE_OFFSET_SAME_AS_HEIGHT);
         
         box.setMargin(getBox, new Insets(0, 0, 0,3));
         box.setMargin(gotBox, new Insets(0, 3, 0,0));

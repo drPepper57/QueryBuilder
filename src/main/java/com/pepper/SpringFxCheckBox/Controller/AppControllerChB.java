@@ -7,7 +7,7 @@ import com.pepper.SpringFxCheckBox.Gui.PopUpMessage;
 import com.pepper.SpringFxCheckBox.Model.Account;
 import com.pepper.SpringFxCheckBox.Model.DTO;
 import com.pepper.SpringFxCheckBox.Model.Database;
-import com.pepper.SpringFxCheckBox.Model.DisplayFK;
+import com.pepper.SpringFxCheckBox.View.DisplayFK;
 import com.pepper.SpringFxCheckBox.Model.FK;
 import com.pepper.SpringFxCheckBox.Model.Model;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
@@ -128,22 +128,8 @@ public class AppControllerChB implements Initializable
         }
         
     }
-   /* public static Connection getConnection()
-    {
-        try
-        {
-            if(connection == null || connection.isClosed()){
-                connection = Database.connectDB(url, user, password, databaseName);
-            }
-            if(connection != null){
-                System.out.println("AppController, getConnection triggered, connection NOT NULL ");
-            }
-        } catch (SQLException ex)
-        {
-            Logger.getLogger(AppControllerChB.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return connection;
-    }*/
+   
+    
     public void connectToDatabase() throws SQLException
     {
         System.out.println("connectToDatabase triggered");

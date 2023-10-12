@@ -3,7 +3,7 @@ package com.pepper.SpringFxCheckBox.Controller;
 import com.pepper.SpringFxCheckBox.Gui.ColumnNameContainer;
 import com.pepper.SpringFxCheckBox.View.TextField;
 import com.pepper.SpringFxCheckBox.Model.DTO;
-import com.pepper.SpringFxCheckBox.Model.DisplayFK;
+import com.pepper.SpringFxCheckBox.View.DisplayFK;
 import com.pepper.SpringFxCheckBox.Model.EntityHandler;
 import com.pepper.SpringFxCheckBox.View.DynamicTable;
 import java.util.ArrayList;

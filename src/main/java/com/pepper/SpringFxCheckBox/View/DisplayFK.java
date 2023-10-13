@@ -24,7 +24,7 @@ public class DisplayFK
         
         box = new HBox();
         box.setMaxWidth(Region.USE_PREF_SIZE);
-        HBox.setMargin(box, new Insets(5, 0, 0,0));
+        HBox.setMargin(box, new Insets(8, 0, 0,0));
         
         getBox = new VBox();
         getBox.setAlignment(Pos.CENTER_LEFT);
@@ -44,22 +44,19 @@ public class DisplayFK
         
         getColName = new Label(col1);
         getColName.getStyleClass().add("fk");
-        getColName.setPrefWidth(145);        
+        getColName.getStyleClass().add("fkTable");
         
         getFK = new Label(fk1);
-        getFK.getStyleClass().add("fk");        
-        getFK.setPrefWidth(145);
-        getFK.setStyle("-fx-border-color: rgb(140,140,155); -fx-border-style: solid hidden hidden hidden;");
+        getFK.getStyleClass().add("fk");
+        
         
         gotColName = new Label(col2);
         gotColName.getStyleClass().add("fk");
-        gotColName.setPrefWidth(145);
+        gotColName.getStyleClass().add("fkTable");
         gotColName.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         
         gotFK = new Label(fk2);
-        gotFK.getStyleClass().add("fk");
-        gotFK.setPrefWidth(145);
-        gotFK.setStyle("-fx-border-color: rgb(140,140,155); -fx-border-style: solid hidden hidden hidden;");
+        gotFK.getStyleClass().add("fk");        
         gotFK.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         
         getBox.getChildren().addAll(getColName, getFK);

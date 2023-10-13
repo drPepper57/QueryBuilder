@@ -11,11 +11,11 @@
 
 
 .nfo {
-    fx-text-fill: black;
+    -fx-text-fill: black;
 }
 
 .label.hover {
-    -fx-text-fill: rgb(70, 70, 90);
+    -fx-text-fill: white;
     -fx-font-weight: bold;
 }
 
@@ -29,6 +29,12 @@ Label{
     -fx-font-weight: 700;
     -fx-text-fill: white;
     -fx-font-size: 14;
+    -fx-pref-width: 170;
+    -fx-border-color: rgb(140,140,155);
+    -fx-border-style: solid hidden hidden hidden;
+}
+.fkTable {
+    -fx-background-color: rgb(50,50,65);
 }
  
 .hbox {    
